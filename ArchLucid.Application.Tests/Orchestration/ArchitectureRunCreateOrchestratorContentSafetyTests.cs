@@ -34,13 +34,12 @@ public sealed class ArchitectureRunCreateOrchestratorContentSafetyTests
         Mock<IArchitectureRunAuthorityCoordination> coordination = new();
         Mock<IBaselineMutationAuditService> baselineAudit = new();
         baselineAudit
-            .Setup(
-                b => b.RecordAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string?>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(b => b.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Mock<IActorContext> actorContext = new();
@@ -84,9 +83,8 @@ public sealed class ArchitectureRunCreateOrchestratorContentSafetyTests
                 "safety-test-actor",
                 "req-unsafe",
                 // CS8122: Moq It.Is compiles to an expression tree; use != null instead of `is not null`.
-                It.Is<string>(
-                    s =>
-                        s.StartsWith("Request content failed safety precheck:", StringComparison.Ordinal)),
+                It.Is<string>(s =>
+                    s.StartsWith("Request content failed safety precheck:", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
 

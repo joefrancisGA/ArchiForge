@@ -98,11 +98,10 @@ public sealed class MarketingPricingQuoteSalesNotifierTests
 
         email.Verify(
             x => x.SendAsync(
-                It.Is<EmailMessage>(
-                    m =>
-                        m.To == "sales@archlucid.net" &&
-                        m.Subject.Contains("pricing quote", StringComparison.OrdinalIgnoreCase) &&
-                        m.IdempotencyKey.Contains("marketing-pricing-quote", StringComparison.Ordinal)),
+                It.Is<EmailMessage>(m =>
+                    m.To == "sales@archlucid.net" &&
+                    m.Subject.Contains("pricing quote", StringComparison.OrdinalIgnoreCase) &&
+                    m.IdempotencyKey.Contains("marketing-pricing-quote", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

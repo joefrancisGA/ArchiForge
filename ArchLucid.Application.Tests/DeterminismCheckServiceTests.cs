@@ -25,11 +25,7 @@ public sealed class DeterminismCheckServiceTests
 
         DeterminismCheckService sut = new(replay.Object, agentDiff.Object, manifestDiff.Object);
 
-        DeterminismCheckRequest request = new()
-        {
-            RunId = "r1",
-            Iterations = 1
-        };
+        DeterminismCheckRequest request = new() { RunId = "r1", Iterations = 1 };
 
         Func<Task> act = async () => await sut.RunAsync(request, CancellationToken.None);
 
@@ -54,26 +50,17 @@ public sealed class DeterminismCheckServiceTests
 
         ReplayRunResult baseline = new()
         {
-            OriginalRunId = "src",
-            ReplayRunId = "base",
-            ExecutionMode = ExecutionModes.Current,
-            Results = results,
+            OriginalRunId = "src", ReplayRunId = "base", ExecutionMode = ExecutionModes.Current, Results = results,
         };
 
         ReplayRunResult iteration1 = new()
         {
-            OriginalRunId = "src",
-            ReplayRunId = "iter1",
-            ExecutionMode = ExecutionModes.Current,
-            Results = results,
+            OriginalRunId = "src", ReplayRunId = "iter1", ExecutionMode = ExecutionModes.Current, Results = results,
         };
 
         ReplayRunResult iteration2 = new()
         {
-            OriginalRunId = "src",
-            ReplayRunId = "iter2",
-            ExecutionMode = ExecutionModes.Current,
-            Results = results,
+            OriginalRunId = "src", ReplayRunId = "iter2", ExecutionMode = ExecutionModes.Current, Results = results,
         };
 
         int replayCall = 0;
@@ -84,20 +71,19 @@ public sealed class DeterminismCheckServiceTests
                 It.IsAny<bool>(),
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
-            .Returns(
-                () =>
+            .Returns(() =>
+            {
+                replayCall++;
+                ReplayRunResult next = replayCall switch
                 {
-                    replayCall++;
-                    ReplayRunResult next = replayCall switch
-                    {
-                        1 => baseline,
-                        2 => iteration1,
-                        3 => iteration2,
-                        _ => throw new InvalidOperationException($"Unexpected ReplayAsync call #{replayCall}."),
-                    };
+                    1 => baseline,
+                    2 => iteration1,
+                    3 => iteration2,
+                    _ => throw new InvalidOperationException($"Unexpected ReplayAsync call #{replayCall}."),
+                };
 
-                    return Task.FromResult(next);
-                });
+                return Task.FromResult(next);
+            });
 
         Mock<IAgentResultDiffService> agentDiff = new();
         agentDiff
@@ -107,12 +93,7 @@ public sealed class DeterminismCheckServiceTests
                 It.IsAny<string>(),
                 It.IsAny<IReadOnlyCollection<AgentResult>>()))
             .Returns(
-                new AgentResultDiffResult
-                {
-                    LeftRunId = "base",
-                    RightRunId = "iter1",
-                    AgentDeltas = [],
-                });
+                new AgentResultDiffResult { LeftRunId = "base", RightRunId = "iter1", AgentDeltas = [], });
 
         Mock<IManifestDiffService> manifestDiff = new();
 
@@ -121,10 +102,7 @@ public sealed class DeterminismCheckServiceTests
         DeterminismCheckResult output = await sut.RunAsync(
             new DeterminismCheckRequest
             {
-                RunId = "src",
-                Iterations = 2,
-                ExecutionMode = ExecutionModes.Current,
-                CommitReplays = false,
+                RunId = "src", Iterations = 2, ExecutionMode = ExecutionModes.Current, CommitReplays = false,
             },
             CancellationToken.None);
 
@@ -166,26 +144,17 @@ public sealed class DeterminismCheckServiceTests
 
         ReplayRunResult baseline = new()
         {
-            OriginalRunId = "src",
-            ReplayRunId = "base",
-            ExecutionMode = ExecutionModes.Current,
-            Results = baselineResults,
+            OriginalRunId = "src", ReplayRunId = "base", ExecutionMode = ExecutionModes.Current, Results = baselineResults,
         };
 
         ReplayRunResult iteration1 = new()
         {
-            OriginalRunId = "src",
-            ReplayRunId = "iter1",
-            ExecutionMode = ExecutionModes.Current,
-            Results = driftResults,
+            OriginalRunId = "src", ReplayRunId = "iter1", ExecutionMode = ExecutionModes.Current, Results = driftResults,
         };
 
         ReplayRunResult iteration2 = new()
         {
-            OriginalRunId = "src",
-            ReplayRunId = "iter2",
-            ExecutionMode = ExecutionModes.Current,
-            Results = driftResults,
+            OriginalRunId = "src", ReplayRunId = "iter2", ExecutionMode = ExecutionModes.Current, Results = driftResults,
         };
 
         int replayCall = 0;
@@ -196,20 +165,19 @@ public sealed class DeterminismCheckServiceTests
                 It.IsAny<bool>(),
                 It.IsAny<string?>(),
                 It.IsAny<CancellationToken>()))
-            .Returns(
-                () =>
+            .Returns(() =>
+            {
+                replayCall++;
+                ReplayRunResult next = replayCall switch
                 {
-                    replayCall++;
-                    ReplayRunResult next = replayCall switch
-                    {
-                        1 => baseline,
-                        2 => iteration1,
-                        3 => iteration2,
-                        _ => throw new InvalidOperationException($"Unexpected ReplayAsync call #{replayCall}."),
-                    };
+                    1 => baseline,
+                    2 => iteration1,
+                    3 => iteration2,
+                    _ => throw new InvalidOperationException($"Unexpected ReplayAsync call #{replayCall}."),
+                };
 
-                    return Task.FromResult(next);
-                });
+                return Task.FromResult(next);
+            });
 
         Mock<IAgentResultDiffService> agentDiff = new();
         agentDiff
@@ -223,11 +191,7 @@ public sealed class DeterminismCheckServiceTests
                 {
                     AgentDeltas =
                     [
-                        new AgentResultDelta
-                        {
-                            AgentType = AgentType.Topology,
-                            AddedClaims = ["new-claim"],
-                        },
+                        new AgentResultDelta { AgentType = AgentType.Topology, AddedClaims = ["new-claim"], },
                     ],
                 });
 

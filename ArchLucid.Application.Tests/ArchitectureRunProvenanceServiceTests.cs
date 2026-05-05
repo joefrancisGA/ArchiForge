@@ -78,9 +78,7 @@ public sealed class ArchitectureRunProvenanceServiceTests
                 SystemName = "S",
                 Metadata = new ManifestMetadata
                 {
-                    ManifestVersion = "v1-run1",
-                    CreatedUtc = new DateTime(2026, 1, 1, 3, 0, 0, DateTimeKind.Utc),
-                    DecisionTraceIds = ["tr1"]
+                    ManifestVersion = "v1-run1", CreatedUtc = new DateTime(2026, 1, 1, 3, 0, 0, DateTimeKind.Utc), DecisionTraceIds = ["tr1"]
                 }
             },
             DecisionTraces =
@@ -103,13 +101,7 @@ public sealed class ArchitectureRunProvenanceServiceTests
         Mock<IArchitectureRequestRepository> requests = new();
         requests.Setup(r => r.GetByIdAsync(requestId, CancellationToken.None))
             .ReturnsAsync(
-                new Contracts.Requests.ArchitectureRequest
-                {
-                    RequestId = requestId,
-                    SystemName = "Sys",
-                    Environment = "prod",
-                    Description = "12345678901"
-                });
+                new Contracts.Requests.ArchitectureRequest { RequestId = requestId, SystemName = "Sys", Environment = "prod", Description = "12345678901" });
 
         Mock<IEvidenceBundleRepository> bundles = new();
         bundles.Setup(b => b.GetByIdAsync("eb1", CancellationToken.None))

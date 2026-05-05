@@ -1,7 +1,9 @@
 extensions:
   # Return value of LogSanitizer.Sanitize is a log-injection barrier (matches LogForgingQuery ExternalLogForgingSanitizer).
+  # Second row: cs/exposure-of-sensitive-information uses ExternalLocationSanitizer (barrier kind file-content-store).
   - addsTo:
       pack: codeql/csharp-all
       extensible: barrierModel
     data:
       - ["ArchLucid.Core.Diagnostics", "LogSanitizer", false, "Sanitize", "(System.String)", "", "ReturnValue", "log-injection", "manual"]
+      - ["ArchLucid.Core.Diagnostics", "LogSanitizer", false, "Sanitize", "(System.String)", "", "ReturnValue", "file-content-store", "manual"]

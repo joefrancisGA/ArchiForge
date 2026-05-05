@@ -1,0 +1,24 @@
+{
+  "requestId": "REF-TPL-DATA-PIPELINE-BATCH-001",
+  "systemName": "LakehouseIngestionPipeline",
+  "description": "Nightly batch ingestion from operational sources into Azure Data Lake Storage Gen2 curated zones using Azure Data Factory (or Synapse Pipelines), Spark or SQL transform tier, and Delta-style tables for analytics consumers with private networking.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "No internet egress for ingest workers",
+    "PII columns masked in bronze layer",
+    "Partitioned storage layout for cost control"
+  ],
+  "requiredCapabilities": [
+    "Azure Data Factory",
+    "Azure Data Lake Storage Gen2",
+    "Azure Synapse or Databricks-compatible Spark",
+    "Microsoft Entra ID",
+    "Azure Private Endpoints"
+  ],
+  "assumptions": [
+    "Batch SLA within 4-hour window nightly",
+    "Downstream consumers read only from curated zone"
+  ],
+  "priorManifestVersion": null
+}

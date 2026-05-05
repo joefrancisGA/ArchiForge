@@ -60,20 +60,14 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
 
         ArchitectureRequest request = new()
         {
-            RequestId = requestId,
-            SystemName = "ConcSys",
-            Environment = "dev",
-            CloudProvider = CloudProvider.Azure,
+            RequestId = requestId, SystemName = "ConcSys", Environment = "dev", CloudProvider = CloudProvider.Azure,
         };
 
         CoordinationResult coordinationOutcome = new()
         {
             Run = new ArchitectureRun
             {
-                RunId = runId,
-                RequestId = requestId,
-                Status = ArchitectureRunStatus.TasksGenerated,
-                CreatedUtc = DateTime.UtcNow,
+                RunId = runId, RequestId = requestId, Status = ArchitectureRunStatus.TasksGenerated, CreatedUtc = DateTime.UtcNow,
             },
             EvidenceBundle = new EvidenceBundle { EvidenceBundleId = "eb-conc" },
             Tasks =
@@ -113,11 +107,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
                     return Task.FromResult<ArchitectureRunIdempotencyLookup?>(null);
 
                 return Task.FromResult<ArchitectureRunIdempotencyLookup?>(
-                    new ArchitectureRunIdempotencyLookup
-                    {
-                        RunId = w,
-                        RequestFingerprint = fingerprint,
-                    });
+                    new ArchitectureRunIdempotencyLookup { RunId = w, RequestFingerprint = fingerprint, });
             });
 
         idempotencyRepository
@@ -131,21 +121,20 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
                 It.IsAny<CancellationToken>(),
                 It.IsAny<IDbConnection>(),
                 It.IsAny<IDbTransaction>()))
-            .Returns(
-                (
-                    Guid tenant,
-                    Guid workspace,
-                    Guid project,
-                    byte[] innerKeyHash,
-                    byte[] innerFingerprint,
-                    string rid,
-                    CancellationToken ct,
-                    IDbConnection? conn,
-                    IDbTransaction? tx) =>
-                {
-                    Volatile.Write(ref publishedWinnerRunId, rid);
-                    return Task.FromResult(true);
-                });
+            .Returns((
+                Guid tenant,
+                Guid workspace,
+                Guid project,
+                byte[] innerKeyHash,
+                byte[] innerFingerprint,
+                string rid,
+                CancellationToken ct,
+                IDbConnection? conn,
+                IDbTransaction? tx) =>
+            {
+                Volatile.Write(ref publishedWinnerRunId, rid);
+                return Task.FromResult(true);
+            });
 
         ArchitectureRun runModel = coordinationOutcome.Run;
         Mock<IScopeContextProvider> scopeProvider = new();
@@ -233,28 +222,24 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
         Mock<IArchitectureRunAuthorityCoordination> coordination = new();
         coordination
             .Setup(c => c.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                (ArchitectureRequest req, CancellationToken cancellationToken) =>
+            .ReturnsAsync((ArchitectureRequest req, CancellationToken cancellationToken) =>
+            {
+                Interlocked.Increment(ref coordinatorInvocations);
+
+                if (cancellationToken.IsCancellationRequested)
+                    throw new OperationCanceledException(cancellationToken);
+                string runId = Guid.NewGuid().ToString("N");
+
+                return new CoordinationResult
                 {
-                    Interlocked.Increment(ref coordinatorInvocations);
-
-                    if (cancellationToken.IsCancellationRequested)
-                        throw new OperationCanceledException(cancellationToken);
-                    string runId = Guid.NewGuid().ToString("N");
-
-                    return new CoordinationResult
+                    Run = new ArchitectureRun
                     {
-                        Run = new ArchitectureRun
-                        {
-                            RunId = runId,
-                            RequestId = req.RequestId,
-                            Status = ArchitectureRunStatus.TasksGenerated,
-                            CreatedUtc = DateTime.UtcNow,
-                        },
-                        EvidenceBundle = new EvidenceBundle { EvidenceBundleId = "eb-" + runId },
-                        Tasks = [],
-                    };
-                });
+                        RunId = runId, RequestId = req.RequestId, Status = ArchitectureRunStatus.TasksGenerated, CreatedUtc = DateTime.UtcNow,
+                    },
+                    EvidenceBundle = new EvidenceBundle { EvidenceBundleId = "eb-" + runId },
+                    Tasks = [],
+                };
+            });
 
         Mock<IArchitectureRunIdempotencyRepository> idempotencyRepository = new();
         idempotencyRepository
@@ -326,10 +311,7 @@ public sealed class ArchitectureRunCreateOrchestratorIdempotencyConcurrencyTests
 
                 ArchitectureRequest request = new()
                 {
-                    RequestId = "req-dist-" + i.ToString("x8"),
-                    SystemName = "DistSys",
-                    Environment = "dev",
-                    CloudProvider = CloudProvider.Azure,
+                    RequestId = "req-dist-" + i.ToString("x8"), SystemName = "DistSys", Environment = "dev", CloudProvider = CloudProvider.Azure,
                 };
 
                 CreateRunResult result = await sut.CreateRunAsync(request, idempotency, ct);

@@ -1,5 +1,4 @@
 ﻿using ArchLucid.Application.Scim.Filtering;
-
 using ArchLucid.Core.Scim.Filtering;
 
 using FluentAssertions;

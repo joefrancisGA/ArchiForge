@@ -59,10 +59,7 @@ public sealed class TrialPasswordPolicyValidatorTests
 
     private static TrialPasswordPolicyValidator CreateSut(int min, int max)
     {
-        TrialAuthOptions options = new()
-        {
-            LocalIdentity = new TrialLocalIdentityOptions { MinimumPasswordLength = min, MaximumPasswordLength = max },
-        };
+        TrialAuthOptions options = new() { LocalIdentity = new TrialLocalIdentityOptions { MinimumPasswordLength = min, MaximumPasswordLength = max }, };
 
         Mock<IOptions<TrialAuthOptions>> mo = new();
         mo.Setup(x => x.Value).Returns(options);

@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { DocumentLayout } from "@/components/DocumentLayout";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ProvenanceGraphDiagram } from "@/components/ProvenanceGraphDiagram";
+import { ProvenanceNodeExplainCell } from "@/components/ProvenanceNodeExplainCell";
 import { RunTraceViewerLink } from "@/components/RunTraceViewerLink";
 import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { isApiNotFoundFailure, toApiLoadFailure } from "@/lib/api-load-failure";
@@ -188,6 +189,7 @@ export default async function RunProvenancePage({
                   <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Type</th>
                   <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Name</th>
                   <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Reference</th>
+                  <th className="bg-neutral-50/90 p-2 text-left font-semibold dark:bg-neutral-900/50">Explain</th>
                 </tr>
               </thead>
               <tbody>
@@ -197,6 +199,9 @@ export default async function RunProvenancePage({
                     <td className="border-b border-neutral-100 p-2 align-top dark:border-neutral-800">{n.name}</td>
                     <td className="break-all border-b border-neutral-100 p-2 align-top dark:border-neutral-800">
                       {n.referenceId}
+                    </td>
+                    <td className="border-b border-neutral-100 p-2 align-top dark:border-neutral-800">
+                      <ProvenanceNodeExplainCell runId={runId} nodeId={n.id} />
                     </td>
                   </tr>
                 ))}

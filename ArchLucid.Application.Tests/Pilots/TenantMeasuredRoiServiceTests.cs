@@ -15,12 +15,7 @@ public sealed class TenantMeasuredRoiServiceTests
     [SkippableFact]
     public async Task GetAsync_composes_snapshot_and_cost_and_disclaimer()
     {
-        WhyArchLucidSnapshotResponse snap = new()
-        {
-            DemoRunId = "run-demo",
-            RunsCreatedTotal = 3,
-            AuditRowCount = 9,
-        };
+        WhyArchLucidSnapshotResponse snap = new() { DemoRunId = "run-demo", RunsCreatedTotal = 3, AuditRowCount = 9, };
 
         Mock<IWhyArchLucidSnapshotService> snapshot = new();
         snapshot.Setup(s => s.BuildAsync(It.IsAny<CancellationToken>())).ReturnsAsync(snap);

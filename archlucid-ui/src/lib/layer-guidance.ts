@@ -78,7 +78,7 @@ export const LAYER_PAGE_GUIDANCE: Record<LayerGuidancePageKey, LayerGuidanceBloc
   },
   "governance-dashboard": {
     layerBadge: "Governance",
-    headline: "Workspace health — governance signals in your current scope.",
+    headline: "Executive Workspace Health — governance and value signals in your current scope.",
     useWhen:
       "Use after Pilot proof when sponsors need pre-commit outcomes, severity exposure, compliance drift, SLA posture, and a hours-first value proxy.",
     firstPilotNote: "Optional until first Pilot proof; data is scoped to the active tenant/workspace/project.",

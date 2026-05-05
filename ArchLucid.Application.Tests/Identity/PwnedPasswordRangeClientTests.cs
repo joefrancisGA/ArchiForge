@@ -53,10 +53,7 @@ public sealed class PwnedPasswordRangeClientTests
 
     private static PwnedPasswordRangeClient CreateClient(HttpClient http, IMemoryCache cache, bool pwnedEnabled)
     {
-        TrialAuthOptions options = new()
-        {
-            LocalIdentity = new TrialLocalIdentityOptions { PwnedPasswordRangeCheckEnabled = pwnedEnabled },
-        };
+        TrialAuthOptions options = new() { LocalIdentity = new TrialLocalIdentityOptions { PwnedPasswordRangeCheckEnabled = pwnedEnabled }, };
 
         Mock<IOptions<TrialAuthOptions>> mo = new();
         mo.Setup(x => x.Value).Returns(options);
@@ -68,7 +65,8 @@ public sealed class PwnedPasswordRangeClientTests
     {
         public int SendCount
         {
-            get; private set;
+            get;
+            private set;
         }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -76,10 +74,7 @@ public sealed class PwnedPasswordRangeClientTests
             SendCount++;
 
             return Task.FromResult(
-                new HttpResponseMessage(System.Net.HttpStatusCode.OK)
-                {
-                    Content = new StringContent(string.Empty),
-                });
+                new HttpResponseMessage(System.Net.HttpStatusCode.OK) { Content = new StringContent(string.Empty), });
         }
     }
 }

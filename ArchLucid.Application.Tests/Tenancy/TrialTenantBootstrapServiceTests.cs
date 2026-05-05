@@ -33,10 +33,7 @@ public sealed class TrialTenantBootstrapServiceTests
 
         TenantProvisioningResult result = new()
         {
-            TenantId = Guid.NewGuid(),
-            DefaultWorkspaceId = Guid.NewGuid(),
-            DefaultProjectId = Guid.NewGuid(),
-            WasAlreadyProvisioned = true,
+            TenantId = Guid.NewGuid(), DefaultWorkspaceId = Guid.NewGuid(), DefaultProjectId = Guid.NewGuid(), WasAlreadyProvisioned = true,
         };
 
         await sut.TryBootstrapAfterSelfRegistrationAsync(result, "a@b.com", null, null, CancellationToken.None);
@@ -68,22 +65,21 @@ public sealed class TrialTenantBootstrapServiceTests
         demo.Setup(s => s.SeedAsync(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
         Mock<ITenantRepository> repo = new();
-        repo.Setup(
-                r => r.CommitSelfServiceTrialAsync(
-                    It.IsAny<Guid>(),
-                    It.IsAny<DateTimeOffset>(),
-                    It.IsAny<DateTimeOffset>(),
-                    It.IsAny<int>(),
-                    It.IsAny<int>(),
-                    It.IsAny<Guid>(),
-                    It.IsAny<decimal?>(),
-                    It.IsAny<string?>(),
-                    It.IsAny<DateTimeOffset?>(),
-                    It.IsAny<string?>(),
-                    It.IsAny<int?>(),
-                    It.IsAny<string?>(),
-                    It.IsAny<string?>(),
-                    It.IsAny<CancellationToken>()))
+        repo.Setup(r => r.CommitSelfServiceTrialAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<int>(),
+                It.IsAny<int>(),
+                It.IsAny<Guid>(),
+                It.IsAny<decimal?>(),
+                It.IsAny<string?>(),
+                It.IsAny<DateTimeOffset?>(),
+                It.IsAny<string?>(),
+                It.IsAny<int?>(),
+                It.IsAny<string?>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
         repo.Setup(r => r.EnqueueTrialArchitecturePreseedAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
@@ -107,10 +103,7 @@ public sealed class TrialTenantBootstrapServiceTests
 
         TenantProvisioningResult result = new()
         {
-            TenantId = tenantId,
-            DefaultWorkspaceId = workspaceId,
-            DefaultProjectId = projectId,
-            WasAlreadyProvisioned = false,
+            TenantId = tenantId, DefaultWorkspaceId = workspaceId, DefaultProjectId = projectId, WasAlreadyProvisioned = false,
         };
 
         await sut.TryBootstrapAfterSelfRegistrationAsync(result, "owner@example.com", null, null, CancellationToken.None);
@@ -158,10 +151,7 @@ public sealed class TrialTenantBootstrapServiceTests
 
         TenantProvisioningResult result = new()
         {
-            TenantId = Guid.NewGuid(),
-            DefaultWorkspaceId = Guid.NewGuid(),
-            DefaultProjectId = Guid.NewGuid(),
-            WasAlreadyProvisioned = false,
+            TenantId = Guid.NewGuid(), DefaultWorkspaceId = Guid.NewGuid(), DefaultProjectId = Guid.NewGuid(), WasAlreadyProvisioned = false,
         };
 
         await sut.TryBootstrapAfterSelfRegistrationAsync(result, "x@y.com", null, null, CancellationToken.None);

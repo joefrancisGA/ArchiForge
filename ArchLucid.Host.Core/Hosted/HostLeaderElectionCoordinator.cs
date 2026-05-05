@@ -70,9 +70,12 @@ public sealed class HostLeaderElectionCoordinator(
             if (!acquired)
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
-
-                    // codeql[cs/exposure-of-sensitive-information]: leaseName is an operational SQL lease key (e.g. TrialLifecycleEmailPolling); sanitized in Core helper before ILogger (docs/library/CODEQL_TRIAGE.md).
-                    _logger.LogDebugHostLeaderLeaseNotHeldFollowerWait(leaseName, followerMs);
+                {
+                    SanitizedLoggerHostLeaderElectionExtensions.LogDebugHostLeaderLeaseNotHeldFollowerWait(
+                        _logger,
+                        leaseName,
+                        followerMs);
+                }
 
                 try
                 {
@@ -87,9 +90,12 @@ public sealed class HostLeaderElectionCoordinator(
             }
 
             if (_logger.IsEnabled(LogLevel.Information))
-
-                // codeql[cs/exposure-of-sensitive-information]: leaseName/id are operational coordinator keys; sanitized in Core helper before ILogger (docs/library/CODEQL_TRIAGE.md).
-                _logger.LogInformationHostLeaderLeaseAcquired(leaseName, id);
+            {
+                SanitizedLoggerHostLeaderElectionExtensions.LogInformationHostLeaderLeaseAcquired(
+                    _logger,
+                    leaseName,
+                    id);
+            }
 
             using CancellationTokenSource leaderCts = CancellationTokenSource.CreateLinkedTokenSource(applicationStoppingToken);
             CancellationToken leaderToken = leaderCts.Token;
@@ -103,10 +109,13 @@ public sealed class HostLeaderElectionCoordinator(
             catch (OperationCanceledException) when (leaderToken.IsCancellationRequested)
             {
                 // Linked to application shutdown as well as explicit leaderCts cancel after renewal failure.
-                if (!applicationStoppingToken.IsCancellationRequested && _logger.IsEnabled(LogLevel.Information))
 
-                    // codeql[cs/exposure-of-sensitive-information]: leaseName is an operational SQL lease key; sanitized in Core helper before ILogger (docs/library/CODEQL_TRIAGE.md).
-                    _logger.LogInformationHostLeaderWorkStoppedLeaseLossOrHandoff(leaseName);
+                if (!applicationStoppingToken.IsCancellationRequested && _logger.IsEnabled(LogLevel.Information))
+                {
+                    SanitizedLoggerHostLeaderElectionExtensions.LogInformationHostLeaderWorkStoppedLeaseLossOrHandoff(
+                        _logger,
+                        leaseName);
+                }
             }
             finally
             {
@@ -157,9 +166,12 @@ public sealed class HostLeaderElectionCoordinator(
                     continue;
 
                 if (_logger.IsEnabled(LogLevel.Warning))
-
-                    // codeql[cs/exposure-of-sensitive-information]: leaseName/id are operational coordinator keys; sanitized in Core helper before ILogger (docs/library/CODEQL_TRIAGE.md).
-                    _logger.LogWarningHostLeaderLeaseRenewalFailedStopping(leaseName, id);
+                {
+                    SanitizedLoggerHostLeaderElectionExtensions.LogWarningHostLeaderLeaseRenewalFailedStopping(
+                        _logger,
+                        leaseName,
+                        id);
+                }
 
                 await leaderCts.CancelAsync();
 

@@ -128,12 +128,7 @@ public sealed class ManifestFinalizationConcurrencyTests
         Guid findingsA = Guid.NewGuid();
         Guid findingsB = Guid.NewGuid();
 
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
@@ -159,16 +154,15 @@ public sealed class ManifestFinalizationConcurrencyTests
                 null,
                 null,
                 It.IsAny<ManifestDocument>()))
-            .ReturnsAsync(
-                (
-                    GoldenManifest _,
-                    ScopeContext _,
-                    SaveContractsManifestOptions _,
-                    IManifestHashService _,
-                    CancellationToken _,
-                    IDbConnection? _,
-                    IDbTransaction? _,
-                    ManifestDocument? body) => body!);
+            .ReturnsAsync((
+                GoldenManifest _,
+                ScopeContext _,
+                SaveContractsManifestOptions _,
+                IManifestHashService _,
+                CancellationToken _,
+                IDbConnection? _,
+                IDbTransaction? _,
+                ManifestDocument? body) => body!);
 
         Mock<IAuditService> audit = new();
         audit.Setup(a => a.LogAsync(It.IsAny<AuditEvent>(), It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
@@ -210,12 +204,7 @@ public sealed class ManifestFinalizationConcurrencyTests
         Guid runId = Guid.NewGuid();
         Guid findingsId = Guid.NewGuid();
 
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
@@ -277,13 +266,8 @@ public sealed class ManifestFinalizationConcurrencyTests
     {
         Mock<IFindingsSnapshotRepository> mock = new();
         mock.Setup(f => f.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                (Guid id, CancellationToken _) => new FindingsSnapshot
-                {
-                    FindingsSnapshotId = id,
-                    GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
-                    Findings = []
-                });
+            .ReturnsAsync((Guid id, CancellationToken _) =>
+                new FindingsSnapshot { FindingsSnapshotId = id, GenerationStatus = FindingsSnapshotGenerationStatus.Complete, Findings = [] });
 
         return mock.Object;
     }

@@ -25,13 +25,7 @@ public sealed class EndToEndReplayComparisonExportServiceExecutiveAndRelationshi
         EndToEndReplayComparisonExportService sut = new(formatter.Object);
         EndToEndReplayComparisonReport report = new()
         {
-            LeftRunId = "L-exec",
-            RightRunId = "R-exec",
-            RunDiff = new RunMetadataDiffResult
-            {
-                ChangedFields = ["Alpha"],
-                RequestIdsDiffer = true
-            }
+            LeftRunId = "L-exec", RightRunId = "R-exec", RunDiff = new RunMetadataDiffResult { ChangedFields = ["Alpha"], RequestIdsDiffer = true }
         };
 
         string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Executive);
@@ -58,7 +52,7 @@ public sealed class EndToEndReplayComparisonExportServiceExecutiveAndRelationshi
     {
         Mock<IEndToEndReplayComparisonSummaryFormatter> formatter = new();
         formatter.Setup(f => f.FormatMarkdown(It.IsAny<EndToEndReplayComparisonReport>()))
-           .Returns("summary-line");
+            .Returns("summary-line");
 
         EndToEndReplayComparisonExportService sut = new(formatter.Object);
         EndToEndReplayComparisonReport report = new()

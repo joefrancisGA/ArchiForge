@@ -26,11 +26,7 @@ public sealed class ShadowExecutionServiceTests
 
         ShadowExecutionService sut = new(detail.Object, Mock.Of<IArchitectureAnalysisService>());
 
-        ShadowExecutionRequest request = new()
-        {
-            BaselineArchitectureRunId = "missing",
-            CandidateChangeSet = MinimalCandidate(),
-        };
+        ShadowExecutionRequest request = new() { BaselineArchitectureRunId = "missing", CandidateChangeSet = MinimalCandidate(), };
 
         Func<Task> act = async () => await sut.ExecuteAsync(request, CancellationToken.None);
 
@@ -45,18 +41,13 @@ public sealed class ShadowExecutionServiceTests
             Run = new ArchitectureRun { RunId = "run1", CurrentManifestVersion = "v1" },
             Manifest = new GoldenManifest
             {
-                RunId = "run1",
-                SystemName = "Sys",
-                Metadata = new ManifestMetadata { ChangeDescription = "original", ManifestVersion = "v1" },
+                RunId = "run1", SystemName = "Sys", Metadata = new ManifestMetadata { ChangeDescription = "original", ManifestVersion = "v1" },
             },
             DecisionTraces =
             [
                 RunEventTrace.From(new RunEventTracePayload
                 {
-                    TraceId = "t0",
-                    RunId = "run1",
-                    EventType = "Real",
-                    EventDescription = "committed",
+                    TraceId = "t0", RunId = "run1", EventType = "Real", EventDescription = "committed",
                 }),
             ],
         };
@@ -88,11 +79,7 @@ public sealed class ShadowExecutionServiceTests
             ],
         };
 
-        ShadowExecutionRequest request = new()
-        {
-            BaselineArchitectureRunId = "run1",
-            CandidateChangeSet = candidate,
-        };
+        ShadowExecutionRequest request = new() { BaselineArchitectureRunId = "run1", CandidateChangeSet = candidate, };
 
         _ = await sut.ExecuteAsync(request, CancellationToken.None);
 
@@ -124,10 +111,7 @@ public sealed class ShadowExecutionServiceTests
                 [
                     new AgentTask
                     {
-                        RunId = "x",
-                        TaskId = "tk",
-                        AgentType = AgentType.Topology,
-                        Objective = "o",
+                        RunId = "x", TaskId = "tk", AgentType = AgentType.Topology, Objective = "o",
                     },
                 ],
             };

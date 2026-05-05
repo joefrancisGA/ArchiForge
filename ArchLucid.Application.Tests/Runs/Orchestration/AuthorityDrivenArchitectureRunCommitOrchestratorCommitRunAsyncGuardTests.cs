@@ -2,12 +2,14 @@
 using ArchLucid.Application.Decisions;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Orchestration;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Merge;
+using ArchLucid.Decisioning.Validation;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.Persistence.Data.Infrastructure;
 using ArchLucid.Persistence.Data.Repositories;
@@ -159,6 +161,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestratorCommitRunAsy
             Mock.Of<ITrialFunnelCommitHook>(),
             Mock.Of<IFirstSessionLifecycleHook>(),
             Mock.Of<IDbConnectionFactory>(),
+            new PassthroughSchemaValidationService(),
+            Options.Create(new AuthorityCommitSchemaValidationOptions()),
             Mock.Of<ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator>>());
     }
 }

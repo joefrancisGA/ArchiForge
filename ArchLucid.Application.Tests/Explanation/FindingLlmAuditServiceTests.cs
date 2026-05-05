@@ -22,9 +22,7 @@ public sealed class FindingLlmAuditServiceTests
     {
         Finding finding = new()
         {
-            FindingId = "f1",
-            EngineType = nameof(AgentType.Topology),
-            Trace = new ExplainabilityTrace { SourceAgentExecutionTraceId = "abc123" },
+            FindingId = "f1", EngineType = nameof(AgentType.Topology), Trace = new ExplainabilityTrace { SourceAgentExecutionTraceId = "abc123" },
         };
 
         AgentExecutionTrace trace = new()
@@ -39,10 +37,7 @@ public sealed class FindingLlmAuditServiceTests
 
         Mock<IAuthorityQueryService> authority = new();
         authority.Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), RunGuid, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunDetailDto
-            {
-                FindingsSnapshot = new FindingsSnapshot { Findings = [finding] },
-            });
+            .ReturnsAsync(new RunDetailDto { FindingsSnapshot = new FindingsSnapshot { Findings = [finding] }, });
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces.Setup(t => t.GetByTraceIdAsync("abc123", It.IsAny<CancellationToken>())).ReturnsAsync(trace);
@@ -68,12 +63,7 @@ public sealed class FindingLlmAuditServiceTests
     [SkippableFact]
     public async Task BuildAsync_falls_back_to_first_matching_AgentType()
     {
-        Finding finding = new()
-        {
-            FindingId = "f1",
-            EngineType = nameof(AgentType.Cost),
-            Trace = new ExplainabilityTrace(),
-        };
+        Finding finding = new() { FindingId = "f1", EngineType = nameof(AgentType.Cost), Trace = new ExplainabilityTrace(), };
 
         AgentExecutionTrace wrong = new()
         {
@@ -95,10 +85,7 @@ public sealed class FindingLlmAuditServiceTests
 
         Mock<IAuthorityQueryService> authority = new();
         authority.Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), RunGuid, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new RunDetailDto
-            {
-                FindingsSnapshot = new FindingsSnapshot { Findings = [finding] },
-            });
+            .ReturnsAsync(new RunDetailDto { FindingsSnapshot = new FindingsSnapshot { Findings = [finding] }, });
 
         Mock<IAgentExecutionTraceRepository> traces = new();
         traces.Setup(t => t.GetByRunIdAsync(RunGuid.ToString("N"), It.IsAny<CancellationToken>()))

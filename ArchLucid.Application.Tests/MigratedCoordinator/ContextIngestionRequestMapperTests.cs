@@ -28,24 +28,14 @@ public sealed class ContextIngestionRequestMapperTests
             InlineRequirements = ["ir1"],
             Documents =
             [
-                new ContextDocumentRequest
-                {
-                    Name = "notes.txt",
-                    ContentType = "text/plain",
-                    Content = "hello"
-                }
+                new ContextDocumentRequest { Name = "notes.txt", ContentType = "text/plain", Content = "hello" }
             ],
             PolicyReferences = ["p1"],
             TopologyHints = ["t1"],
             SecurityBaselineHints = ["s1"],
             InfrastructureDeclarations =
             [
-                new InfrastructureDeclarationRequest
-                {
-                    Name = "main.tf",
-                    Format = "terraform",
-                    Content = "resource \"x\" \"y\" {}"
-                }
+                new InfrastructureDeclarationRequest { Name = "main.tf", Format = "terraform", Content = "resource \"x\" \"y\" {}" }
             ]
         };
 

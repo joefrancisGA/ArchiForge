@@ -70,13 +70,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
             Governance = new ManifestGovernance(),
         };
 
-        ArchitectureRunDetail detail = new()
-        {
-            Run = run,
-            Manifest = manifest,
-            Results = [],
-            DecisionTraces = []
-        };
+        ArchitectureRunDetail detail = new() { Run = run, Manifest = manifest, Results = [], DecisionTraces = [] };
 
         Mock<IRunDetailQueryService> query = new();
         query.Setup(q => q.GetRunDetailAsync("r-pdf-1", It.IsAny<CancellationToken>()))
@@ -84,12 +78,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
 
         Mock<IRunRepository> runs = new();
         Mock<IScopeContextProvider> scope = new();
-        ScopeContext sc = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext sc = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
         scope.Setup(s => s.GetCurrentScope()).Returns(sc);
         runs.Setup(r => r.ListRecentInScopeAsync(sc, It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
@@ -160,13 +149,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
             Governance = new ManifestGovernance(),
         };
 
-        ArchitectureRunDetail detail = new()
-        {
-            Run = run,
-            Manifest = manifest,
-            Results = [],
-            DecisionTraces = []
-        };
+        ArchitectureRunDetail detail = new() { Run = run, Manifest = manifest, Results = [], DecisionTraces = [] };
 
         Mock<IRunDetailQueryService> query = new();
         query.Setup(q => q.GetRunDetailAsync("r-pdf-demo", It.IsAny<CancellationToken>()))
@@ -174,12 +157,7 @@ public sealed class SponsorOnePagerPdfBuilderTests
 
         Mock<IRunRepository> runs = new();
         Mock<IScopeContextProvider> scope = new();
-        ScopeContext sc = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext sc = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
         scope.Setup(s => s.GetCurrentScope()).Returns(sc);
         runs.Setup(r => r.ListRecentInScopeAsync(sc, It.IsAny<int>(), It.IsAny<CancellationToken>())).ReturnsAsync([]);
 

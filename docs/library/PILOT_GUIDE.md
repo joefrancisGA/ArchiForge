@@ -21,6 +21,10 @@
 2. **B — Release smoke** — **[RELEASE_SMOKE.md](RELEASE_SMOKE.md)** (API + CLI + artifact checks).  
 3. **C — Live E2E (UI + SQL truth)** — merge-blocking Playwright **`live-api-*.spec.ts`** per **`TEST_STRUCTURE.md`**; happy path **[LIVE_E2E_HAPPY_PATH.md](LIVE_E2E_HAPPY_PATH.md)**. Release smoke alone does not prove SQL-backed UI parity — see **[RELEASE_SMOKE.md](RELEASE_SMOKE.md#release-smoke-ui-sql-parity)**.
 
+## Reference architecture payloads (instant runs)
+
+Starter **`ArchitectureRequest`** JSON files aligned with **`POST /v1/architecture/request`** live under **[`templates/reference-architectures/README.md`](../../templates/reference-architectures/README.md)**. Use them verbatim or as copy-paste baselines during pilots when teams do not yet have their own drafted request bodies.
+
 ## When you report an issue
 
 Include **API `GET /version`**, **`X-Correlation-ID`**, relevant logs, and (if policy allows) a **support bundle** (`dotnet run --project ArchLucid.Cli -- support-bundle --zip`). Full checklist: [archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md#when-you-report-an-issue](../archive/ONBOARDING_PILOT_GUIDE_2026_04_17.md#when-you-report-an-issue).

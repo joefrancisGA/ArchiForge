@@ -22,13 +22,12 @@ public sealed class ExecDigestComposerTests
     {
         Mock<IComplianceDriftTrendService> compliance = new();
         compliance
-            .Setup(
-                s => s.GetTrendAsync(
-                    It.IsAny<Guid>(),
-                    It.IsAny<DateTime>(),
-                    It.IsAny<DateTime>(),
-                    It.IsAny<TimeSpan>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(s => s.GetTrendAsync(
+                It.IsAny<Guid>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<TimeSpan>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
                 new ComplianceDriftTrendPoint
@@ -41,12 +40,11 @@ public sealed class ExecDigestComposerTests
 
         Mock<IAuthorityQueryService> authority = new();
         authority
-            .Setup(
-                s => s.ListRunsByProjectAsync(
-                    It.IsAny<ScopeContext>(),
-                    It.IsAny<string>(),
-                    It.IsAny<int>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(s => s.ListRunsByProjectAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         Mock<IRunDetailQueryService> runDetails = new();

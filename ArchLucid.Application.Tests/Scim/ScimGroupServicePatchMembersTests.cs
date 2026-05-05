@@ -27,8 +27,8 @@ public sealed class ScimGroupServicePatchMembersTests
 
         JsonElement patch = JsonDocument.Parse(
             $$"""
-            {"Operations":[{"op":"remove","path":"members[value eq \"{{User1:D}}\"]"}]}
-            """).RootElement;
+              {"Operations":[{"op":"remove","path":"members[value eq \"{{User1:D}}\"]"}]}
+              """).RootElement;
 
         await sut.PatchMembersAsync(TenantId, groupId, patch, CancellationToken.None);
 
@@ -44,8 +44,8 @@ public sealed class ScimGroupServicePatchMembersTests
 
         JsonElement patch = JsonDocument.Parse(
             $$"""
-            {"Operations":[{"op":"replace","path":"members[value eq \"{{User1:D}}\"].active","value":false}]}
-            """).RootElement;
+              {"Operations":[{"op":"replace","path":"members[value eq \"{{User1:D}}\"].active","value":false}]}
+              """).RootElement;
 
         await sut.PatchMembersAsync(TenantId, groupId, patch, CancellationToken.None);
 
@@ -61,8 +61,8 @@ public sealed class ScimGroupServicePatchMembersTests
 
         JsonElement patch = JsonDocument.Parse(
             $$"""
-            {"Operations":[{"op":"add","path":"members","value":[{"value":"{{User2:D}}"},{"value":"{{User3:D}}"}]}]}
-            """).RootElement;
+              {"Operations":[{"op":"add","path":"members","value":[{"value":"{{User2:D}}"},{"value":"{{User3:D}}"}]}]}
+              """).RootElement;
 
         await sut.PatchMembersAsync(TenantId, groupId, patch, CancellationToken.None);
 
@@ -78,8 +78,8 @@ public sealed class ScimGroupServicePatchMembersTests
 
         JsonElement patch = JsonDocument.Parse(
             $$"""
-            {"Operations":[{"op":"remove","path":"members[value ne \"{{User1:D}}\"]"}]}
-            """).RootElement;
+              {"Operations":[{"op":"remove","path":"members[value ne \"{{User1:D}}\"]"}]}
+              """).RootElement;
 
         Func<Task> act = () => sut.PatchMembersAsync(TenantId, groupId, patch, CancellationToken.None);
         ScimUserResourceParseException ex = (await act.Should().ThrowAsync<ScimUserResourceParseException>()).Which;
@@ -94,8 +94,8 @@ public sealed class ScimGroupServicePatchMembersTests
 
         JsonElement patch = JsonDocument.Parse(
             $$"""
-            {"Operations":[{"op":"replace","path":"members","value":[{"value":"{{User2:D}}"}]}]}
-            """).RootElement;
+              {"Operations":[{"op":"replace","path":"members","value":[{"value":"{{User2:D}}"}]}]}
+              """).RootElement;
 
         await sut.PatchMembersAsync(TenantId, groupId, patch, CancellationToken.None);
 

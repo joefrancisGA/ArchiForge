@@ -39,14 +39,13 @@ public sealed class ReplayRunServiceTests
     private static IAgentEvaluationService EmptyEvaluationService()
     {
         Mock<IAgentEvaluationService> mock = new();
-        mock.Setup(
-                x => x.EvaluateAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<ArchitectureRequest>(),
-                    It.IsAny<AgentEvidencePackage>(),
-                    It.IsAny<IReadOnlyCollection<AgentTask>>(),
-                    It.IsAny<IReadOnlyCollection<AgentResult>>(),
-                    It.IsAny<CancellationToken>()))
+        mock.Setup(x => x.EvaluateAsync(
+                It.IsAny<string>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         return mock.Object;
@@ -55,14 +54,13 @@ public sealed class ReplayRunServiceTests
     private static IDecisionEngineV2 EmptyDecisionEngineV2()
     {
         Mock<IDecisionEngineV2> mock = new();
-        mock.Setup(
-                x => x.ResolveAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<ArchitectureRequest>(),
-                    It.IsAny<IReadOnlyCollection<AgentTask>>(),
-                    It.IsAny<IReadOnlyCollection<AgentResult>>(),
-                    It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
-                    It.IsAny<CancellationToken>()))
+        mock.Setup(x => x.ResolveAsync(
+                It.IsAny<string>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         return mock.Object;
@@ -79,26 +77,25 @@ public sealed class ReplayRunServiceTests
     private static Mock<IAuthorityCommittedManifestChainWriter> CreateAuthorityChainWriterMock()
     {
         Mock<IAuthorityCommittedManifestChainWriter> mock = new();
-        mock.Setup(
-                x => x.PersistCommittedChainAsync(
-                    It.IsAny<ScopeContext>(),
-                    It.IsAny<Guid>(),
-                    It.IsAny<string>(),
-                    It.IsAny<GoldenManifest>(),
-                    It.IsAny<AuthorityChainKeying>(),
-                    It.IsAny<DateTime>(),
-                    It.IsAny<bool>(),
-                    It.IsAny<CancellationToken>(),
-                    It.IsAny<IDbConnection?>(),
-                    It.IsAny<IDbTransaction?>()))
-            .ReturnsAsync(
-                (ScopeContext _, Guid _, string _, GoldenManifest _, AuthorityChainKeying k, DateTime _, bool _, CancellationToken _, IDbConnection? _, IDbTransaction? _) =>
-                    new AuthorityManifestPersistResult(
-                        k.ContextSnapshotId,
-                        k.GraphSnapshotId,
-                        k.FindingsSnapshotId,
-                        k.DecisionTraceId,
-                        k.ManifestId));
+        mock.Setup(x => x.PersistCommittedChainAsync(
+                It.IsAny<ScopeContext>(),
+                It.IsAny<Guid>(),
+                It.IsAny<string>(),
+                It.IsAny<GoldenManifest>(),
+                It.IsAny<AuthorityChainKeying>(),
+                It.IsAny<DateTime>(),
+                It.IsAny<bool>(),
+                It.IsAny<CancellationToken>(),
+                It.IsAny<IDbConnection?>(),
+                It.IsAny<IDbTransaction?>()))
+            .ReturnsAsync((ScopeContext _, Guid _, string _, GoldenManifest _, AuthorityChainKeying k, DateTime _, bool _, CancellationToken _,
+                    IDbConnection? _, IDbTransaction? _) =>
+                new AuthorityManifestPersistResult(
+                    k.ContextSnapshotId,
+                    k.GraphSnapshotId,
+                    k.FindingsSnapshotId,
+                    k.DecisionTraceId,
+                    k.ManifestId));
 
         return mock;
     }
@@ -176,11 +173,7 @@ public sealed class ReplayRunServiceTests
             EvidenceBundleRef = "eb",
         };
 
-        ArchitectureRunDetail detailDto = new()
-        {
-            Run = originalRun,
-            Tasks = [task],
-        };
+        ArchitectureRunDetail detailDto = new() { Run = originalRun, Tasks = [task], };
 
         Mock<IRunDetailQueryService> detail = new();
         detail.Setup(x => x.GetRunDetailAsync(originalRunId, It.IsAny<CancellationToken>()))
@@ -308,11 +301,7 @@ public sealed class ReplayRunServiceTests
             EvidenceBundleRef = "eb",
         };
 
-        ArchitectureRunDetail detailDto = new()
-        {
-            Run = originalRun,
-            Tasks = [task],
-        };
+        ArchitectureRunDetail detailDto = new() { Run = originalRun, Tasks = [task], };
 
         Mock<IRunDetailQueryService> detail = new();
         detail.Setup(x => x.GetRunDetailAsync(originalRunId, It.IsAny<CancellationToken>()))
@@ -383,10 +372,7 @@ public sealed class ReplayRunServiceTests
         [
             RunEventTrace.From(new RunEventTracePayload
             {
-                TraceId = "tr1",
-                RunId = "replay-run",
-                EventType = "merge",
-                EventDescription = "d",
+                TraceId = "tr1", RunId = "replay-run", EventType = "merge", EventDescription = "d",
             }),
         ];
 
@@ -401,35 +387,28 @@ public sealed class ReplayRunServiceTests
                 It.IsAny<IReadOnlyList<DecisionNode>>(),
                 It.IsAny<string?>()))
             .Returns(
-                new DecisionMergeResult
-                {
-                    Manifest = merged,
-                    DecisionTraces = traces,
-                    Errors = [],
-                });
+                new DecisionMergeResult { Manifest = merged, DecisionTraces = traces, Errors = [], });
 
         Mock<IAgentEvaluationService> evaluationService = new();
         evaluationService
-            .Setup(
-                x => x.EvaluateAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<ArchitectureRequest>(),
-                    It.IsAny<AgentEvidencePackage>(),
-                    It.IsAny<IReadOnlyCollection<AgentTask>>(),
-                    It.IsAny<IReadOnlyCollection<AgentResult>>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(x => x.EvaluateAsync(
+                It.IsAny<string>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         Mock<IDecisionEngineV2> engineV2 = new();
         engineV2
-            .Setup(
-                x => x.ResolveAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<ArchitectureRequest>(),
-                    It.IsAny<IReadOnlyCollection<AgentTask>>(),
-                    It.IsAny<IReadOnlyCollection<AgentResult>>(),
-                    It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(x => x.ResolveAsync(
+                It.IsAny<string>(),
+                It.IsAny<ArchitectureRequest>(),
+                It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         Mock<IRunRepository> authorityRuns = new();

@@ -13,11 +13,7 @@ public sealed class GovernanceSegregationRulesTests
     public void SameActor_JwtMatchingKeys_returns_true_even_when_displays_differ()
     {
         const string canon = $"{ActorContext.JwtActorKeyPrefix}tid-guid:object-guid-user";
-        GovernanceApprovalRequest req = new()
-        {
-            RequestedBy = "portal-name@fabrikam.net",
-            RequestedByActorKey = canon,
-        };
+        GovernanceApprovalRequest req = new() { RequestedBy = "portal-name@fabrikam.net", RequestedByActorKey = canon, };
 
         bool same = GovernanceSegregationRules.IsSameActorForReview(
             req,
@@ -30,11 +26,7 @@ public sealed class GovernanceSegregationRulesTests
     [SkippableFact]
     public void SameActor_DisplaysMatching_when_no_jwt_requested_key_uses_requested_by_comparison()
     {
-        GovernanceApprovalRequest req = new()
-        {
-            RequestedBy = "alice",
-            RequestedByActorKey = null,
-        };
+        GovernanceApprovalRequest req = new() { RequestedBy = "alice", RequestedByActorKey = null, };
 
         bool same = GovernanceSegregationRules.IsSameActorForReview(req, reviewedByDisplay: "Alice", reviewedByActorKey: "anything");
 
@@ -45,11 +37,7 @@ public sealed class GovernanceSegregationRulesTests
     public void SameActor_DisplaysDiffer_but_jwt_both_sid_and_equal_returns_true()
     {
         const string k = $"{ActorContext.JwtActorKeyPrefix}s-t-id:o-id";
-        GovernanceApprovalRequest req = new()
-        {
-            RequestedBy = "wrong-for-old-path",
-            RequestedByActorKey = k,
-        };
+        GovernanceApprovalRequest req = new() { RequestedBy = "wrong-for-old-path", RequestedByActorKey = k, };
 
         bool same = GovernanceSegregationRules.IsSameActorForReview(req, reviewedByDisplay: "other-display", reviewedByActorKey: k);
 

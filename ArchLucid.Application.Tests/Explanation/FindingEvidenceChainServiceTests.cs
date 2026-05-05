@@ -115,11 +115,7 @@ public sealed class FindingEvidenceChainServiceTests
             CreatedUtc = DateTime.UtcNow,
         };
 
-        return new RunDetailDto
-        {
-            Run = run,
-            FindingsSnapshot = new FindingsSnapshot { Findings = findings.ToList() },
-        };
+        return new RunDetailDto { Run = run, FindingsSnapshot = new FindingsSnapshot { Findings = findings.ToList() }, };
     }
 
     private static Finding NewFinding(string findingId, params string[] related)

@@ -8,7 +8,7 @@ export const ROUTE_TITLES: Record<string, string> = {
   "/compare": "Compare",
   "/graph": "Graph",
   "/governance": "Governance",
-  "/governance/dashboard": "Workspace health",
+  "/governance/dashboard": "Executive Workspace Health",
   "/governance/findings": "Findings",
   "/advisory": "Advisory",
   "/search": "Search",

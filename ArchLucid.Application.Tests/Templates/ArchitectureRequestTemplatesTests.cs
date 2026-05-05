@@ -12,8 +12,7 @@ public sealed class ArchitectureRequestTemplatesTests
 {
     private static readonly JsonSerializerOptions JsonRoundTripOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
 
     public static TheoryData<Func<string?, ArchitectureRequest>> TemplateFactories =>

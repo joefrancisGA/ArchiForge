@@ -48,10 +48,7 @@ public sealed class GovernanceLineageServiceTests
         Mock<IAuthorityQueryService> authority = new(MockBehavior.Strict);
         Mock<IScopeContextProvider> scope = new();
 
-        GovernanceApprovalRequest approval = new()
-        {
-            RunId = "00000000-0000-0000-0000-000000000000"
-        };
+        GovernanceApprovalRequest approval = new() { RunId = "00000000-0000-0000-0000-000000000000" };
         approvals
             .Setup(r => r.GetByIdAsync("req-1", It.IsAny<CancellationToken>()))
             .ReturnsAsync(approval);
@@ -84,10 +81,7 @@ public sealed class GovernanceLineageServiceTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid() });
 
-        GovernanceApprovalRequest approval = new()
-        {
-            RunId = runN
-        };
+        GovernanceApprovalRequest approval = new() { RunId = runN };
         approvals
             .Setup(r => r.GetByIdAsync("req-2", It.IsAny<CancellationToken>()))
             .ReturnsAsync(approval);
@@ -95,14 +89,7 @@ public sealed class GovernanceLineageServiceTests
         runQuery
             .Setup(r => r.GetRunDetailAsync(runN, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new ArchitectureRunDetail
-                {
-                    Run = new ArchitectureRun
-                    {
-                        RunId = runN,
-                        Status = ArchitectureRunStatus.Committed
-                    }
-                });
+                new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = runN, Status = ArchitectureRunStatus.Committed } });
 
         promotions
             .Setup(p => p.GetByRunIdAsync(runN, It.IsAny<CancellationToken>()))
@@ -137,14 +124,7 @@ public sealed class GovernanceLineageServiceTests
             ]
         };
 
-        RunDetailDto authorityRow = new()
-        {
-            Run = new RunRecord
-            {
-                RunId = runGuid,
-            },
-            FindingsSnapshot = snapshot
-        };
+        RunDetailDto authorityRow = new() { Run = new RunRecord { RunId = runGuid, }, FindingsSnapshot = snapshot };
 
         authority
             .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))
@@ -173,10 +153,7 @@ public sealed class GovernanceLineageServiceTests
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext { TenantId = Guid.NewGuid() });
 
-        GovernanceApprovalRequest approval = new()
-        {
-            RunId = runN
-        };
+        GovernanceApprovalRequest approval = new() { RunId = runN };
         approvals
             .Setup(r => r.GetByIdAsync("req-null-trace", It.IsAny<CancellationToken>()))
             .ReturnsAsync(approval);
@@ -184,14 +161,7 @@ public sealed class GovernanceLineageServiceTests
         runQuery
             .Setup(r => r.GetRunDetailAsync(runN, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new ArchitectureRunDetail
-                {
-                    Run = new ArchitectureRun
-                    {
-                        RunId = runN,
-                        Status = ArchitectureRunStatus.Committed
-                    }
-                });
+                new ArchitectureRunDetail { Run = new ArchitectureRun { RunId = runN, Status = ArchitectureRunStatus.Committed } });
 
         promotions
             .Setup(p => p.GetByRunIdAsync(runN, It.IsAny<CancellationToken>()))
@@ -215,14 +185,7 @@ public sealed class GovernanceLineageServiceTests
             ]
         };
 
-        RunDetailDto authorityRow = new()
-        {
-            Run = new RunRecord
-            {
-                RunId = runGuid,
-            },
-            FindingsSnapshot = snapshot
-        };
+        RunDetailDto authorityRow = new() { Run = new RunRecord { RunId = runGuid, }, FindingsSnapshot = snapshot };
 
         authority
             .Setup(a => a.GetRunDetailAsync(It.IsAny<ScopeContext>(), runGuid, It.IsAny<CancellationToken>()))

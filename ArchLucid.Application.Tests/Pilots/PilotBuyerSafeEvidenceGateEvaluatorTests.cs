@@ -20,10 +20,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
         PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
             run,
             MinimalManifest(),
-            MinimalDeltas(run) with
-            {
-                AuditRowCount = 3
-            },
+            MinimalDeltas(run) with { AuditRowCount = 3 },
             TenantCapturedSnapshot());
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Complete);
@@ -34,10 +31,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
     public void Evaluate_DemoTenant_IsDemoOnlyWithGap()
     {
         ArchitectureRun run = CommittedRun();
-        PilotRunDeltas deltas = MinimalDeltas(run) with
-        {
-            IsDemoTenant = true
-        };
+        PilotRunDeltas deltas = MinimalDeltas(run) with { IsDemoTenant = true };
 
         PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
             run,
@@ -54,10 +48,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
     {
         ArchitectureRun run = new()
         {
-            RunId = "r1",
-            RequestId = "q",
-            Status = ArchitectureRunStatus.ReadyForCommit,
-            CreatedUtc = DateTime.UtcNow,
+            RunId = "r1", RequestId = "q", Status = ArchitectureRunStatus.ReadyForCommit, CreatedUtc = DateTime.UtcNow,
         };
 
         PilotRunDeltas deltas = MinimalDeltas(run);
@@ -93,12 +84,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
         PilotBuyerSafeEvidenceGateResult gate = PilotBuyerSafeEvidenceGateEvaluator.Evaluate(
             run,
             MinimalManifest(),
-            MinimalDeltas(run) with
-            {
-                AuditRowCount = 4,
-                TopFindingId = "f-demo",
-                TopFindingEvidenceChain = null,
-            },
+            MinimalDeltas(run) with { AuditRowCount = 4, TopFindingId = "f-demo", TopFindingEvidenceChain = null, },
             TenantCapturedSnapshot());
 
         gate.PublishingTier.Should().Be(PilotBuyerSafeEvidencePublishingTier.Partial);
@@ -121,11 +107,7 @@ public sealed class PilotBuyerSafeEvidenceGateEvaluatorTests
         {
             RunId = "run-a",
             SystemName = "Sys",
-            Metadata = new ManifestMetadata
-            {
-                ManifestVersion = "v1",
-                CreatedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc),
-            },
+            Metadata = new ManifestMetadata { ManifestVersion = "v1", CreatedUtc = new DateTime(2026, 4, 1, 13, 0, 0, DateTimeKind.Utc), },
             Governance = new ManifestGovernance(),
         };
 

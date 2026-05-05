@@ -32,6 +32,7 @@ using ArchLucid.ContextIngestion.Parsing;
 using ArchLucid.ContextIngestion.Services;
 using ArchLucid.ContextIngestion.Summaries;
 using ArchLucid.Contracts.Abstractions.Evolution;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Core.Configuration;
 using ArchLucid.Core.Diagnostics;
@@ -134,6 +135,8 @@ public static partial class ServiceCollectionExtensions
         services.AddScoped<IBaselineMutationAuditService, BaselineMutationAuditService>();
         services.Configure<PreCommitGovernanceGateOptions>(
             configuration.GetSection(PreCommitGovernanceGateOptions.SectionPath));
+        services.Configure<AuthorityCommitSchemaValidationOptions>(
+            configuration.GetSection(AuthorityCommitSchemaValidationOptions.SectionPath));
         services.Configure<ArchitectureRunCreateOptions>(
             configuration.GetSection(ArchitectureRunCreateOptions.SectionPath));
         services.AddScoped<IPreCommitGovernanceGate, PreCommitGovernanceGate>();

@@ -18,12 +18,7 @@ public sealed class TrialLocalIdentityServiceTests
         return new TrialAuthOptions
         {
             Modes = [TrialAuthModeConstants.LocalIdentity],
-            LocalIdentity = new TrialLocalIdentityOptions
-            {
-                MinimumPasswordLength = 8,
-                MaximumPasswordLength = 128,
-                PwnedPasswordRangeCheckEnabled = false
-            }
+            LocalIdentity = new TrialLocalIdentityOptions { MinimumPasswordLength = 8, MaximumPasswordLength = 128, PwnedPasswordRangeCheckEnabled = false }
         };
     }
 
@@ -116,14 +111,14 @@ public sealed class TrialLocalIdentityServiceTests
 
         repository
             .Setup(r => r.CreatePendingUserAsync(
-                    normalized,
-                    "new@example.com",
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<DateTimeOffset>(),
-                    It.IsAny<CancellationToken>()))
+                normalized,
+                "new@example.com",
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<DateTimeOffset>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(Guid.NewGuid());
 
         TrialLocalIdentityService sut = CreateSut(repository, notifier, opts);

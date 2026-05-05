@@ -20,20 +20,11 @@ public sealed class AuthorityCommitTraceabilityRulesTests
             Datastores = [],
             Relationships = [],
             Governance = new(),
-
-            Metadata = new ManifestMetadata
-            {
-                ManifestVersion = "v1",
-                DecisionTraceIds = [decisionTraceId.ToString("N")],
-            },
+            Metadata = new ManifestMetadata { ManifestVersion = "v1", DecisionTraceIds = [decisionTraceId.ToString("N")], },
         };
 
         RuleAuditTrace trace = RuleAuditTrace.From(
-            new RuleAuditTracePayload
-            {
-                DecisionTraceId = decisionTraceId,
-                RunId = Guid.NewGuid(),
-            });
+            new RuleAuditTracePayload { DecisionTraceId = decisionTraceId, RunId = Guid.NewGuid(), });
 
         IReadOnlyList<string> gaps = AuthorityCommitTraceabilityRules.GetLinkageGaps(m, [trace]);
         gaps.Should().BeEmpty();
@@ -50,21 +41,12 @@ public sealed class AuthorityCommitTraceabilityRulesTests
             Datastores = [],
             Relationships = [],
             Governance = new(),
-
-            Metadata = new ManifestMetadata
-            {
-                ManifestVersion = "v1",
-                DecisionTraceIds = ["aabbccdd" ],
-            },
+            Metadata = new ManifestMetadata { ManifestVersion = "v1", DecisionTraceIds = ["aabbccdd"], },
         };
 
         Guid other = Guid.NewGuid();
         RuleAuditTrace trace = RuleAuditTrace.From(
-            new RuleAuditTracePayload
-            {
-                DecisionTraceId = other,
-                RunId = Guid.NewGuid(),
-            });
+            new RuleAuditTracePayload { DecisionTraceId = other, RunId = Guid.NewGuid(), });
 
         IReadOnlyList<string> gaps = AuthorityCommitTraceabilityRules.GetLinkageGaps(m, [trace]);
         gaps.Should().NotBeEmpty();

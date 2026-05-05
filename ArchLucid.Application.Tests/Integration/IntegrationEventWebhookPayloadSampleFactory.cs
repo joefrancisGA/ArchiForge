@@ -52,12 +52,7 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
             previousRunId = (Guid?)Guid.NewGuid(),
             findings = new[]
             {
-                new
-                {
-                    findingId = "finding-primary",
-                    deepLinkUrl = $"https://archlucid.net/runs/{runId:D}/findings/finding-primary",
-                    severity = "High"
-                }
+                new { findingId = "finding-primary", deepLinkUrl = $"https://archlucid.net/runs/{runId:D}/findings/finding-primary", severity = "High" }
             }
         };
     }
@@ -218,13 +213,7 @@ internal static class IntegrationEventWebhookPayloadSampleFactory
             report.CheckedAtUtc,
             report.IsHealthy,
             Findings = report.Findings
-                .Select(f => new
-                {
-                    f.CheckName,
-                    Severity = f.Severity.ToString(),
-                    f.Description,
-                    AffectedEntityIds = f.AffectedEntityIds.Take(50).ToArray()
-                })
+                .Select(f => new { f.CheckName, Severity = f.Severity.ToString(), f.Description, AffectedEntityIds = f.AffectedEntityIds.Take(50).ToArray() })
                 .ToArray()
         };
     }

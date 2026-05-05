@@ -18,21 +18,11 @@ public sealed class ManifestDiffServiceApplicationTests
     {
         GoldenManifest left = BaseManifest("v1");
         left.Relationships.Add(
-            new ManifestRelationship
-            {
-                SourceId = "a",
-                TargetId = "b",
-                RelationshipType = RelationshipType.Calls,
-            });
+            new ManifestRelationship { SourceId = "a", TargetId = "b", RelationshipType = RelationshipType.Calls, });
 
         GoldenManifest right = BaseManifest("v2");
         right.Relationships.Add(
-            new ManifestRelationship
-            {
-                SourceId = "b",
-                TargetId = "c",
-                RelationshipType = RelationshipType.ReadsFrom,
-            });
+            new ManifestRelationship { SourceId = "b", TargetId = "c", RelationshipType = RelationshipType.ReadsFrom, });
 
         ManifestDiffService sut = new();
 

@@ -29,12 +29,7 @@ namespace ArchLucid.Application.Tests;
 public sealed class RunDetailQueryServiceApplicationTests
 {
     private static ScopeContext NewScope() =>
-        new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
     [SkippableFact]
     public async Task GetRunDetailAsync_when_manifest_version_set_but_manifest_missing_sets_HasBrokenManifestReference()
@@ -135,10 +130,7 @@ public sealed class RunDetailQueryServiceApplicationTests
 
         DecisionTrace authorityTrace = RunEventTrace.From(new RunEventTracePayload
         {
-            TraceId = traceId.ToString("N"),
-            RunId = runN,
-            EventType = "Commit",
-            EventDescription = "authority commit",
+            TraceId = traceId.ToString("N"), RunId = runN, EventType = "Commit", EventDescription = "authority commit",
         });
 
         runRepo.Setup(r => r.GetByIdAsync(scope, runGuid, It.IsAny<CancellationToken>())).ReturnsAsync(record);

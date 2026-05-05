@@ -37,8 +37,7 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
         Mock<ILeaderElectionWorkRunner> runner = new();
         runner
             .Setup(r => r.RunLeaderWorkAsync(It.IsAny<string>(), It.IsAny<Func<CancellationToken, Task>>(), It.IsAny<CancellationToken>()))
-            .Returns<string, Func<CancellationToken, Task>, CancellationToken>(
-                static (_, work, ct) => work(ct));
+            .Returns<string, Func<CancellationToken, Task>, CancellationToken>(static (_, work, ct) => work(ct));
 
         DataConsistencyReport expected = new(
             DateTime.UtcNow,
@@ -53,13 +52,8 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
         await using ServiceProvider sp = sc.BuildServiceProvider(true);
 
         IOptionsMonitor<DataConsistencyReconciliationOptions> opts =
-            Mock.Of<IOptionsMonitor<DataConsistencyReconciliationOptions>>(
-                m =>
-                    m.CurrentValue == new DataConsistencyReconciliationOptions
-                    {
-                        InitialDelaySeconds = 0,
-                        ReconciliationIntervalMinutes = 15
-                    });
+            Mock.Of<IOptionsMonitor<DataConsistencyReconciliationOptions>>(m =>
+                m.CurrentValue == new DataConsistencyReconciliationOptions { InitialDelaySeconds = 0, ReconciliationIntervalMinutes = 15 });
 
         DataConsistencyReconciliationHostedService sut = new(
             sp.GetRequiredService<IServiceScopeFactory>(),
@@ -105,8 +99,7 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
         Mock<ILeaderElectionWorkRunner> runner = new();
         runner
             .Setup(r => r.RunLeaderWorkAsync(It.IsAny<string>(), It.IsAny<Func<CancellationToken, Task>>(), It.IsAny<CancellationToken>()))
-            .Returns<string, Func<CancellationToken, Task>, CancellationToken>(
-                static (_, work, ct) => work(ct));
+            .Returns<string, Func<CancellationToken, Task>, CancellationToken>(static (_, work, ct) => work(ct));
 
         ServiceCollection sc = [];
         sc.AddSingleton<DataConsistencyReconciliationHealthState>();
@@ -116,13 +109,8 @@ public sealed class DataConsistencyReconciliationHostedServiceTests
         await using ServiceProvider sp = sc.BuildServiceProvider(true);
 
         IOptionsMonitor<DataConsistencyReconciliationOptions> opts =
-            Mock.Of<IOptionsMonitor<DataConsistencyReconciliationOptions>>(
-                m =>
-                    m.CurrentValue == new DataConsistencyReconciliationOptions
-                    {
-                        InitialDelaySeconds = 0,
-                        ReconciliationIntervalMinutes = 15
-                    });
+            Mock.Of<IOptionsMonitor<DataConsistencyReconciliationOptions>>(m =>
+                m.CurrentValue == new DataConsistencyReconciliationOptions { InitialDelaySeconds = 0, ReconciliationIntervalMinutes = 15 });
 
         DataConsistencyReconciliationHostedService sut = new(
             sp.GetRequiredService<IServiceScopeFactory>(),

@@ -61,12 +61,7 @@ public sealed class DocxExportServiceGoldenTests
                 It.IsAny<FindingsSnapshot>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new ImprovementPlan
-                {
-                    RunId = runId,
-                    Recommendations = [],
-                    SummaryNotes = ["Golden plan note."]
-                });
+                new ImprovementPlan { RunId = runId, Recommendations = [], SummaryNotes = ["Golden plan note."] });
 
         DocxExportService sut = new(advisor.Object, new NullDiagramImageRenderer());
 
@@ -122,13 +117,7 @@ public sealed class DocxExportServiceGoldenTests
             RuleSetId = "rs",
             RuleSetVersion = "1",
             RuleSetHash = "rh",
-            Metadata = new ManifestMetadata
-            {
-                Name = "Golden manifest",
-                Summary = "Summary",
-                Version = "1.0.0",
-                Status = "Resolved"
-            }
+            Metadata = new ManifestMetadata { Name = "Golden manifest", Summary = "Summary", Version = "1.0.0", Status = "Resolved" }
         };
 
         Mock<IImprovementAdvisorService> advisor = new();
@@ -202,13 +191,7 @@ public sealed class DocxExportServiceGoldenTests
             RuleSetId = "rs",
             RuleSetVersion = "1",
             RuleSetHash = "rh",
-            Metadata = new ManifestMetadata
-            {
-                Name = "Golden manifest",
-                Summary = "Summary",
-                Version = "1.0.0",
-                Status = "Resolved"
-            }
+            Metadata = new ManifestMetadata { Name = "Golden manifest", Summary = "Summary", Version = "1.0.0", Status = "Resolved" }
         };
 
         Mock<IImprovementAdvisorService> advisor = new();

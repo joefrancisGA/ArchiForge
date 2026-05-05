@@ -28,11 +28,7 @@ public sealed class SimulationEngineTests
 
         SimulationEngine sut = new(analysis.Object);
 
-        SimulationRequest request = new()
-        {
-            CandidateChangeSet = MinimalCandidate(),
-            BaselineArchitectureRunId = "run-a",
-        };
+        SimulationRequest request = new() { CandidateChangeSet = MinimalCandidate(), BaselineArchitectureRunId = "run-a", };
 
         SimulationResult result = await sut.SimulateAsync(request, CancellationToken.None);
 
@@ -55,12 +51,7 @@ public sealed class SimulationEngineTests
 
         ArchitectureAnalysisReport baseline = CreateReport("run-b", "v1", "left", ["w1"]);
         ArchitectureAnalysisReport simulated = CreateReport("run-b", "v1", "right", ["w2"]);
-        simulated.ManifestDiff = new ManifestDiffResult
-        {
-            LeftManifestVersion = "v0",
-            RightManifestVersion = "v1",
-            AddedServices = ["S"],
-        };
+        simulated.ManifestDiff = new ManifestDiffResult { LeftManifestVersion = "v0", RightManifestVersion = "v1", AddedServices = ["S"], };
 
         analysis
             .SetupSequence(x => x.BuildAsync(It.IsAny<ArchitectureAnalysisRequest>(), It.IsAny<CancellationToken>()))
@@ -69,10 +60,7 @@ public sealed class SimulationEngineTests
 
         SimulationReadProfile extended = new()
         {
-            IncludeManifest = true,
-            IncludeSummary = true,
-            IncludeManifestCompare = true,
-            CompareManifestVersion = "v0",
+            IncludeManifest = true, IncludeSummary = true, IncludeManifestCompare = true, CompareManifestVersion = "v0",
         };
 
         SimulationEngine sut = new(analysis.Object);
@@ -101,11 +89,7 @@ public sealed class SimulationEngineTests
     {
         SimulationEngine sut = new(Mock.Of<IArchitectureAnalysisService>());
 
-        SimulationRequest request = new()
-        {
-            CandidateChangeSet = null!,
-            BaselineArchitectureRunId = "x",
-        };
+        SimulationRequest request = new() { CandidateChangeSet = null!, BaselineArchitectureRunId = "x", };
 
         Func<Task> act = async () => await sut.SimulateAsync(request, CancellationToken.None);
 
@@ -132,9 +116,7 @@ public sealed class SimulationEngineTests
     {
         return new ArchitectureAnalysisReport
         {
-            Run = new ArchitectureRun { RunId = runId, CurrentManifestVersion = manifestVersion },
-            Summary = summary,
-            Warnings = [.. warnings],
+            Run = new ArchitectureRun { RunId = runId, CurrentManifestVersion = manifestVersion }, Summary = summary, Warnings = [.. warnings],
         };
     }
 }

@@ -7,7 +7,6 @@ using ArchLucid.Contracts.Requests;
 using FluentAssertions;
 
 using FsCheck;
-
 using FsCheck.Xunit;
 
 namespace ArchLucid.Application.Tests;

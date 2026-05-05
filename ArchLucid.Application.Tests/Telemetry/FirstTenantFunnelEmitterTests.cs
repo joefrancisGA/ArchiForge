@@ -25,10 +25,7 @@ public sealed class FirstTenantFunnelEmitterTests
     [SkippableFact]
     public async Task Emit_DefaultFlag_RecordsAggregatedCounterWithoutTenantTagAndDoesNotPersistRow()
     {
-        FirstTenantFunnelOptions options = new()
-        {
-            PerTenantEmission = false
-        };
+        FirstTenantFunnelOptions options = new() { PerTenantEmission = false };
         RecordingFirstTenantFunnelEventStore store = new();
         FirstTenantFunnelEmitter emitter = CreateEmitter(options, store);
 
@@ -49,10 +46,7 @@ public sealed class FirstTenantFunnelEmitterTests
     [SkippableFact]
     public async Task Emit_FlagOn_RecordsTenantTagAndPersistsRow()
     {
-        FirstTenantFunnelOptions options = new()
-        {
-            PerTenantEmission = true
-        };
+        FirstTenantFunnelOptions options = new() { PerTenantEmission = true };
         RecordingFirstTenantFunnelEventStore store = new();
         DateTime now = new(2026, 4, 24, 12, 0, 0, DateTimeKind.Utc);
         FakeTimeProvider clock = new(now);
@@ -78,10 +72,7 @@ public sealed class FirstTenantFunnelEmitterTests
     [SkippableFact]
     public async Task Emit_FlagOnButStoreFails_StillRecordsAggregatedCounterAndDoesNotThrow()
     {
-        FirstTenantFunnelOptions options = new()
-        {
-            PerTenantEmission = true
-        };
+        FirstTenantFunnelOptions options = new() { PerTenantEmission = true };
         ThrowingFirstTenantFunnelEventStore store = new();
         FirstTenantFunnelEmitter emitter = CreateEmitter(options, store);
 
@@ -108,10 +99,7 @@ public sealed class FirstTenantFunnelEmitterTests
     [SkippableFact]
     public async Task Emit_FlagOnAndCancelled_PropagatesCancellation()
     {
-        FirstTenantFunnelOptions options = new()
-        {
-            PerTenantEmission = true
-        };
+        FirstTenantFunnelOptions options = new() { PerTenantEmission = true };
         CancellingFirstTenantFunnelEventStore store = new();
         FirstTenantFunnelEmitter emitter = CreateEmitter(options, store);
 
@@ -139,7 +127,11 @@ public sealed class FirstTenantFunnelEmitterTests
     private sealed class StaticOptionsMonitor<T>(T value) : IOptionsMonitor<T>
         where T : class
     {
-        public T CurrentValue { get; } = value;
+        public T CurrentValue
+        {
+            get;
+        } = value;
+
         public T Get(string? name) => CurrentValue;
         public IDisposable? OnChange(Action<T, string?> listener) => null;
     }
@@ -153,7 +145,10 @@ public sealed class FirstTenantFunnelEmitterTests
 
     private sealed class RecordingFirstTenantFunnelEventStore : IFirstTenantFunnelEventStore
     {
-        public List<AppendedEvent> Appended { get; } = [];
+        public List<AppendedEvent> Appended
+        {
+            get;
+        } = [];
 
         public Task AppendAsync(string eventName, Guid tenantId, DateTime occurredUtc, CancellationToken ct)
         {

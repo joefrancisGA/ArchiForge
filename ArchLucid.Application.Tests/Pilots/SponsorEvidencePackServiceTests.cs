@@ -35,17 +35,12 @@ public sealed class SponsorEvidencePackServiceTests
 
         Mock<IRunDetailQueryService> runs = new();
         runs.Setup(r => r.GetRunDetailAsync(ContosoRetailDemoIdentifiers.RunBaseline, It.IsAny<CancellationToken>()))
-             .ReturnsAsync((ArchitectureRunDetail?)null);
+            .ReturnsAsync((ArchitectureRunDetail?)null);
 
         Mock<IPilotRunDeltaComputer> deltas = new();
         Mock<IFindingsSnapshotRepository> findingsRepo = new();
 
-        GovernanceDashboardSummary dash = new()
-        {
-            PendingCount = 0,
-            RecentDecisions = [],
-            RecentChanges = [],
-        };
+        GovernanceDashboardSummary dash = new() { PendingCount = 0, RecentDecisions = [], RecentChanges = [], };
 
         Mock<IGovernanceDashboardService> gov = new();
         gov.Setup(g =>
@@ -55,16 +50,11 @@ public sealed class SponsorEvidencePackServiceTests
                     It.IsAny<int>(),
                     It.IsAny<int>(),
                     It.IsAny<CancellationToken>()))
-           .ReturnsAsync(dash);
+            .ReturnsAsync(dash);
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(sp => sp.GetCurrentScope()).Returns(
-            new ScopeContext
-            {
-                TenantId = ScopeIds.DefaultTenant,
-                WorkspaceId = ScopeIds.DefaultWorkspace,
-                ProjectId = ScopeIds.DefaultProject,
-            });
+            new ScopeContext { TenantId = ScopeIds.DefaultTenant, WorkspaceId = ScopeIds.DefaultWorkspace, ProjectId = ScopeIds.DefaultProject, });
 
         SponsorEvidencePackService sut = new(
             snapshot.Object,
@@ -89,15 +79,7 @@ public sealed class SponsorEvidencePackServiceTests
     {
         Guid snapshotId = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
-        ArchitectureRunDetail detail = new()
-        {
-            Run = new ArchitectureRun
-            {
-                RunId = "runid",
-                RequestId = "req",
-                FindingsSnapshotId = snapshotId,
-            },
-        };
+        ArchitectureRunDetail detail = new() { Run = new ArchitectureRun { RunId = "runid", RequestId = "req", FindingsSnapshotId = snapshotId, }, };
 
         FindingsSnapshot persisted = new()
         {
@@ -118,11 +100,7 @@ public sealed class SponsorEvidencePackServiceTests
             ],
         };
 
-        WhyArchLucidSnapshotResponse snap = new()
-        {
-            DemoRunId = "runid",
-            GeneratedUtc = DateTimeOffset.UtcNow,
-        };
+        WhyArchLucidSnapshotResponse snap = new() { DemoRunId = "runid", GeneratedUtc = DateTimeOffset.UtcNow, };
 
         Mock<IWhyArchLucidSnapshotService> snapshot = new();
         snapshot.Setup(s => s.BuildAsync(It.IsAny<CancellationToken>())).ReturnsAsync(snap);
@@ -132,14 +110,11 @@ public sealed class SponsorEvidencePackServiceTests
 
         Mock<IPilotRunDeltaComputer> deltas = new();
         deltas.Setup(d => d.ComputeAsync(detail, It.IsAny<CancellationToken>()))
-              .ReturnsAsync(
-                  new PilotRunDeltas
-                  {
-                      RunCreatedUtc = DateTime.UtcNow,
-                      AuditRowCount = 1,
-                      LlmCallCount = 2,
-                      IsDemoTenant = true,
-                  });
+            .ReturnsAsync(
+                new PilotRunDeltas
+                {
+                    RunCreatedUtc = DateTime.UtcNow, AuditRowCount = 1, LlmCallCount = 2, IsDemoTenant = true,
+                });
 
         Mock<IFindingsSnapshotRepository> findingsRepo = new();
         findingsRepo
@@ -154,22 +129,12 @@ public sealed class SponsorEvidencePackServiceTests
                     It.IsAny<int>(),
                     It.IsAny<int>(),
                     It.IsAny<CancellationToken>()))
-           .ReturnsAsync(
-                new GovernanceDashboardSummary
-                {
-                    PendingCount = 2,
-                    RecentDecisions = [new GovernanceApprovalRequest()],
-                    RecentChanges = [],
-                });
+            .ReturnsAsync(
+                new GovernanceDashboardSummary { PendingCount = 2, RecentDecisions = [new GovernanceApprovalRequest()], RecentChanges = [], });
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(sp => sp.GetCurrentScope()).Returns(
-            new ScopeContext
-            {
-                TenantId = ScopeIds.DefaultTenant,
-                WorkspaceId = ScopeIds.DefaultWorkspace,
-                ProjectId = ScopeIds.DefaultProject,
-            });
+            new ScopeContext { TenantId = ScopeIds.DefaultTenant, WorkspaceId = ScopeIds.DefaultWorkspace, ProjectId = ScopeIds.DefaultProject, });
 
         SponsorEvidencePackService sut = new(
             snapshot.Object,

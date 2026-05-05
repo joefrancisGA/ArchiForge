@@ -16,17 +16,8 @@ public sealed class GovernanceDashboardServiceTests
     public async Task GetDashboard_ReturnsPendingAndDecisionsAndChanges()
     {
         Guid tenantId = Guid.Parse("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
-        GovernanceApprovalRequest pending = new()
-        {
-            ApprovalRequestId = "p1",
-            Status = GovernanceApprovalStatus.Submitted
-        };
-        GovernanceApprovalRequest decision = new()
-        {
-            ApprovalRequestId = "d1",
-            Status = GovernanceApprovalStatus.Approved,
-            ReviewedUtc = DateTime.UtcNow,
-        };
+        GovernanceApprovalRequest pending = new() { ApprovalRequestId = "p1", Status = GovernanceApprovalStatus.Submitted };
+        GovernanceApprovalRequest decision = new() { ApprovalRequestId = "d1", Status = GovernanceApprovalStatus.Approved, ReviewedUtc = DateTime.UtcNow, };
 
         PolicyPackChangeLogEntry change = new()
         {

@@ -70,7 +70,7 @@ export function CorePilotNextStepsCard() {
         </p>
         <div className="flex flex-col gap-2 text-sm">
           <Link href="/governance/dashboard" className="font-medium text-blue-700 underline dark:text-blue-400">
-            Workspace health
+            Workspace health (sponsor view)
           </Link>
           <Link href="/ask" className="font-medium text-blue-700 underline dark:text-blue-400">
             Open Ask (Operate)

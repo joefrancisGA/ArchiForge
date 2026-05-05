@@ -2,7 +2,8 @@
 using ArchLucid.Contracts.Agents;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Application.Runs.Coordination;
-using ArchLucid.Application.Tests.TestDoubles;using ArchLucid.Core.Scoping;
+using ArchLucid.Application.Tests.TestDoubles;
+using ArchLucid.Core.Scoping;
 using ArchLucid.Decisioning.Merge;
 using ArchLucid.Decisioning.Validation;
 using ArchLucid.Persistence.Interfaces;
@@ -20,7 +21,6 @@ namespace ArchLucid.Application.Tests;
 /// <summary>
 /// Tests for Deterministic Agent Simulator.
 /// </summary>
-
 [Trait("Suite", "Core")]
 [Trait("Category", "Slow")]
 public sealed class DeterministicAgentSimulatorTests
@@ -55,9 +55,7 @@ public sealed class DeterministicAgentSimulatorTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         });
 
         ArchitectureRunAuthorityCoordination coordinator = new(
@@ -117,9 +115,7 @@ public sealed class DeterministicAgentSimulatorTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         });
 
         ArchitectureRunAuthorityCoordination coordinator = new(
@@ -181,5 +177,4 @@ public sealed class DeterministicAgentSimulatorTests
             }
         };
     }
-
 }

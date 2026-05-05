@@ -1,5 +1,6 @@
 using ArchLucid.Application;
 using ArchLucid.Contracts.Governance;
+using ArchLucid.Decisioning.Validation;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -72,6 +73,38 @@ public static class ProblemDetailsExtensions
             Detail = detail,
             Instance = instance ?? controller.Request.Path
         };
+        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
+        ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, controller.HttpContext);
+        return new ObjectResult(problem) { StatusCode = problem.Status, ContentTypes = { ProblemJsonMediaType } };
+    }
+
+    /// <summary>Returns 400 when the committed golden manifest fails JSON Schema validation.</summary>
+    public static IActionResult GoldenManifestSchemaValidationProblem(
+        this ControllerBase controller,
+        SchemaValidationResult result)
+    {
+        ArgumentNullException.ThrowIfNull(result);
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = ProblemTypes.ValidationFailed,
+            Title = "Bad Request",
+            Status = StatusCodes.Status400BadRequest,
+            Detail = result.Errors.Count == 0
+                ? "Golden manifest schema validation failed."
+                : string.Join(
+                    "; ",
+                    result.Errors.Count <= 5
+                        ? result.Errors
+                        : result.Errors.Take(5).Concat(new[] { $"(+{result.Errors.Count - 5} more)" })),
+            Instance = controller.Request.Path.Value,
+            Extensions =
+            {
+                ["errors"] = result.Errors.ToArray(),
+            }
+        };
+
         ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
         ProblemSupportHints.AttachForProblemType(problem);
         ProblemCorrelation.Attach(problem, controller.HttpContext);

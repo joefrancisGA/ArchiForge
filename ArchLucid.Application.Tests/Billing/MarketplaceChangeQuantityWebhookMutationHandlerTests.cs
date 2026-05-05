@@ -18,10 +18,7 @@ public sealed class MarketplaceChangeQuantityWebhookMutationHandlerTests
     [SkippableFact]
     public async Task Ga_disabled_returns_deferred_without_ledger_mutation()
     {
-        BillingOptions billing = new()
-        {
-            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false },
-        };
+        BillingOptions billing = new() { AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false }, };
 
         BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
         Mock<IBillingLedger> ledger = new();
@@ -45,10 +42,7 @@ public sealed class MarketplaceChangeQuantityWebhookMutationHandlerTests
     [SkippableFact]
     public async Task Ga_enabled_invokes_change_quantity_with_parsed_seats()
     {
-        BillingOptions billing = new()
-        {
-            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true },
-        };
+        BillingOptions billing = new() { AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true }, };
 
         BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
         Mock<IBillingLedger> ledger = new();
@@ -72,5 +66,4 @@ public sealed class MarketplaceChangeQuantityWebhookMutationHandlerTests
 
         ledger.Verify(l => l.ChangeQuantityAsync(tenantId, 15, raw, It.IsAny<CancellationToken>()), Times.Once);
     }
-
 }

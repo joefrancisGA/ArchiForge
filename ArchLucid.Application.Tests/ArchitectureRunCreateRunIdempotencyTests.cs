@@ -55,21 +55,10 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
         Mock<IArchitectureRunIdempotencyRepository> idempotencyRepository = new();
         idempotencyRepository
             .Setup(x => x.TryGetAsync(tenantId, workspaceId, projectId, keyHash, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ArchitectureRunIdempotencyLookup
-            {
-                RunId = runId,
-                RequestFingerprint = fingerprint,
-            });
+            .ReturnsAsync(new ArchitectureRunIdempotencyLookup { RunId = runId, RequestFingerprint = fingerprint, });
 
-        ArchitectureRun run = new()
-        {
-            RunId = runId,
-            RequestId = "prior-req"
-        };
-        EvidenceBundle bundle = new()
-        {
-            EvidenceBundleId = "eb-contract"
-        };
+        ArchitectureRun run = new() { RunId = runId, RequestId = "prior-req" };
+        EvidenceBundle bundle = new() { EvidenceBundleId = "eb-contract" };
         List<AgentTask> tasks =
         [
             new()
@@ -110,10 +99,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
 
         ArchitectureRequest request = new()
         {
-            RequestId = "new-req",
-            SystemName = "Sys",
-            Environment = "prod",
-            CloudProvider = CloudProvider.Azure,
+            RequestId = "new-req", SystemName = "Sys", Environment = "prod", CloudProvider = CloudProvider.Azure,
         };
 
         CreateRunResult result = await sut.CreateRunAsync(request, idempotency, CancellationToken.None);
@@ -144,11 +130,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
         Mock<IArchitectureRunIdempotencyRepository> idempotencyRepository = new();
         idempotencyRepository
             .Setup(x => x.TryGetAsync(tenantId, It.IsAny<Guid>(), It.IsAny<Guid>(), keyHash, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ArchitectureRunIdempotencyLookup
-            {
-                RunId = Guid.NewGuid().ToString("N"),
-                RequestFingerprint = storedFingerprint,
-            });
+            .ReturnsAsync(new ArchitectureRunIdempotencyLookup { RunId = Guid.NewGuid().ToString("N"), RequestFingerprint = storedFingerprint, });
 
         Mock<IActorContext> actorContext = new();
         actorContext.Setup(x => x.GetActor()).Returns("test-actor");
@@ -166,10 +148,7 @@ public sealed class ArchitectureRunCreateRunIdempotencyTests
 
         ArchitectureRequest request = new()
         {
-            RequestId = "req",
-            SystemName = "S",
-            Environment = "prod",
-            CloudProvider = CloudProvider.Azure,
+            RequestId = "req", SystemName = "S", Environment = "prod", CloudProvider = CloudProvider.Azure,
         };
 
         Func<Task> act = async () => await sut.CreateRunAsync(request, idempotency, CancellationToken.None);

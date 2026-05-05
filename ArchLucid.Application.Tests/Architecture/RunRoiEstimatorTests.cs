@@ -32,11 +32,7 @@ public sealed class RunRoiEstimatorTests
 
         var detail = new ArchitectureRunDetail
         {
-            Run = new ArchitectureRun
-            {
-                RunId = Guid.NewGuid().ToString("N"),
-                RequestId = "req"
-            },
+            Run = new ArchitectureRun { RunId = Guid.NewGuid().ToString("N"), RequestId = "req" },
             Results =
             [
                 new AgentResult
@@ -51,13 +47,7 @@ public sealed class RunRoiEstimatorTests
                         new ArchitectureFinding { FindingId = "f2", Severity = FindingSeverity.Warning }
                     ]
                 },
-                new AgentResult
-                {
-                    ResultId = "b",
-                    TaskId = "t2",
-                    RunId = "r",
-                    AgentType = AgentType.Cost
-                }
+                new AgentResult { ResultId = "b", TaskId = "t2", RunId = "r", AgentType = AgentType.Cost }
             ],
             Manifest = null,
             DecisionTraces =

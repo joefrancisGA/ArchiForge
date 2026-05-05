@@ -44,12 +44,7 @@ public sealed class TrialLimitGateTests
                 });
 
         TrialLimitGate gate = new(tenants.Object, FixedTime);
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
 
@@ -77,12 +72,7 @@ public sealed class TrialLimitGateTests
                 });
 
         TrialLimitGate gate = new(tenants.Object, FixedTime);
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
 
@@ -112,12 +102,7 @@ public sealed class TrialLimitGateTests
                 });
 
         TrialLimitGate gate = new(tenants.Object, FixedTime);
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
 
@@ -145,12 +130,7 @@ public sealed class TrialLimitGateTests
                 });
 
         TrialLimitGate gate = new(tenants.Object, FixedTime);
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
 
@@ -177,12 +157,7 @@ public sealed class TrialLimitGateTests
                 });
 
         TrialLimitGate gate = new(tenants.Object, FixedTime);
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
 
@@ -207,12 +182,7 @@ public sealed class TrialLimitGateTests
                 });
 
         TrialLimitGate gate = new(tenants.Object, FixedTime);
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
 
@@ -238,12 +208,7 @@ public sealed class TrialLimitGateTests
                 });
 
         TrialLimitGate gate = new(tenants.Object, FixedTime);
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardWriteAsync(scope, CancellationToken.None);
 
@@ -271,12 +236,7 @@ public sealed class TrialLimitGateTests
                 });
 
         TrialLimitGate gate = new(tenants.Object, FixedTime);
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardDeleteAsync(scope, CancellationToken.None);
 
@@ -304,12 +264,7 @@ public sealed class TrialLimitGateTests
                 });
 
         TrialLimitGate gate = new(tenants.Object, FixedTime);
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> act = async () => await gate.GuardDeleteAsync(scope, CancellationToken.None);
 

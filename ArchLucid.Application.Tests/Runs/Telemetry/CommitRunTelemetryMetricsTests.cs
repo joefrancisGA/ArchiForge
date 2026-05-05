@@ -78,10 +78,7 @@ public sealed class CommitRunTelemetryMetricsTests
 
             huge.Add(new AgentResult { Findings = [new ArchitectureFinding { Message = $"f{i}" }] });
 
-        ManifestDocument manyWarnings = new()
-        {
-            Warnings = [.. Enumerable.Range(0, 200).Select(static i => $"w{i}")]
-        };
+        ManifestDocument manyWarnings = new() { Warnings = [.. Enumerable.Range(0, 200).Select(static i => $"w{i}")] };
 
         CommitRunTelemetryMetrics high = CommitRunTelemetryMetrics.FromCommitContext(
             runHeader,

@@ -152,3 +152,40 @@ When no usable Service Bus configuration is present, a **no-op** publisher is re
 
 - Use a **queue** for simplest at-least-once delivery; use a **topic** with subscriptions for fan-out.
 - Grant identities **Azure Service Bus Data Sender** on the namespace for publish/outbox drain; grant the worker **Data Receiver** when using the subscription consumer.
+
+## SIEM-bound examples (illustrative)
+
+Below are **illustrative** shapes for mapping ArchLucid CloudEvents / Service Bus bodies into common SIEM collectors. Normalize field names (`eventType`, `tenantId`, `payload`) to your analytic schema.
+
+### Splunk HTTP Event Collector (wrapper around CloudEvents)
+
+Assume the webhook receiver stores the ArchLucid POST body as `rawEnvelope` (UTF-8 JSON text). Index-time extraction maps `eventType`, `tenantId`, and `payload`.
+
+```json
+{
+  "time": 1746120000,
+  "host": "archlucid-ingest",
+  "source": "archlucid:integration-events",
+  "sourcetype": "archlucid:cloudevents",
+  "event": "{\"specversion\":\"1.0\",\"type\":\"com.archlucid.governance.approval.submitted\",\"source\":\"/archlucid/tenant/11111111-1111-1111-1111-111111111111\",\"id\":\"a0d3c4d2-5c2b-4c2b-9c2b-000000000001\",\"time\":\"2026-05-01T12:00:00Z\",\"datacontenttype\":\"application/json\",\"data\":{\"schemaVersion\":1,\"approvalRequestId\":\"AR-1001\",\"runId\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\",\"manifestVersion\":\"v1.0.0\"}}"
+}
+```
+
+### Microsoft Sentinel / Azure Monitor custom log (JSON Lines row)
+
+Function or Logic App unwraps Service Bus `body` and writes one JSON object per line. `TimeGenerated` is often set from `time` or message enqueue time.
+
+```json
+{
+  "TimeGenerated": "2026-05-01T12:00:00Z",
+  "ArchLucidEventType": "com.archlucid.authority.run.completed",
+  "TenantId": "11111111-1111-1111-1111-111111111111",
+  "WorkspaceId": "22222222-2222-2222-2222-222222222222",
+  "ProjectId": "33333333-3333-3333-3333-333333333333",
+  "RunId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "Payload": {
+    "schemaVersion": 1,
+    "manifestId": "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb"
+  }
+}
+```

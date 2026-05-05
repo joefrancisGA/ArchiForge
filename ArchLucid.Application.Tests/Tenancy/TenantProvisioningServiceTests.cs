@@ -26,12 +26,7 @@ public sealed class TenantProvisioningServiceTests
 
         TenantProvisioningService sut = new(repo, actor.Object, audit.Object, NullLogger<TenantProvisioningService>.Instance);
 
-        TenantProvisioningRequest req = new()
-        {
-            Name = "Contoso Labs",
-            AdminEmail = "ops@contoso.example",
-            Tier = TenantTier.Enterprise,
-        };
+        TenantProvisioningRequest req = new() { Name = "Contoso Labs", AdminEmail = "ops@contoso.example", Tier = TenantTier.Enterprise, };
 
         TenantProvisioningResult first = await sut.ProvisionAsync(req, CancellationToken.None);
         TenantProvisioningResult second = await sut.ProvisionAsync(req, CancellationToken.None);
@@ -81,10 +76,7 @@ public sealed class TenantProvisioningServiceTests
 
         TenantProvisioningRequest req = new()
         {
-            Name = "Override Co",
-            AdminEmail = "owner@override.example",
-            Tier = TenantTier.Free,
-            AuditActorOverride = "self-service@override.example",
+            Name = "Override Co", AdminEmail = "owner@override.example", Tier = TenantTier.Free, AuditActorOverride = "self-service@override.example",
         };
 
         await sut.ProvisionAsync(req, CancellationToken.None);
@@ -133,10 +125,7 @@ public sealed class TenantProvisioningServiceTests
 
         TenantProvisioningRequest req = new()
         {
-            Name = "Entra Linked Org",
-            AdminEmail = "admin@entra.example",
-            Tier = TenantTier.Enterprise,
-            EntraTenantId = entraTenantId,
+            Name = "Entra Linked Org", AdminEmail = "admin@entra.example", Tier = TenantTier.Enterprise, EntraTenantId = entraTenantId,
         };
 
         await sut.ProvisionAsync(req, CancellationToken.None);

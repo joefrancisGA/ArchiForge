@@ -26,12 +26,7 @@ public sealed class WhyArchLucidSnapshotServiceTests
     {
         InstrumentationCounterSnapshot counters = new()
         {
-            RunsCreatedTotal = 11,
-            FindingsProducedBySeverity = new Dictionary<string, long>(StringComparer.Ordinal)
-            {
-                ["Critical"] = 2,
-                ["High"] = 5,
-            },
+            RunsCreatedTotal = 11, FindingsProducedBySeverity = new Dictionary<string, long>(StringComparer.Ordinal) { ["Critical"] = 2, ["High"] = 5, },
         };
 
         Mock<IInstrumentationCounterSnapshotProvider> provider = new();
@@ -44,7 +39,7 @@ public sealed class WhyArchLucidSnapshotServiceTests
                 ScopeIds.DefaultProject,
                 WhyArchLucidSnapshotResponse.AuditRowCountCap,
                 It.IsAny<CancellationToken>()))
-             .ReturnsAsync([new AuditEvent { EventType = "x" }, new AuditEvent { EventType = "y" }]);
+            .ReturnsAsync([new AuditEvent { EventType = "x" }, new AuditEvent { EventType = "y" }]);
 
         DateTimeOffset fixedUtc = new(2026, 4, 20, 12, 0, 0, TimeSpan.Zero);
         FakeTimeProvider clock = new(fixedUtc);
@@ -85,7 +80,7 @@ public sealed class WhyArchLucidSnapshotServiceTests
                 ScopeIds.DefaultProject,
                 WhyArchLucidSnapshotResponse.AuditRowCountCap,
                 It.IsAny<CancellationToken>()))
-             .ReturnsAsync(capped);
+            .ReturnsAsync(capped);
 
         WhyArchLucidSnapshotService sut = new(
             provider.Object,
@@ -113,7 +108,7 @@ public sealed class WhyArchLucidSnapshotServiceTests
                 It.IsAny<Guid>(),
                 It.IsAny<int>(),
                 It.IsAny<CancellationToken>()))
-             .ThrowsAsync(new InvalidOperationException("repository unavailable"));
+            .ThrowsAsync(new InvalidOperationException("repository unavailable"));
 
         WhyArchLucidSnapshotService sut = new(
             provider.Object,
@@ -142,7 +137,7 @@ public sealed class WhyArchLucidSnapshotServiceTests
                 It.IsAny<Guid>(),
                 It.IsAny<int>(),
                 It.IsAny<CancellationToken>()))
-             .ThrowsAsync(new OperationCanceledException());
+            .ThrowsAsync(new OperationCanceledException());
 
         WhyArchLucidSnapshotService sut = new(
             provider.Object,

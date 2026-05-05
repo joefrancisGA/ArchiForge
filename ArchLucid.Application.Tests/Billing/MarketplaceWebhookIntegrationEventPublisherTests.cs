@@ -1,7 +1,6 @@
 ﻿using ArchLucid.Application.Billing;
 using ArchLucid.Core.Billing;
 using ArchLucid.Core.Integration;
-
 using ArchLucid.Persistence;
 
 using FluentAssertions;
@@ -20,10 +19,7 @@ public sealed class MarketplaceWebhookIntegrationEventPublisherTests
     {
         Mock<IIntegrationEventOutboxRepository> outbox = new();
         Mock<IIntegrationEventPublisher> publisher = new();
-        IntegrationEventsOptions options = new()
-        {
-            TransactionalOutboxEnabled = false
-        };
+        IntegrationEventsOptions options = new() { TransactionalOutboxEnabled = false };
         ILogger logger = NullLoggerFactory.Instance.CreateLogger(nameof(MarketplaceWebhookIntegrationEventPublisherTests));
 
         string? capturedEventType = null;
@@ -36,9 +32,8 @@ public sealed class MarketplaceWebhookIntegrationEventPublisherTests
                     It.IsAny<string?>(),
                     It.IsAny<IReadOnlyDictionary<string, object>?>(),
                     It.IsAny<CancellationToken>()))
-            .Callback(
-                (string eventType, ReadOnlyMemory<byte> _, string? _, IReadOnlyDictionary<string, object>? _, CancellationToken _) =>
-                    capturedEventType = eventType)
+            .Callback((string eventType, ReadOnlyMemory<byte> _, string? _, IReadOnlyDictionary<string, object>? _, CancellationToken _) =>
+                capturedEventType = eventType)
             .Returns(Task.CompletedTask);
 
         Guid tenantId = Guid.Parse("11111111-1111-1111-1111-111111111111");

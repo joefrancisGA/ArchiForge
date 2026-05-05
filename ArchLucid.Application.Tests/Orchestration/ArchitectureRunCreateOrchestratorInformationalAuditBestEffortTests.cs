@@ -51,13 +51,12 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
         actorContext.Setup(a => a.GetActor()).Returns("create-audit-actor");
         Mock<IBaselineMutationAuditService> baselineAudit = new();
         baselineAudit
-            .Setup(
-                b => b.RecordAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string?>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(b => b.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Mock<IAuditService> auditService = new();
@@ -83,15 +82,9 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
         string runId = Guid.NewGuid().ToString("N");
         ArchitectureRun run = new()
         {
-            RunId = runId,
-            RequestId = "req-audit-best-effort",
-            Status = ArchitectureRunStatus.Created,
-            CreatedUtc = DateTime.UtcNow,
+            RunId = runId, RequestId = "req-audit-best-effort", Status = ArchitectureRunStatus.Created, CreatedUtc = DateTime.UtcNow,
         };
-        EvidenceBundle bundle = new()
-        {
-            EvidenceBundleId = "eb-audit-be"
-        };
+        EvidenceBundle bundle = new() { EvidenceBundleId = "eb-audit-be" };
         List<AgentTask> tasks =
         [
             new()
@@ -106,12 +99,7 @@ public sealed class ArchitectureRunCreateOrchestratorInformationalAuditBestEffor
             },
         ];
 
-        CoordinationResult coordinationResult = new()
-        {
-            Run = run,
-            EvidenceBundle = bundle,
-            Tasks = tasks,
-        };
+        CoordinationResult coordinationResult = new() { Run = run, EvidenceBundle = bundle, Tasks = tasks, };
 
         coordination
             .Setup(c => c.CreateRunAsync(It.IsAny<ArchitectureRequest>(), It.IsAny<CancellationToken>()))

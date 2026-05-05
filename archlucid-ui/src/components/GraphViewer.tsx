@@ -18,6 +18,33 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+/** Invokes the reserved provenance explanation route (501 until implemented). */
+async function fetchNodeExplanation(runId: string, nodeId: string): Promise<string> {
+  const url =
+    `/api/proxy/v1/architecture/runs/${encodeURIComponent(runId)}/provenance/${encodeURIComponent(nodeId)}/explanation`;
+
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      credentials: "include",
+      headers: { Accept: "application/problem+json, application/json" },
+    });
+
+    const raw: unknown = await res.json();
+    const body = raw as Record<string, unknown>;
+
+    const detailRaw = typeof body.detail === "string" ? body.detail : "";
+
+    if (res.status === 501)
+      return detailRaw.length > 0 ? detailRaw : "Not implemented yet.";
+
+    return detailRaw.length > 0 ? detailRaw : `HTTP ${String(res.status)}`;
+  }
+  catch {
+    return "Could not reach the explanation endpoint.";
+  }
+}
+
 /** Filters a graph to only include nodes of the given type and edges between those nodes. */
 function filterGraphByType(
   graph: GraphViewModel,
@@ -37,9 +64,12 @@ function filterGraphByType(
 export function GraphViewer({
   graph,
   typeFilter = "",
+  runId = "",
 }: {
   graph: GraphViewModel;
   typeFilter?: string;
+  /** When set, enables the reserved explanation fetch for the selected graph node id. */
+  runId?: string;
 }) {
   const filtered = useMemo(
     () => filterGraphByType(graph, typeFilter),
@@ -47,6 +77,8 @@ export function GraphViewer({
   );
   const { nodes, edges } = useMemo(() => mapGraphToReactFlow(filtered), [filtered]);
   const [selectedNode, setSelectedNode] = useState<GraphNodeVm | null>(null);
+
+  const [explainStatusLine, setExplainStatusLine] = useState("");
 
   const { isAdvanced, toggle } = useBasicAdvancedToggle("archlucid_graph_settings_advanced_toggle");
   const [edgeInferenceThreshold, setEdgeInferenceThreshold] = useState("0.75");
@@ -81,9 +113,10 @@ export function GraphViewer({
             edges={edges as Edge[]}
             fitView
             onlyRenderVisibleElements
-            onNodeClick={(_, node) =>
-              setSelectedNode((node.data.raw as GraphNodeVm) ?? null)
-            }
+            onNodeClick={(_, node) => {
+              setExplainStatusLine("");
+              setSelectedNode((node.data.raw as GraphNodeVm) ?? null);
+            }}
           >
             <MiniMap />
             <Controls />
@@ -167,6 +200,31 @@ export function GraphViewer({
               ) : (
                 <p>No metadata available.</p>
               )}
+              {runId.trim().length > 0 && selectedNode !== null ? (
+                <div className="mt-3 border-t border-neutral-200 pt-3 dark:border-neutral-700">
+                  <h4 className="mt-0">Explain this node</h4>
+                  <p className="text-[11px] text-neutral-600 dark:text-neutral-400">
+                    Reserved LLM summary route (shows API status until the backend implements explanations).
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="h-8"
+                    onClick={async () => {
+                      const line = await fetchNodeExplanation(runId.trim(), selectedNode.id);
+                      setExplainStatusLine(line);
+                    }}
+                  >
+                    Request explanation
+                  </Button>
+                  {explainStatusLine ? (
+                    <p className="mt-2 text-[11px] text-neutral-600 dark:text-neutral-400" aria-live="polite">
+                      {explainStatusLine}
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
             </>
           )}
         </div>

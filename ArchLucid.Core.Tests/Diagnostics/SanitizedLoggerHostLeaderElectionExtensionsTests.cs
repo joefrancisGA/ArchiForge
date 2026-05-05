@@ -34,7 +34,10 @@ public sealed class SanitizedLoggerHostLeaderElectionExtensionsTests
                 rendered = formatter.DynamicInvoke(state, ex) as string;
             }));
 
-        mock.Object.LogDebugHostLeaderLeaseNotHeldFollowerWait("lease\nkey", 500);
+        SanitizedLoggerHostLeaderElectionExtensions.LogDebugHostLeaderLeaseNotHeldFollowerWait(
+            mock.Object,
+            "lease\nkey",
+            500);
 
         rendered.Should().NotBeNull();
         string text = rendered!;
@@ -66,7 +69,7 @@ public sealed class SanitizedLoggerHostLeaderElectionExtensionsTests
                 rendered = formatter.DynamicInvoke(state, ex) as string;
             }));
 
-        mock.Object.LogInformationHostLeaderLeaseAcquired("l\n1", "i\t2");
+        SanitizedLoggerHostLeaderElectionExtensions.LogInformationHostLeaderLeaseAcquired(mock.Object, "l\n1", "i\t2");
 
         rendered.Should().NotBeNull();
         string text = rendered!;
@@ -99,7 +102,9 @@ public sealed class SanitizedLoggerHostLeaderElectionExtensionsTests
                 rendered = formatter.DynamicInvoke(state, ex) as string;
             }));
 
-        mock.Object.LogInformationHostLeaderWorkStoppedLeaseLossOrHandoff("x\rname");
+        SanitizedLoggerHostLeaderElectionExtensions.LogInformationHostLeaderWorkStoppedLeaseLossOrHandoff(
+            mock.Object,
+            "x\rname");
 
         rendered.Should().NotBeNull();
 
@@ -129,7 +134,10 @@ public sealed class SanitizedLoggerHostLeaderElectionExtensionsTests
                 rendered = formatter.DynamicInvoke(state, ex) as string;
             }));
 
-        mock.Object.LogWarningHostLeaderLeaseRenewalFailedStopping("lease\n", "inst\t");
+        SanitizedLoggerHostLeaderElectionExtensions.LogWarningHostLeaderLeaseRenewalFailedStopping(
+            mock.Object,
+            "lease\n",
+            "inst\t");
 
         rendered.Should().NotBeNull();
         string text = rendered!;
@@ -145,7 +153,8 @@ public sealed class SanitizedLoggerHostLeaderElectionExtensionsTests
     {
         ILogger logger = null!;
 
-        Action act = () => logger.LogDebugHostLeaderLeaseNotHeldFollowerWait("l", 1);
+        Action act = () =>
+            SanitizedLoggerHostLeaderElectionExtensions.LogDebugHostLeaderLeaseNotHeldFollowerWait(logger, "l", 1);
 
         act.Should().Throw<ArgumentNullException>().WithParameterName("logger");
     }

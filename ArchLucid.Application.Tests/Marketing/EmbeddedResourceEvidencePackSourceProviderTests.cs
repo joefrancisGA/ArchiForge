@@ -29,7 +29,8 @@ public sealed class EmbeddedResourceEvidencePackSourceProviderTests
     {
         IReadOnlyList<string> ordered = EmbeddedResourceEvidencePackSourceProvider.OrderedZipNames;
 
-        ordered.Should().Equal("DPA-template.md", "SUBPROCESSORS.md", "SLA-summary.md", "security.txt", "CAIQ-Lite.md", "SIG-Core.md", "OWNER_SECURITY_ASSESSMENT_2026_Q2.md", "PEN_TEST_SOW_2026_Q2.md", "AUDIT_COVERAGE_MATRIX.md");
+        ordered.Should().Equal("DPA-template.md", "SUBPROCESSORS.md", "SLA-summary.md", "security.txt", "CAIQ-Lite.md", "SIG-Core.md",
+            "OWNER_SECURITY_ASSESSMENT_2026_Q2.md", "PEN_TEST_SOW_2026_Q2.md", "AUDIT_COVERAGE_MATRIX.md");
     }
 
     [SkippableFact]

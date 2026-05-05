@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArchLucid.Application.Architecture;
 using ArchLucid.Application.Common;
 using ArchLucid.Application.Decisions;
+using ArchLucid.Application.Runs;
 using ArchLucid.Application.Runs.Finalization;
 using ArchLucid.Application.Runs.Telemetry;
 using ArchLucid.Contracts.Agents;
@@ -11,6 +12,7 @@ using ArchLucid.Contracts.Decisions;
 using ArchLucid.Contracts.DecisionTraces;
 using ArchLucid.Contracts.Governance;
 using ArchLucid.Contracts.Metadata;
+using ArchLucid.Contracts.Architecture;
 using ArchLucid.Contracts.Requests;
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Diagnostics;
@@ -18,6 +20,7 @@ using ArchLucid.Core.Scoping;
 using ArchLucid.Core.Tenancy;
 using ArchLucid.Decisioning.Interfaces;
 using ArchLucid.Decisioning.Merge;
+using ArchLucid.Decisioning.Validation;
 using ArchLucid.KnowledgeGraph.Interfaces;
 using ArchLucid.KnowledgeGraph.Models;
 using ArchLucid.Persistence.Connections;
@@ -63,6 +66,8 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     ITrialFunnelCommitHook trialFunnelCommitHook,
     IFirstSessionLifecycleHook firstSessionLifecycleHook,
     IDbConnectionFactory dbConnectionFactory,
+    ISchemaValidationService schemaValidationService,
+    IOptions<AuthorityCommitSchemaValidationOptions> authorityCommitSchemaValidationOptions,
     ILogger<AuthorityDrivenArchitectureRunCommitOrchestrator> logger) : IArchitectureRunCommitOrchestrator
 {
     private const int CommitRunTransientMaxAttempts = 5;
@@ -147,6 +152,13 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
     private readonly ITrialFunnelCommitHook _trialFunnelCommitHook = trialFunnelCommitHook
                                                                      ?? throw new ArgumentNullException(
                                                                          nameof(trialFunnelCommitHook));
+
+    private readonly ISchemaValidationService _schemaValidationService =
+        schemaValidationService ?? throw new ArgumentNullException(nameof(schemaValidationService));
+
+    private readonly IOptions<AuthorityCommitSchemaValidationOptions> _authorityCommitSchemaValidationOptions =
+        authorityCommitSchemaValidationOptions ??
+        throw new ArgumentNullException(nameof(authorityCommitSchemaValidationOptions));
 
     /// <inheritdoc />
     public async Task<CommitRunResult> CommitRunAsync(string runId, CancellationToken cancellationToken = default)
@@ -365,6 +377,16 @@ public sealed class AuthorityDrivenArchitectureRunCommitOrchestrator(
                 throw new InvalidOperationException(
                     "Committed manifest traceability (authority) invariant failed: " +
                     string.Join("; ", traceabilityGaps));
+
+            if (_authorityCommitSchemaValidationOptions.Value.ValidateGoldenManifestSchema)
+            {
+                string contractWireJson = JsonSerializer.Serialize(contract, ContractJson.Default);
+                SchemaValidationResult goldenValidation =
+                    _schemaValidationService.ValidateGoldenManifestJson(contractWireJson);
+
+                if (!goldenValidation.IsValid)
+                    throw new GoldenManifestSchemaValidationException(goldenValidation);
+            }
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

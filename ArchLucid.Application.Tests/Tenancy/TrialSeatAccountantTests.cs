@@ -20,12 +20,7 @@ public sealed class TrialSeatAccountantTests
             .Returns(Task.CompletedTask);
 
         TrialSeatAccountant accountant = new(tenants.Object);
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Func<Task> twice = async () =>
         {
@@ -42,12 +37,7 @@ public sealed class TrialSeatAccountantTests
     {
         Mock<ITenantRepository> tenants = new();
         TrialSeatAccountant accountant = new(tenants.Object);
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.Empty,
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = Guid.Empty, WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         await accountant.TryReserveSeatAsync(scope, "user-1", CancellationToken.None);
 

@@ -100,11 +100,7 @@ public sealed class ValueReportBuilderStructuredBaselineTests
 
         Mock<IOptionsMonitor<ValueReportComputationOptions>> opt = new();
         opt.Setup(o => o.CurrentValue).Returns(
-            new ValueReportComputationOptions
-            {
-                BaselineArchitectHoursBeforeArchLucidPerCommittedManifest = 8m,
-                ArchitectHoursSavedFractionVsBaseline = 0.5m
-            });
+            new ValueReportComputationOptions { BaselineArchitectHoursBeforeArchLucidPerCommittedManifest = 8m, ArchitectHoursSavedFractionVsBaseline = 0.5m });
 
         ValueReportBuilder sut = new(reader.Object, opt.Object);
         ValueReportSnapshot snap = await sut.BuildAsync(

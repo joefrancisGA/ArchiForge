@@ -78,7 +78,7 @@ public sealed class PilotValueReportServiceTests
         Mock<IRunDetailQueryService> runs = new();
         runs.SetupSequence(r => r.ListRunSummariesKeysetAsync(null, 100, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                    (
+                (
                     (IReadOnlyList<RunSummary>)
                     [
                         Summary(RunA, from.AddDays(1), committed: true),
@@ -99,18 +99,8 @@ public sealed class PilotValueReportServiceTests
                     RunB,
                     from.AddDays(2),
                     committedUtc: from.AddDays(2).AddHours(1),
-                    new ArchitectureFinding
-                    {
-                        Severity = FindingSeverity.Critical,
-                        SourceAgent = AgentType.Topology,
-                        Message = "x"
-                    },
-                    new ArchitectureFinding
-                    {
-                        Severity = FindingSeverity.Warning,
-                        SourceAgent = AgentType.Compliance,
-                        Message = "y"
-                    }));
+                    new ArchitectureFinding { Severity = FindingSeverity.Critical, SourceAgent = AgentType.Topology, Message = "x" },
+                    new ArchitectureFinding { Severity = FindingSeverity.Warning, SourceAgent = AgentType.Compliance, Message = "y" }));
 
         Mock<IAuditRepository> audit = new();
         audit.Setup(a => a.GetExportAsync(Scope.TenantId, Scope.WorkspaceId, Scope.ProjectId, from, to, It.IsAny<int>(), It.IsAny<CancellationToken>()))
@@ -202,13 +192,7 @@ public sealed class PilotValueReportServiceTests
         Mock<IGovernanceDashboardService> g = new();
         g.Setup(x => x.GetDashboardAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new GovernanceDashboardSummary
-                {
-                    PendingCount = 0,
-                    PendingApprovals = [],
-                    RecentDecisions = [],
-                    RecentChanges = []
-                });
+                new GovernanceDashboardSummary { PendingCount = 0, PendingApprovals = [], RecentDecisions = [], RecentChanges = [] });
 
         return g;
     }
@@ -218,13 +202,7 @@ public sealed class PilotValueReportServiceTests
         Mock<IGovernanceDashboardService> g = GovEmpty();
         g.Setup(x => x.GetDashboardAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new GovernanceDashboardSummary
-                {
-                    PendingCount = pending,
-                    PendingApprovals = [],
-                    RecentDecisions = [],
-                    RecentChanges = []
-                });
+                new GovernanceDashboardSummary { PendingCount = pending, PendingApprovals = [], RecentDecisions = [], RecentChanges = [] });
 
         return g;
     }
@@ -252,20 +230,9 @@ public sealed class PilotValueReportServiceTests
             Run = new ArchitectureRun { RunId = runId, CreatedUtc = createdUtc, Status = ArchitectureRunStatus.Committed },
             Results =
             [
-                new AgentResult
-                {
-                    RunId = runId,
-                    TaskId = "task",
-                    AgentType = AgentType.Topology,
-                    Findings = findings.ToList()
-                }
+                new AgentResult { RunId = runId, TaskId = "task", AgentType = AgentType.Topology, Findings = findings.ToList() }
             ],
-            Manifest = new GoldenManifest
-            {
-                RunId = runId,
-                SystemName = "sys",
-                Metadata = new ManifestMetadata { CreatedUtc = committedUtc }
-            }
+            Manifest = new GoldenManifest { RunId = runId, SystemName = "sys", Metadata = new ManifestMetadata { CreatedUtc = committedUtc } }
         };
     }
 
@@ -281,27 +248,10 @@ public sealed class PilotValueReportServiceTests
             Run = new ArchitectureRun { RunId = runId, CreatedUtc = createdUtc, Status = ArchitectureRunStatus.Committed },
             Results =
             [
-                new AgentResult
-                {
-                    RunId = runId,
-                    TaskId = "task-t",
-                    AgentType = AgentType.Topology,
-                    Findings = [topologyFinding]
-                },
-                new AgentResult
-                {
-                    RunId = runId,
-                    TaskId = "task-c",
-                    AgentType = AgentType.Compliance,
-                    Findings = [complianceFinding]
-                }
+                new AgentResult { RunId = runId, TaskId = "task-t", AgentType = AgentType.Topology, Findings = [topologyFinding] },
+                new AgentResult { RunId = runId, TaskId = "task-c", AgentType = AgentType.Compliance, Findings = [complianceFinding] }
             ],
-            Manifest = new GoldenManifest
-            {
-                RunId = runId,
-                SystemName = "sys",
-                Metadata = new ManifestMetadata { CreatedUtc = committedUtc }
-            }
+            Manifest = new GoldenManifest { RunId = runId, SystemName = "sys", Metadata = new ManifestMetadata { CreatedUtc = committedUtc } }
         };
     }
 

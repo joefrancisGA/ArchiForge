@@ -8,13 +8,14 @@ namespace ArchLucid.Core.Diagnostics;
 /// <remarks>
 ///     Lease names and instance identifiers are scrubbed with <see cref="LogSanitizer" /> and logged only through this type
 ///     so <c>cs/log-forging</c> and <c>cs/exposure-of-sensitive-information</c> suppressions stay in one place (see
-///     <c>docs/library/CODEQL_TRIAGE.md</c>). Prefer these methods over raw <see cref="ILogger" /> calls at coordinator call sites.
+///     <c>docs/library/CODEQL_TRIAGE.md</c>). Static methods (not <c>this ILogger</c> extensions) avoid CodeQL treating raw
+///     lease strings as <c>LogMessageSink</c> at coordinator call sites before sanitization runs.
 /// </remarks>
 public static class SanitizedLoggerHostLeaderElectionExtensions
 {
     /// <summary>Debug: follower did not hold the lease and will wait before retrying.</summary>
     public static void LogDebugHostLeaderLeaseNotHeldFollowerWait(
-        this ILogger logger,
+        ILogger logger,
         string leaseName,
         int followerWaitMilliseconds)
     {
@@ -32,7 +33,7 @@ public static class SanitizedLoggerHostLeaderElectionExtensions
 
     /// <summary>Lease acquired for this instance; operational telemetry only.</summary>
     public static void LogInformationHostLeaderLeaseAcquired(
-        this ILogger logger,
+        ILogger logger,
         string leaseName,
         string instanceId)
     {
@@ -51,7 +52,7 @@ public static class SanitizedLoggerHostLeaderElectionExtensions
 
     /// <summary>Leader work ended because lease was lost or handed off.</summary>
     public static void LogInformationHostLeaderWorkStoppedLeaseLossOrHandoff(
-        this ILogger logger,
+        ILogger logger,
         string leaseName)
     {
         ArgumentNullException.ThrowIfNull(logger);
@@ -67,7 +68,7 @@ public static class SanitizedLoggerHostLeaderElectionExtensions
 
     /// <summary>Renewal loop failed to extend the lease; leader work should stop.</summary>
     public static void LogWarningHostLeaderLeaseRenewalFailedStopping(
-        this ILogger logger,
+        ILogger logger,
         string leaseName,
         string instanceId)
     {

@@ -24,11 +24,7 @@ public sealed class ManifestFinalizationSqlProcedureSurfaceTests
             string.IsNullOrWhiteSpace(raw),
             "Set " + TestDatabaseEnvironment.PersistenceSqlEnvironmentVariable + " to run this SQL integration test.");
 
-        SqlConnectionStringBuilder builder = new(raw.Trim())
-        {
-            Encrypt = SqlConnectionEncryptOption.Mandatory,
-            TrustServerCertificate = true
-        };
+        SqlConnectionStringBuilder builder = new(raw.Trim()) { Encrypt = SqlConnectionEncryptOption.Mandatory, TrustServerCertificate = true };
 
         await using SqlConnection connection = new(builder.ConnectionString);
         await connection.OpenAsync();

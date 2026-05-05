@@ -34,12 +34,7 @@ public sealed class PilotRunDeltaComputerTests
         Mock<IAuditRepository> audit = new();
         Mock<IScopeContextProvider> scope = new();
 
-        ScopeContext sc = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext sc = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
         scope.Setup(s => s.GetCurrentScope()).Returns(sc);
 
         traces.Setup(t => t.GetByRunIdAsync(detail.Run.RunId, It.IsAny<CancellationToken>()))
@@ -277,8 +272,8 @@ public sealed class PilotRunDeltaComputerTests
 
         result.AuditRowCount.Should().Be(0);
         audit.Verify(a => a.GetFilteredAsync(
-            It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
-            It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()),
+                It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<Guid>(),
+                It.IsAny<AuditEventFilter>(), It.IsAny<CancellationToken>()),
             Times.Never);
     }
 
@@ -337,10 +332,7 @@ public sealed class PilotRunDeltaComputerTests
 
         return new ArchitectureRunDetail
         {
-            Run = run,
-            Manifest = manifest,
-            Results = [result],
-            DecisionTraces = [],
+            Run = run, Manifest = manifest, Results = [result], DecisionTraces = [],
         };
     }
 }

@@ -25,11 +25,7 @@ public sealed class BaselineMutationAuditDualWritePairingTests
     ///     Implementation / interface files â€” not call sites pairing against governance workflow.
     /// </summary>
     private static readonly IReadOnlySet<string> IgnoredFilenames =
-        new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-        {
-            "BaselineMutationAuditService.cs",
-            "IBaselineMutationAuditService.cs",
-        };
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "BaselineMutationAuditService.cs", "IBaselineMutationAuditService.cs", };
 
     [SkippableFact]
     public void BaselineMutationAudit_RecordAsync_call_sites_have_durable_pair_or_allowlist()
@@ -45,7 +41,15 @@ public sealed class BaselineMutationAuditDualWritePairingTests
 
     private static IEnumerable<string> EnumerateViolationFiles(DirectoryInfo root)
     {
-        return from file in root.EnumerateFiles("*.cs", SearchOption.AllDirectories) where !IsIgnoredUnderObjOrBin(file) where !IgnoredFilenames.Contains(file.Name) let text = File.ReadAllText(file.FullName) where BaselineMutationRecordAsync.IsMatch(text) where !AllowedBaselineOnlyFiles.Contains(file.Name) where !ContainsDurableAuditEvidence(text) select $"{file.FullName}: IBaselineMutationAuditService.RecordAsync without LogAsync/TryLogAsync sibling (fix or list in {nameof(AllowedBaselineOnlyFiles)})";
+        return from file in root.EnumerateFiles("*.cs", SearchOption.AllDirectories)
+            where !IsIgnoredUnderObjOrBin(file)
+            where !IgnoredFilenames.Contains(file.Name)
+            let text = File.ReadAllText(file.FullName)
+            where BaselineMutationRecordAsync.IsMatch(text)
+            where !AllowedBaselineOnlyFiles.Contains(file.Name)
+            where !ContainsDurableAuditEvidence(text)
+            select
+                $"{file.FullName}: IBaselineMutationAuditService.RecordAsync without LogAsync/TryLogAsync sibling (fix or list in {nameof(AllowedBaselineOnlyFiles)})";
     }
 
     private static bool ContainsDurableAuditEvidence(string fileText)

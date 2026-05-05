@@ -1,0 +1,24 @@
+{
+  "requestId": "REF-TPL-SERVERLESS-API-001",
+  "systemName": "ServerlessOrderApi",
+  "description": "Event-driven order API on Azure Functions (Flex Consumption) with HTTP ingress, Azure Service Bus for async workflows, Cosmos DB for operational store, Key Vault for secrets, and Application Insights for telemetry.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Consumption-based scale for API tier",
+    "At-least-once messaging semantics acceptable with idempotent handlers",
+    "All secrets in Key Vault"
+  ],
+  "requiredCapabilities": [
+    "Azure Functions",
+    "Azure Service Bus",
+    "Azure Cosmos DB",
+    "Azure Key Vault",
+    "Azure Monitor / Application Insights"
+  ],
+  "assumptions": [
+    "Burst traffic pattern with long idle periods",
+    "Orders processed asynchronously after acceptance"
+  ],
+  "priorManifestVersion": null
+}

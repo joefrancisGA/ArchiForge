@@ -1,5 +1,6 @@
 "use client";
 
+import { CircleHelp } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
@@ -11,12 +12,15 @@ import { useNavCallerAuthorityRank } from "@/components/OperatorNavAuthorityProv
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getComplianceDriftTrend, getGovernanceDashboard } from "@/lib/api";
 import type { ApiProblemDetails } from "@/lib/api-problem";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { fetchPilotValueReportJson } from "@/lib/pilot-value-report-fetch";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
-import { hoursSurfaced, formatHours } from "@/lib/roi-assumptions";
+import { getEffectiveBrowserProxyScopeHeaders, readOperatorScopeFromStorage } from "@/lib/operator-scope-storage";
+import { hoursSurfaced, formatHours, HOURS_PER_PRECOMMIT_BLOCK } from "@/lib/roi-assumptions";
+import { formatExecutiveWorkspaceScopeDescription } from "@/lib/workspace-health-scope-banner";
 import { countAuditEventsInWindow } from "@/lib/workspace-health-audit-count";
 import { computeWorkspaceHealthSlaStats } from "@/lib/workspace-health-sla";
 import type { ComplianceDriftTrendPoint, GovernanceDashboardSummary } from "@/types/governance-dashboard";
@@ -44,9 +48,47 @@ type LoadState =
     }
   | { status: "error"; message: string; problem: ApiProblemDetails | null; correlationId: string | null };
 
-export function WorkspaceHealthDashboard() {
+const DEFAULT_SCOPE_FALLBACK =
+  "Figures use the authenticated tenant / workspace / project sent with each request — the same boundaries as governance and audit. Not a cross-workspace rollup.";
+
+/**
+ * Sponsor-oriented **Executive Workspace Health**: five KPI blocks composed from existing governance, audit, compliance-drift, and pilot-value APIs (current scope only).
+ */
+export function ExecutiveWorkspaceHealthDashboard() {
   const callerRank = useNavCallerAuthorityRank();
   const [state, setState] = useState<LoadState>({ status: "loading" });
+  const [scopeBanner, setScopeBanner] = useState<string>(DEFAULT_SCOPE_FALLBACK);
+
+  const refreshScopeBanner = useCallback(() => {
+    const record = readOperatorScopeFromStorage();
+    const headers = getEffectiveBrowserProxyScopeHeaders();
+
+    setScopeBanner(
+      formatExecutiveWorkspaceScopeDescription(record, {
+        tenantId: headers["x-tenant-id"] ?? "",
+        workspaceId: headers["x-workspace-id"] ?? "",
+        projectId: headers["x-project-id"] ?? "",
+      }),
+    );
+  }, []);
+
+  useEffect(() => {
+    refreshScopeBanner();
+
+    const onStorage = (e: StorageEvent): void => {
+      if (e.key === "archlucid_operator_scope_v1") {
+        refreshScopeBanner();
+      }
+    };
+
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("focus", refreshScopeBanner);
+
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("focus", refreshScopeBanner);
+    };
+  }, [refreshScopeBanner]);
 
   const load = useCallback(async () => {
     setState({ status: "loading" });
@@ -106,16 +148,16 @@ export function WorkspaceHealthDashboard() {
 
   if (state.status === "loading" || state.status === "idle") {
     return (
-      <main className="mx-auto max-w-4xl space-y-4 p-4">
+      <main className="mx-auto max-w-6xl space-y-4 p-4">
         <LayerHeader pageKey="governance-dashboard" />
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading workspace health…</p>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading executive workspace health…</p>
       </main>
     );
   }
 
   if (state.status === "error") {
     return (
-      <main className="mx-auto max-w-4xl space-y-4 p-4">
+      <main className="mx-auto max-w-6xl space-y-4 p-4">
         <LayerHeader pageKey="governance-dashboard" />
         <OperatorApiProblem
           fallbackMessage={state.message}
@@ -129,7 +171,6 @@ export function WorkspaceHealthDashboard() {
     );
   }
 
-  // Ensures narrowing for `LoadState`; prior branches returned for idle, loading, and error.
   if (state.status !== "ready") {
     return null;
   }
@@ -147,50 +188,60 @@ export function WorkspaceHealthDashboard() {
   const onTimePct =
     sla.onTimeDecisionRate === null ? "—" : `${Math.round(sla.onTimeDecisionRate * 100)}%`;
 
+  const blockCountLabel = blocked30d.exact
+    ? String(blocked30d.count)
+    : `≥ ${blocked30d.count} (sampled lower bound; audit paging reached safety cap)`;
+
   return (
-    <main className="mx-auto max-w-4xl space-y-6 p-4">
+    <main className="mx-auto max-w-6xl space-y-6 p-4">
       <LayerHeader pageKey="governance-dashboard" />
-      <div className="flex flex-wrap items-center gap-2">
-        <h1 className="m-0 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Workspace health</h1>
-        <ContextualHelp helpKey="governance-dashboard" />
-        <HelpLink
-          docPath="/docs/library/GOVERNANCE_WORKFLOW_UI.md"
-          label="Governance workflows documentation on GitHub (new tab)"
-        />
-      </div>
+
+      <header className="space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="m-0 text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+            Executive Workspace Health
+          </h1>
+          <ContextualHelp helpKey="governance-dashboard" />
+          <HelpLink
+            docPath="/docs/library/GOVERNANCE_WORKFLOW_UI.md"
+            label="Governance workflows documentation on GitHub (new tab)"
+          />
+        </div>
+        <p className="m-0 max-w-3xl text-sm text-neutral-600 dark:text-neutral-400">
+          Single page for operators and sponsors: pre-commit posture, severity exposure, compliance drift, approval SLAs, and a
+          hours-first value proxy — all within your current workspace scope.
+        </p>
+      </header>
 
       <div
-        className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/25 dark:text-amber-100"
+        className="rounded-lg border border-teal-700/30 bg-teal-50/90 px-4 py-3 text-sm text-teal-950 shadow-sm dark:border-teal-500/30 dark:bg-teal-950/30 dark:text-teal-50"
         role="status"
       >
-        <p className="m-0 font-medium">Current workspace scope only</p>
-        <p className="m-0 mt-1 text-xs opacity-90">
-          Figures use the authenticated tenant / workspace / project headers — the same boundaries as governance and audit
-          APIs. They are not a cross-workspace executive rollup.
-        </p>
+        <p className="m-0 font-semibold text-teal-900 dark:text-teal-100">Session scope</p>
+        <p className="m-0 mt-1 leading-snug">{scopeBanner}</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
             <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-              Pre-commit outcomes (30 days)
+              1. Pre-commit outcomes (30 days)
             </h2>
-            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Audit-backed tallies in the rolling window.</p>
+            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
+              Audit-backed counts via <span className="font-mono">GovernancePreCommitBlocked</span> and{" "}
+              <span className="font-mono">GovernancePreCommitWarned</span> in the rolling window.
+            </p>
             <ul className="m-0 mt-2 list-none space-y-1 p-0 text-sm">
               <li>
-                Blocked:{" "}
-                <span className="font-mono font-medium">
-                  {blocked30d.exact ? blocked30d.count : `${blocked30d.count} (sampled lower bound)`}
-                </span>{" "}
+                Blocked: <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">{blockCountLabel}</span>{" "}
                 <Link className="text-blue-700 underline dark:text-blue-400" href="/audit">
                   Audit log
                 </Link>
               </li>
               <li>
                 Warned:{" "}
-                <span className="font-mono font-medium">
-                  {warned30d.exact ? warned30d.count : `${warned30d.count} (sampled lower bound)`}
+                <span className="font-mono font-medium text-neutral-900 dark:text-neutral-100">
+                  {warned30d.exact ? warned30d.count : `≥ ${warned30d.count} (sampled lower bound)`}
                 </span>
               </li>
             </ul>
@@ -200,15 +251,16 @@ export function WorkspaceHealthDashboard() {
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
             <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-              High / Critical exposure (90 days)
+              2. High / Critical finding exposure (90 days)
             </h2>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-              From pilot-value-report severity totals in the window — not the same as an open-backlog aging report.
+              Pilot-value report severity totals in the window — exposure in the report period, not the same as an open-backlog
+              aging inventory.
             </p>
             <p className="m-0 mt-2 font-mono text-2xl font-semibold tabular-nums dark:text-neutral-100">{highCritical90}</p>
             <p className="m-0 text-sm">
               <Link href="/governance/findings" className="font-medium text-blue-700 underline dark:text-blue-400">
-                Open governance findings queue
+                Governance findings queue
               </Link>
             </p>
           </CardContent>
@@ -218,28 +270,29 @@ export function WorkspaceHealthDashboard() {
           <CardContent className="space-y-2 p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                Compliance drift (30 days)
+                3. Compliance drift trend (30 days)
               </h2>
               <Link href="/governance" className="text-sm font-medium text-blue-700 underline dark:text-blue-400">
                 Governance workflow
               </Link>
             </div>
+            <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">Daily buckets (1440-minute) from compliance drift API.</p>
             <ComplianceDriftChart points={driftPoints} />
           </CardContent>
         </Card>
 
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
-            <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Approval SLA posture</h2>
+            <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">4. Approval SLA posture</h2>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-              From governance dashboard pending + recent decisions.
+              Derived from governance dashboard pending approvals and recent terminal decisions.
             </p>
             <ul className="m-0 mt-2 list-none space-y-1 p-0 text-sm text-neutral-800 dark:text-neutral-200">
               <li>Pending (sample cap): {dashboard.pendingCount}</li>
               <li>Overdue pending (with SLA deadline): {sla.overduePendingCount}</li>
               <li>On-track pending (with SLA deadline): {sla.onTrackPendingWithSlaCount}</li>
               <li>
-                On-time decisions (reviewed ≤ SLA, eligible n={sla.onTimeEligibleDecisions}): {onTimePct}
+                On-time decisions (reviewed on or before SLA, eligible n={sla.onTimeEligibleDecisions}): {onTimePct}
               </li>
             </ul>
           </CardContent>
@@ -247,10 +300,32 @@ export function WorkspaceHealthDashboard() {
 
         <Card className="border-neutral-200 dark:border-neutral-800">
           <CardContent className="space-y-2 p-4">
-            <h2 className="m-0 text-base font-semibold text-neutral-900 dark:text-neutral-100">Value proxy (30 days)</h2>
+            <div className="flex items-start gap-2">
+              <h2 className="m-0 flex-1 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                5. Pre-commit blocks as value proxy
+              </h2>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    className="rounded p-0.5 text-neutral-500 hover:text-neutral-700 focus-visible:outline focus-visible:ring-2 dark:text-neutral-400 dark:hover:text-neutral-200"
+                    aria-label="About the hours estimate"
+                  >
+                    <CircleHelp className="size-4" aria-hidden />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-xs text-left leading-snug">
+                  Estimated review-hours combine severity-weighted findings and {HOURS_PER_PRECOMMIT_BLOCK} h per blocked event (
+                  <span className="font-mono">roi-assumptions.ts</span>). This is a planning estimate, not measured wall-clock time.
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <p className="m-0 text-xs text-neutral-500 dark:text-neutral-400">
-              Hours model matches the ROI report (severity weights + blocked events). Blocks:{" "}
-              {blocked30d.exact ? blocked30d.count : `${blocked30d.count} (sampled)`}.
+              Blocks in 30d:{" "}
+              <span className="font-mono font-medium text-neutral-800 dark:text-neutral-200">
+                {blocked30d.exact ? blocked30d.count : `${blocked30d.count} (sampled)`}
+              </span>
+              . Full hours formula includes findings severities in the same window.
             </p>
             <p className="m-0 mt-2 font-mono text-xl font-semibold text-neutral-900 dark:text-neutral-100">
               {formatHours(hoursFull30)}
@@ -260,7 +335,7 @@ export function WorkspaceHealthDashboard() {
             </p>
             <p className="m-0 text-sm">
               <Link href="/value-report/roi" className="font-medium text-blue-700 underline dark:text-blue-400">
-                Open ROI summary
+                See ROI report
               </Link>
             </p>
           </CardContent>
@@ -268,7 +343,7 @@ export function WorkspaceHealthDashboard() {
       </div>
 
       <p className="text-xs text-neutral-500 dark:text-neutral-400">
-        Full USD modeling is on the ROI summary page
+        Full USD modeling lives on the ROI report
         {callerRank >= AUTHORITY_RANK.AdminAuthority ? "" : " (Admin-only loaded $/hour line)"}.
       </p>
     </main>

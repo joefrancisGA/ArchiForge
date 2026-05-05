@@ -47,19 +47,17 @@ public sealed class ImportRequestFileServiceTests
 
         repo.Verify(
             r => r.InsertAsync(
-                It.Is<ImportedArchitectureRequestRecord>(
-                    rec =>
-                        rec.TenantId == TestScope.TenantId &&
-                        rec.Format == "json" &&
-                        rec.SourceFileName == "req.json" &&
-                        rec.RequestJson!.Contains("123456789012", StringComparison.Ordinal)),
+                It.Is<ImportedArchitectureRequestRecord>(rec =>
+                    rec.TenantId == TestScope.TenantId &&
+                    rec.Format == "json" &&
+                    rec.SourceFileName == "req.json" &&
+                    rec.RequestJson!.Contains("123456789012", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);
 
         audit.Verify(
             a => a.LogAsync(
-                It.Is<AuditEvent>(
-                    e => e.EventType == AuditEventTypes.RequestFileImported && e.CorrelationId == "corr-1"),
+                It.Is<AuditEvent>(e => e.EventType == AuditEventTypes.RequestFileImported && e.CorrelationId == "corr-1"),
                 It.IsAny<CancellationToken>()),
             Times.Once);
     }

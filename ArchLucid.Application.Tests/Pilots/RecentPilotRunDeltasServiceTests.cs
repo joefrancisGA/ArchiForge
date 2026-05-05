@@ -259,10 +259,7 @@ public sealed class RecentPilotRunDeltasServiceTests
 
         return new ArchitectureRunDetail
         {
-            Run = run,
-            Manifest = manifest,
-            Results = [],
-            DecisionTraces = [],
+            Run = run, Manifest = manifest, Results = [], DecisionTraces = [],
         };
     }
 }

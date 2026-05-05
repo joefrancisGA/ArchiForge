@@ -30,11 +30,9 @@ public sealed class GovernanceSlaEscalationWebhookRetryPipelineTests
 
             SendInvocationCount++;
 
-            if (_attemptOrdinal == successAfterAttemptInclusive)
-
-                return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
-
-            return Task.FromResult(new HttpResponseMessage(_status));
+            return Task.FromResult(_attemptOrdinal == successAfterAttemptInclusive
+                ? new HttpResponseMessage(HttpStatusCode.OK)
+                : new HttpResponseMessage(_status));
         }
     }
 

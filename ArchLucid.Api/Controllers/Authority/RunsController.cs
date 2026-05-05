@@ -268,6 +268,11 @@ public sealed partial class RunsController(
                 runId);
             return this.GovernancePreCommitBlockedProblem(ex.Result);
         }
+        catch (GoldenManifestSchemaValidationException ex)
+        {
+            logger.LogWarningWithSanitizedUserArg(ex, "CommitRun schema validation failed for run '{RunId}'.", runId);
+            return this.GoldenManifestSchemaValidationProblem(ex.Result);
+        }
         catch (ConflictException ex)
         {
             logger.LogWarningWithSanitizedUserArg(ex, "CommitRun conflict for run '{RunId}'.", runId);

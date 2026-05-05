@@ -25,10 +25,7 @@ public sealed class TrialScheduledLifecycleEmailScannerTests
         integrationOpts.Setup(m => m.CurrentValue).Returns(new IntegrationEventsOptions());
         Mock<IOptionsMonitor<TrialLifecycleEmailRoutingOptions>> routing = new();
         routing.Setup(m => m.CurrentValue).Returns(
-            new TrialLifecycleEmailRoutingOptions
-            {
-                Owner = TrialLifecycleEmailRoutingOptions.OwnerModes.LogicApp,
-            });
+            new TrialLifecycleEmailRoutingOptions { Owner = TrialLifecycleEmailRoutingOptions.OwnerModes.LogicApp, });
 
         TrialScheduledLifecycleEmailScanner sut = new(
             tenants.Object,

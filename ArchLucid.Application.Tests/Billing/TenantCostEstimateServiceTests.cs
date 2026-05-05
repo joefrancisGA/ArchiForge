@@ -32,12 +32,7 @@ public sealed class TenantCostEstimateServiceTests
         tenants.Setup(t => t.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new TenantRecord { Tier = TenantTier.Standard });
 
-        BillingUnitRatesOptions rates = new()
-        {
-            Currency = "USD",
-            StandardMonthlyUsdLow = 10,
-            StandardMonthlyUsdHigh = 20,
-        };
+        BillingUnitRatesOptions rates = new() { Currency = "USD", StandardMonthlyUsdLow = 10, StandardMonthlyUsdHigh = 20, };
 
         TenantCostEstimateService sut = new(tenants.Object, new BillingOptionsTestMonitor<BillingUnitRatesOptions>(rates));
 

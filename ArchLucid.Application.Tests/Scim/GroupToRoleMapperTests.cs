@@ -28,10 +28,7 @@ public sealed class GroupToRoleMapperTests
     {
         ScimOptions opt = new()
         {
-            GroupRoleMappingOverrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-            {
-                ["CustomAdmins"] = ArchLucidRoles.Operator
-            }
+            GroupRoleMappingOverrides = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { ["CustomAdmins"] = ArchLucidRoles.Operator }
         };
 
         GroupToRoleMapper sut = new(Options.Create(opt));

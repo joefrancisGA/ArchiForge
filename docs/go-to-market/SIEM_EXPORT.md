@@ -48,11 +48,37 @@ Each audit event includes:
 2. Create a Splunk **source type** for ArchLucid events (JSON, key fields mapped).
 3. Build Splunk dashboards and alerts on `eventType`, `actor`, and `correlationId`.
 
+**Example HEC event (raw CloudEvents JSON embedded in `event` as a string — common when forwarding the exact ArchLucid POST body):**
+
+```json
+{
+  "time": 1746120000,
+  "host": "archlucid-audit-forwarder",
+  "source": "archlucid:audit",
+  "sourcetype": "archlucid:cloudevents",
+  "event": "{\"specversion\":\"1.0\",\"type\":\"com.archlucid.governance.approval.submitted\",\"source\":\"/archlucid/tenant/11111111-1111-1111-1111-111111111111\",\"id\":\"a0d3c4d2-5c2b-4c2b-9c2b-000000000001\",\"time\":\"2026-05-01T12:00:00Z\",\"datacontenttype\":\"application/json\",\"data\":{\"schemaVersion\":1,\"approvalRequestId\":\"AR-1001\",\"runId\":\"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"}}"
+}
+```
+
 ### Microsoft Sentinel
 
 1. Configure ArchLucid **Service Bus** integration to publish to a dedicated topic.
 2. Deploy an **Azure Function** (Service Bus trigger → Log Analytics workspace via Data Collector API).
 3. Create Sentinel **analytics rules** on ArchLucid event types (e.g., alert on `GovernanceApprovalRejected`).
+
+**Example custom-table row (JSON Lines) after your forwarder unwraps the Service Bus message body:**
+
+```json
+{
+  "TimeGenerated": "2026-05-01T12:00:00Z",
+  "ArchLucidEventType": "com.archlucid.authority.run.completed",
+  "TenantId": "11111111-1111-1111-1111-111111111111",
+  "WorkspaceId": "22222222-2222-2222-2222-222222222222",
+  "ProjectId": "33333333-3333-3333-3333-333333333333",
+  "RunId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "Payload": { "schemaVersion": 1, "manifestId": "bbbbbbbb-bbbb-4bbb-bbbb-bbbbbbbbbbbb" }
+}
+```
 
 ### Generic SIEM (scheduled pull)
 

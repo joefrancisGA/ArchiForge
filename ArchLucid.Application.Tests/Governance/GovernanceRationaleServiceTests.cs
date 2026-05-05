@@ -46,10 +46,7 @@ public sealed class GovernanceRationaleServiceTests
                     Run = new GovernanceLineageRunSummary { RunId = "run-a", Status = "Ready", CreatedUtc = DateTime.UtcNow },
                     Manifest = new GovernanceLineageManifestSummary
                     {
-                        ManifestVersion = "v2",
-                        DecisionCount = 3,
-                        UnresolvedIssueCount = 1,
-                        ComplianceGapCount = 0,
+                        ManifestVersion = "v2", DecisionCount = 3, UnresolvedIssueCount = 1, ComplianceGapCount = 0,
                     },
                     RiskPosture = "Medium",
                     TopFindings = [],

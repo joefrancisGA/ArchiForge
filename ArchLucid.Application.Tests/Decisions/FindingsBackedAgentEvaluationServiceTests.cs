@@ -27,11 +27,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
         Description = "d"
     };
 
-    private static readonly AgentEvidencePackage SampleEvidence = new()
-    {
-        RunId = "run-1",
-        RequestId = "r1"
-    };
+    private static readonly AgentEvidencePackage SampleEvidence = new() { RunId = "run-1", RequestId = "r1" };
 
     private readonly FindingsBackedAgentEvaluationService _sut = new();
 
@@ -113,11 +109,7 @@ public sealed class FindingsBackedAgentEvaluationServiceTests
                 AgentType = AgentType.Compliance,
                 Findings =
                 [
-                    new ArchitectureFinding
-                    {
-                        Severity = FindingSeverity.Error,
-                        Message = "Gap"
-                    }
+                    new ArchitectureFinding { Severity = FindingSeverity.Error, Message = "Gap" }
                 ]
             },
         ];

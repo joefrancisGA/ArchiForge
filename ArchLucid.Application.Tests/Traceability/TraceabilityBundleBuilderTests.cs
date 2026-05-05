@@ -26,12 +26,7 @@ public sealed class TraceabilityBundleBuilderTests
 
         Mock<IAuditRepository> audit = new();
         TraceabilityBundleBuilder sut = new(runDetail.Object, audit.Object);
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-        };
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid(), };
 
         byte[]? zip = await sut.BuildAsync("missing-run", scope, 10_000_000, CancellationToken.None);
 
@@ -52,12 +47,7 @@ public sealed class TraceabilityBundleBuilderTests
         Guid runGuid = Guid.Parse("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         ArchitectureRunDetail detail = new()
         {
-            Run = new ArchitectureRun
-            {
-                RunId = runGuid.ToString("N"),
-                RequestId = "req-1",
-                Status = ArchitectureRunStatus.Committed,
-            },
+            Run = new ArchitectureRun { RunId = runGuid.ToString("N"), RequestId = "req-1", Status = ArchitectureRunStatus.Committed, },
         };
 
         Mock<IRunDetailQueryService> runDetail = new();
@@ -78,12 +68,7 @@ public sealed class TraceabilityBundleBuilderTests
             .ReturnsAsync([]);
 
         TraceabilityBundleBuilder sut = new(runDetail.Object, audit.Object);
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId,
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, };
 
         byte[]? zipBytes = await sut.BuildAsync(runGuid.ToString("N"), scope, 10_000_000, CancellationToken.None);
 
@@ -106,12 +91,7 @@ public sealed class TraceabilityBundleBuilderTests
         Guid runGuid = Guid.Parse("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
         ArchitectureRunDetail detail = new()
         {
-            Run = new ArchitectureRun
-            {
-                RunId = runGuid.ToString("N"),
-                RequestId = "req-2",
-                Status = ArchitectureRunStatus.Committed,
-            },
+            Run = new ArchitectureRun { RunId = runGuid.ToString("N"), RequestId = "req-2", Status = ArchitectureRunStatus.Committed, },
         };
 
         Mock<IRunDetailQueryService> runDetail = new();
@@ -128,12 +108,7 @@ public sealed class TraceabilityBundleBuilderTests
             .ReturnsAsync([]);
 
         TraceabilityBundleBuilder sut = new(runDetail.Object, audit.Object);
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid(),
-        };
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid(), };
 
         Func<Task> act = async () =>
             _ = await sut.BuildAsync(runGuid.ToString("N"), scope, maxZipBytes: 1, CancellationToken.None);

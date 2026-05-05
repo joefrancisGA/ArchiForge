@@ -172,6 +172,40 @@ public sealed class RunQueryController(
     }
 
     /// <summary>
+    ///     Reserved route for future LLM-backed provenance node explanations. Returns <c>501 Not Implemented</c> until the
+    ///     feature ships; clients should use the trace timeline and node metadata meanwhile.
+    /// </summary>
+    [HttpGet("runs/{runId}/provenance/{nodeId}/explanation")]
+    [ProducesResponseType(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails), StatusCodes.Status501NotImplemented)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public IActionResult GetProvenanceNodeExplanation(
+        [FromRoute] string runId,
+        [FromRoute] string nodeId)
+    {
+        if (string.IsNullOrWhiteSpace(runId) || string.IsNullOrWhiteSpace(nodeId))
+            return this.BadRequestProblem("Run id and node id are required.", ProblemTypes.ValidationFailed);
+
+        Microsoft.AspNetCore.Mvc.ProblemDetails problem = new()
+        {
+            Type = ProblemTypes.FeatureNotYetAvailable,
+            Title = "Not Implemented",
+            Status = StatusCodes.Status501NotImplemented,
+            Detail =
+                "Explain-this-node summaries for provenance graph vertices are not available yet. Use the trace timeline and node metadata for now.",
+            Instance = Request.Path.Value
+        };
+
+        ProblemErrorCodes.AttachErrorCode(problem, problem.Type);
+        ProblemSupportHints.AttachForProblemType(problem);
+        ProblemCorrelation.Attach(problem, HttpContext);
+        return new ObjectResult(problem)
+        {
+            StatusCode = problem.Status,
+            ContentTypes = { ApplicationProblemMapper.ProblemJsonMediaType }
+        };
+    }
+
+    /// <summary>
     ///     Returns decision-tree nodes materialized for <paramref name="runId" /> after commit (empty before commit yields
     ///     404).
     /// </summary>

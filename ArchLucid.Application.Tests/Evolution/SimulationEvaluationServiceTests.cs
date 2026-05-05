@@ -38,25 +38,12 @@ public sealed class SimulationEvaluationServiceTests
 
         SimulationEvaluationService sut = new(manifestDiff.Object, determinism.Object);
 
-        DeterminismCheckResult det = new()
-        {
-            SourceRunId = "r1",
-            Iterations = 2,
-            IsDeterministic = false,
-        };
+        DeterminismCheckResult det = new() { SourceRunId = "r1", Iterations = 2, IsDeterministic = false, };
 
         SimulationEvaluationRequest request = new()
         {
-            BaselineReport = new ArchitectureAnalysisReport
-            {
-                Run = new ArchitectureRun { RunId = "r1" },
-                Warnings = [],
-            },
-            SimulatedReport = new ArchitectureAnalysisReport
-            {
-                Run = new ArchitectureRun { RunId = "r1" },
-                Warnings = [],
-            },
+            BaselineReport = new ArchitectureAnalysisReport { Run = new ArchitectureRun { RunId = "r1" }, Warnings = [], },
+            SimulatedReport = new ArchitectureAnalysisReport { Run = new ArchitectureRun { RunId = "r1" }, Warnings = [], },
             SuppliedDeterminism = det,
         };
 
@@ -80,28 +67,20 @@ public sealed class SimulationEvaluationServiceTests
         manifestDiff
             .Setup(x => x.Compare(left, right))
             .Returns(
-                new ManifestDiffResult
-                {
-                    LeftManifestVersion = "v1",
-                    RightManifestVersion = "v1",
-                    RemovedServices = ["S1"],
-                });
+                new ManifestDiffResult { LeftManifestVersion = "v1", RightManifestVersion = "v1", RemovedServices = ["S1"], });
 
         SimulationEvaluationService sut = new(manifestDiff.Object, Mock.Of<IDeterminismCheckService>());
 
         SimulationEvaluationRequest request = new()
         {
-            BaselineReport = new ArchitectureAnalysisReport
-            {
-                Run = new ArchitectureRun { RunId = "r1", CurrentManifestVersion = "v1" },
-                Manifest = left,
-                Warnings = [],
-            },
+            BaselineReport =
+                new ArchitectureAnalysisReport
+                {
+                    Run = new ArchitectureRun { RunId = "r1", CurrentManifestVersion = "v1" }, Manifest = left, Warnings = [],
+                },
             SimulatedReport = new ArchitectureAnalysisReport
             {
-                Run = new ArchitectureRun { RunId = "r1", CurrentManifestVersion = "v1" },
-                Manifest = right,
-                Warnings = [],
+                Run = new ArchitectureRun { RunId = "r1", CurrentManifestVersion = "v1" }, Manifest = right, Warnings = [],
             },
         };
 
@@ -118,11 +97,7 @@ public sealed class SimulationEvaluationServiceTests
         manifestDiff
             .Setup(x => x.Compare(It.IsAny<GoldenManifest>(), It.IsAny<GoldenManifest>()))
             .Returns(
-                new ManifestDiffResult
-                {
-                    LeftManifestVersion = "v1",
-                    RightManifestVersion = "v1",
-                });
+                new ManifestDiffResult { LeftManifestVersion = "v1", RightManifestVersion = "v1", });
 
         return new SimulationEvaluationService(manifestDiff.Object, Mock.Of<IDeterminismCheckService>());
     }
@@ -136,28 +111,17 @@ public sealed class SimulationEvaluationServiceTests
 
         return new SimulationEvaluationRequest
         {
-            BaselineReport = new ArchitectureAnalysisReport
-            {
-                Run = new ArchitectureRun { RunId = "r1", CurrentManifestVersion = "v1" },
-                Manifest = m,
-                Warnings = bw,
-            },
+            BaselineReport =
+                new ArchitectureAnalysisReport { Run = new ArchitectureRun { RunId = "r1", CurrentManifestVersion = "v1" }, Manifest = m, Warnings = bw, },
             SimulatedReport = new ArchitectureAnalysisReport
             {
-                Run = new ArchitectureRun { RunId = "r1", CurrentManifestVersion = "v1" },
-                Manifest = m,
-                Warnings = sw,
+                Run = new ArchitectureRun { RunId = "r1", CurrentManifestVersion = "v1" }, Manifest = m, Warnings = sw,
             },
         };
     }
 
     private static GoldenManifest MinimalManifest(string runId, string version)
     {
-        return new GoldenManifest
-        {
-            RunId = runId,
-            SystemName = "Sys",
-            Metadata = new ManifestMetadata { ManifestVersion = version },
-        };
+        return new GoldenManifest { RunId = runId, SystemName = "Sys", Metadata = new ManifestMetadata { ManifestVersion = version }, };
     }
 }

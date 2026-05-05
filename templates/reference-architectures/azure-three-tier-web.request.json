@@ -1,0 +1,25 @@
+{
+  "requestId": "REF-TPL-THREE-TIER-WEB-001",
+  "systemName": "ThreeTierWebApp",
+  "description": "Standard three-tier web application on Azure App Service with REST API tier, Azure SQL for transactional data, Blob Storage for static assets, private endpoints, Entra ID auth, and TLS everywhere.",
+  "environment": "prod",
+  "cloudProvider": "Azure",
+  "constraints": [
+    "Private endpoints for PaaS data planes",
+    "No public SQL exposure",
+    "Managed identity between tiers",
+    "Encryption at rest required"
+  ],
+  "requiredCapabilities": [
+    "Azure App Service",
+    "Azure SQL Database",
+    "Azure Blob Storage",
+    "Azure Private Link",
+    "Azure Application Gateway or Front Door"
+  ],
+  "assumptions": [
+    "Moderate traffic (~1k RPS peak)",
+    "Single primary region with warm standby"
+  ],
+  "priorManifestVersion": null
+}

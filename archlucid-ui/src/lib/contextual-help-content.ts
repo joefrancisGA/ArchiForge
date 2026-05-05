@@ -38,10 +38,9 @@ export const contextualHelpByKey: Record<string, ContextualHelpEntry> = {
     text: "Compare diffs two finalized manifests. Enter base and target review IDs from the Reviews list.",
     learnMoreUrl: "/docs/COMPARISON_REPLAY.md",
   },
-  /** Stub `/governance/dashboard` route; full cross-run queue UI not demo-ready yet. */
   "governance-dashboard": {
     text:
-      "Cross-run approvals queue and governance signals normally surface here when enabled; some workspaces show unavailable until operator tooling ships.",
+      "Executive Workspace Health summarizes pre-commit outcomes, severity exposure, compliance drift, approval SLAs, and a hours-first value proxy for the active tenant/workspace/project scope.",
     learnMoreUrl: "/docs/CORE_PILOT.md#governance-gate",
   },
   "replay-run": {

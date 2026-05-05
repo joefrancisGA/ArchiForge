@@ -33,11 +33,7 @@ public sealed class DefaultAgentEvaluationServiceTests
             Description = "d",
         };
 
-        AgentEvidencePackage evidence = new()
-        {
-            RunId = "run-1",
-            RequestId = "r1"
-        };
+        AgentEvidencePackage evidence = new() { RunId = "run-1", RequestId = "r1" };
 
         IReadOnlyList<AgentEvaluation> evaluations = await sut.EvaluateAsync(
             "run-1",
@@ -63,11 +59,7 @@ public sealed class DefaultAgentEvaluationServiceTests
             Description = "d",
         };
 
-        AgentEvidencePackage evidence = new()
-        {
-            RunId = "run-1",
-            RequestId = "r1"
-        };
+        AgentEvidencePackage evidence = new() { RunId = "run-1", RequestId = "r1" };
 
         Func<Task> act = () => sut.EvaluateAsync(" ", request, evidence, [], [], CancellationToken.None);
 
@@ -87,11 +79,7 @@ public sealed class DefaultAgentEvaluationServiceTests
             Description = "d",
         };
 
-        AgentEvidencePackage evidence = new()
-        {
-            RunId = "run-1",
-            RequestId = "r1"
-        };
+        AgentEvidencePackage evidence = new() { RunId = "run-1", RequestId = "r1" };
         using CancellationTokenSource cts = new();
         await cts.CancelAsync();
 
@@ -104,11 +92,7 @@ public sealed class DefaultAgentEvaluationServiceTests
     public async Task EvaluateAsync_throws_when_request_null()
     {
         DefaultAgentEvaluationService sut = new(new Mock<ILogger<DefaultAgentEvaluationService>>().Object);
-        AgentEvidencePackage evidence = new()
-        {
-            RunId = "run-1",
-            RequestId = "r1"
-        };
+        AgentEvidencePackage evidence = new() { RunId = "run-1", RequestId = "r1" };
 
         Func<Task> act = () => sut.EvaluateAsync("run-1", null!, evidence, [], [], CancellationToken.None);
 

@@ -55,12 +55,7 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             CreatedUtc = DateTime.UtcNow,
         };
 
-        ArchitectureRequest request = new()
-        {
-            RequestId = "req-promote-audit",
-            Description = new string('x', 12),
-            SystemName = "PromoteAudit",
-        };
+        ArchitectureRequest request = new() { RequestId = "req-promote-audit", Description = new string('x', 12), SystemName = "PromoteAudit", };
 
         Mock<IRunRepository> runRepo = new();
         runRepo
@@ -82,37 +77,30 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
             .Setup(t => t.GetByRunIdAsync(runId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
             [
-                new AgentTask
-                {
-                    RunId = runId,
-                    AgentType = AgentType.Topology,
-                    TaskId = Guid.NewGuid().ToString("N"),
-                },
+                new AgentTask { RunId = runId, AgentType = AgentType.Topology, TaskId = Guid.NewGuid().ToString("N"), },
             ]);
 
         IReadOnlyList<AgentResult> fourResults = BuildFourResults(runId);
 
         Mock<IAgentExecutor> executor = new();
         executor
-            .Setup(
-                e => e.ExecuteAsync(
-                    runId,
-                    request,
-                    It.IsAny<AgentEvidencePackage>(),
-                    It.IsAny<IReadOnlyList<AgentTask>>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(e => e.ExecuteAsync(
+                runId,
+                request,
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyList<AgentTask>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(fourResults);
 
         Mock<IAgentEvaluationService> evaluationService = new();
         evaluationService
-            .Setup(
-                e => e.EvaluateAsync(
-                    runId,
-                    request,
-                    It.IsAny<AgentEvidencePackage>(),
-                    It.IsAny<IReadOnlyCollection<AgentTask>>(),
-                    It.IsAny<IReadOnlyCollection<AgentResult>>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(e => e.EvaluateAsync(
+                runId,
+                request,
+                It.IsAny<AgentEvidencePackage>(),
+                It.IsAny<IReadOnlyCollection<AgentTask>>(),
+                It.IsAny<IReadOnlyCollection<AgentResult>>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
 
         Mock<IAgentResultRepository> resultRepo = new();
@@ -123,12 +111,11 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
 
         Mock<IAgentEvaluationRepository> evalRepo = new();
         evalRepo
-            .Setup(
-                r => r.CreateManyAsync(
-                    It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
-                    It.IsAny<CancellationToken>(),
-                    null,
-                    null))
+            .Setup(r => r.CreateManyAsync(
+                It.IsAny<IReadOnlyCollection<AgentEvaluation>>(),
+                It.IsAny<CancellationToken>(),
+                null,
+                null))
             .Returns(Task.CompletedTask);
 
         Mock<IAgentEvidencePackageRepository> evidenceRepo = new();
@@ -138,13 +125,12 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
 
         Mock<IBaselineMutationAuditService> baselineAudit = new();
         baselineAudit
-            .Setup(
-                b => b.RecordAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string?>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(b => b.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         AuditEvent? captured = null;
@@ -200,16 +186,15 @@ public sealed class ArchitectureRunExecuteOrchestratorLegacyPromotionAuditTests
         AgentType[] types = [AgentType.Topology, AgentType.Cost, AgentType.Compliance, AgentType.Critic];
 
         return types
-            .Select(
-                t => new AgentResult
-                {
-                    RunId = runId,
-                    AgentType = t,
-                    TaskId = $"{t}-{Guid.NewGuid():N}",
-                    Claims = ["c"],
-                    EvidenceRefs = ["e"],
-                    Confidence = 0.9,
-                })
+            .Select(t => new AgentResult
+            {
+                RunId = runId,
+                AgentType = t,
+                TaskId = $"{t}-{Guid.NewGuid():N}",
+                Claims = ["c"],
+                EvidenceRefs = ["e"],
+                Confidence = 0.9,
+            })
             .ToList();
     }
 }

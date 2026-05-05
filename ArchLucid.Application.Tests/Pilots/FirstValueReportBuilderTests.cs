@@ -63,10 +63,7 @@ public sealed class FirstValueReportBuilderTests
             TopFindingSeverity = "Error",
             TopFindingEvidenceChain = new FindingEvidenceChainResponse
             {
-                RunId = "r1",
-                FindingId = "top-finding-id",
-                ManifestVersion = "v2",
-                FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                RunId = "r1", FindingId = "top-finding-id", ManifestVersion = "v2", FindingsSnapshotId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
             },
             IsDemoTenant = false,
         };
@@ -172,10 +169,7 @@ public sealed class FirstValueReportBuilderTests
 
         return new ArchitectureRunDetail
         {
-            Run = run,
-            Results = [result],
-            Manifest = manifest,
-            DecisionTraces = [],
+            Run = run, Results = [result], Manifest = manifest, DecisionTraces = [],
         };
     }
 

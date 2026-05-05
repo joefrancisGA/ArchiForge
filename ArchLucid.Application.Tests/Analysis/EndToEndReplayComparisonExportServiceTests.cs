@@ -23,10 +23,7 @@ public sealed class EndToEndReplayComparisonExportServiceTests
         EndToEndReplayComparisonExportService sut = new(formatter.Object);
         EndToEndReplayComparisonReport report = new()
         {
-            LeftRunId = "left-run",
-            RightRunId = "right-run",
-            InterpretationNotes = ["should-not-appear-in-short"],
-            Warnings = ["warn-hidden"],
+            LeftRunId = "left-run", RightRunId = "right-run", InterpretationNotes = ["should-not-appear-in-short"], Warnings = ["warn-hidden"],
         };
 
         string md = sut.GenerateMarkdown(report, EndToEndComparisonExportProfile.Short);
@@ -47,10 +44,7 @@ public sealed class EndToEndReplayComparisonExportServiceTests
         EndToEndReplayComparisonExportService sut = new(formatter.Object);
         EndToEndReplayComparisonReport report = new()
         {
-            LeftRunId = "L1",
-            RightRunId = "R2",
-            InterpretationNotes = ["note-a"],
-            Warnings = ["warn-b"],
+            LeftRunId = "L1", RightRunId = "R2", InterpretationNotes = ["note-a"], Warnings = ["warn-b"],
         };
 
         string md = sut.GenerateMarkdown(report, profile: null);

@@ -81,4 +81,7 @@ public static class ProblemTypes
 
     /// <summary>Authenticated tenant is below the commercial tier required for this tenant-facing route (RFC 9457 Problem Details; HTTP 403).</summary>
     public const string PackagingTierInsufficient = Base + "#packaging-tier-insufficient";
+
+    /// <summary>Optional or roadmap capability invoked before implementation (RFC 9457; HTTP 501).</summary>
+    public const string FeatureNotYetAvailable = Base + "#feature-not-yet-available";
 }

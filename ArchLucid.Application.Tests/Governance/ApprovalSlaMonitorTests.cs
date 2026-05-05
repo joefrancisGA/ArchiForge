@@ -24,10 +24,7 @@ public sealed class ApprovalSlaMonitorTests
 
     private ApprovalSlaMonitor CreateSut(PreCommitGovernanceGateOptions? options = null)
     {
-        PreCommitGovernanceGateOptions opts = options ?? new PreCommitGovernanceGateOptions
-        {
-            ApprovalSlaHours = 24,
-        };
+        PreCommitGovernanceGateOptions opts = options ?? new PreCommitGovernanceGateOptions { ApprovalSlaHours = 24, };
 
         return new ApprovalSlaMonitor(
             _approvalRepo,
@@ -131,11 +128,7 @@ public sealed class ApprovalSlaMonitorTests
         };
         await _approvalRepo.CreateAsync(request, CancellationToken.None);
 
-        PreCommitGovernanceGateOptions opts = new()
-        {
-            ApprovalSlaHours = 24,
-            ApprovalSlaEscalationWebhookUrl = null,
-        };
+        PreCommitGovernanceGateOptions opts = new() { ApprovalSlaHours = 24, ApprovalSlaEscalationWebhookUrl = null, };
 
         ApprovalSlaMonitor sut = CreateSut(opts);
         await sut.CheckAndEscalateAsync(CancellationToken.None);
@@ -165,10 +158,7 @@ public sealed class ApprovalSlaMonitorTests
         };
         await _approvalRepo.CreateAsync(request, CancellationToken.None);
 
-        PreCommitGovernanceGateOptions opts = new()
-        {
-            ApprovalSlaHours = null,
-        };
+        PreCommitGovernanceGateOptions opts = new() { ApprovalSlaHours = null, };
 
         ApprovalSlaMonitor sut = CreateSut(opts);
         await sut.CheckAndEscalateAsync(CancellationToken.None);

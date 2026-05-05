@@ -50,12 +50,7 @@ public sealed class RunPipelineAuditTimelineServiceTests
         Guid workspaceId = Guid.NewGuid();
         Guid projectId = Guid.NewGuid();
 
-        RunSummaryDto summary = new()
-        {
-            RunId = runId,
-            ProjectId = "default",
-            CreatedUtc = DateTime.UtcNow,
-        };
+        RunSummaryDto summary = new() { RunId = runId, ProjectId = "default", CreatedUtc = DateTime.UtcNow, };
 
         Mock<IAuthorityQueryService> query = new();
         query
@@ -97,12 +92,7 @@ public sealed class RunPipelineAuditTimelineServiceTests
             .ReturnsAsync(fromDb);
 
         RunPipelineAuditTimelineService sut = new(query.Object, audit.Object);
-        ScopeContext scope = new()
-        {
-            TenantId = tenantId,
-            WorkspaceId = workspaceId,
-            ProjectId = projectId,
-        };
+        ScopeContext scope = new() { TenantId = tenantId, WorkspaceId = workspaceId, ProjectId = projectId, };
 
         IReadOnlyList<RunPipelineTimelineItemDto>? result = await sut.GetTimelineAsync(scope, runId, CancellationToken.None);
 

@@ -57,7 +57,7 @@ const PAGES = [
   { name: "Alerts routing tab", path: "/alerts?tab=routing" },
   { name: "Alerts simulation and tuning tab", path: "/alerts?tab=simulation" },
   { name: "Alerts composite tab", path: "/alerts?tab=composite" },
-  { name: "Workspace health", path: "/governance/dashboard" },
+  { name: "Executive Workspace Health", path: "/governance/dashboard" },
   { name: "Governance workflow", path: "/governance" },
   { name: "Governance resolution", path: "/governance-resolution" },
   { name: "Governance findings queue", path: "/governance/findings" },

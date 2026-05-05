@@ -14,19 +14,13 @@ namespace ArchLucid.Application.Tests.Runs;
 /// <summary>
 /// Tests for <see cref="ArchitectureRunAuthorityCoordination"/>.
 /// </summary>
-
 [Trait("Suite", "Core")]
 public sealed class ArchitectureRunAuthorityCoordinationTests
 {
     [SkippableFact]
     public async Task CreateRun_Should_CreateRunAndStarterTasks_When_RequestIsValid()
     {
-        ArchitectureRequest request = new()
-        {
-            RequestId = "REQ-001",
-            SystemName = "TestSystem",
-            Description = "Design a secure Azure system."
-        };
+        ArchitectureRequest request = new() { RequestId = "REQ-001", SystemName = "TestSystem", Description = "Design a secure Azure system." };
 
         Mock<IRunRepository> runRepo = new();
         runRepo.Setup(r => r.GetByIdAsync(It.IsAny<ScopeContext>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
@@ -35,9 +29,7 @@ public sealed class ArchitectureRunAuthorityCoordinationTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(new ScopeContext
         {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
+            TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid()
         });
 
         ArchitectureRunAuthorityCoordination service = new(

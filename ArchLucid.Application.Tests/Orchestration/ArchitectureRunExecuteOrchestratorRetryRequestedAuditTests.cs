@@ -54,12 +54,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             CreatedUtc = DateTime.UtcNow,
         };
 
-        ArchitectureRequest request = new()
-        {
-            RequestId = "req-retry-audit",
-            Description = new string('x', 12),
-            SystemName = "RetryAudit",
-        };
+        ArchitectureRequest request = new() { RequestId = "req-retry-audit", Description = new string('x', 12), SystemName = "RetryAudit", };
 
         Mock<IRunRepository> runRepo = new();
         runRepo
@@ -85,13 +80,12 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
 
         Mock<IBaselineMutationAuditService> baselineAudit = new();
         baselineAudit
-            .Setup(
-                b => b.RecordAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string?>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(b => b.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         AuditEvent? capturedRetry = null;
@@ -164,12 +158,7 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
             CreatedUtc = DateTime.UtcNow,
         };
 
-        ArchitectureRequest request = new()
-        {
-            RequestId = "req-retry-audit-sql",
-            Description = new string('x', 12),
-            SystemName = "RetryAuditSql",
-        };
+        ArchitectureRequest request = new() { RequestId = "req-retry-audit-sql", Description = new string('x', 12), SystemName = "RetryAuditSql", };
 
         Mock<IRunRepository> runRepo = new();
         runRepo
@@ -195,13 +184,12 @@ public sealed class ArchitectureRunExecuteOrchestratorRetryRequestedAuditTests
 
         Mock<IBaselineMutationAuditService> baselineAudit = new();
         baselineAudit
-            .Setup(
-                b => b.RecordAsync(
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string>(),
-                    It.IsAny<string?>(),
-                    It.IsAny<CancellationToken>()))
+            .Setup(b => b.RecordAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string?>(),
+                It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
         Mock<IAuditService> auditService = new();

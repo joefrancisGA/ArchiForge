@@ -421,7 +421,7 @@ export default function GraphPage() {
               {graph.nodes.length} nodes, {graph.edges.length} edges (before filter)
             </span>
           </div>
-          <GraphViewer graph={graph} typeFilter={typeFilter} />
+          <GraphViewer graph={graph} typeFilter={typeFilter} runId={runId.trim()} />
         </ClientErrorBoundary>
       )}
     </main>

@@ -12,10 +12,7 @@ public sealed class ScimPatchOpEvaluatorTests
     [SkippableFact]
     public void Replace_sets_value()
     {
-        Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase)
-        {
-            ["userName"] = JsonDocument.Parse("\"old\"").RootElement
-        };
+        Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase) { ["userName"] = JsonDocument.Parse("\"old\"").RootElement };
 
         JsonElement patch = JsonDocument.Parse(
             """{"Operations":[{"op":"replace","path":"userName","value":"new"}]}""").RootElement;
@@ -39,10 +36,7 @@ public sealed class ScimPatchOpEvaluatorTests
     [SkippableFact]
     public void Remove_deletes_key()
     {
-        Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase)
-        {
-            ["displayName"] = JsonDocument.Parse("\"x\"").RootElement
-        };
+        Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase) { ["displayName"] = JsonDocument.Parse("\"x\"").RootElement };
 
         JsonElement patch = JsonDocument.Parse(
             """{"Operations":[{"op":"remove","path":"displayName"}]}""").RootElement;
@@ -76,6 +70,7 @@ public sealed class ScimPatchOpEvaluatorTests
         ScimPatchException ex = act.Should().Throw<ScimPatchException>().Which;
         ex.ScimType.Should().Be("notImplemented");
     }
+
     [SkippableFact]
     public void Missing_value_on_replace_throws()
     {
@@ -91,10 +86,7 @@ public sealed class ScimPatchOpEvaluatorTests
     [SkippableFact]
     public void Sequential_ops_apply_in_order()
     {
-        Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase)
-        {
-            ["a"] = JsonDocument.Parse("1").RootElement
-        };
+        Dictionary<string, JsonElement> cur = new(StringComparer.OrdinalIgnoreCase) { ["a"] = JsonDocument.Parse("1").RootElement };
 
         JsonElement patch = JsonDocument.Parse(
             """

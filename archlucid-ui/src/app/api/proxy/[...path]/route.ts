@@ -10,6 +10,7 @@ import { declaredPostBodyExceedsLimit, readRequestBodyWithLimit } from "@/lib/pr
 import { PROXY_MAX_BODY_BYTES } from "@/lib/proxy-constants";
 import { enforceProxyRateLimit } from "@/lib/proxy-rate-limit";
 import { PROXY_UPSTREAM_FETCH_TIMEOUT_MS } from "@/lib/server-fetch-timeouts";
+import { trySandboxProxyMock } from "@/lib/sandbox-proxy-mocks";
 import { getScopeHeaders } from "@/lib/scope";
 
 /**
@@ -94,6 +95,12 @@ async function forward(
   const upstreamHeaders = buildUpstreamHeaders(request);
   const correlationId =
     upstreamHeaders.get(CORRELATION_ID_HEADER)?.trim() ?? generateCorrelationId();
+
+  const sandbox = trySandboxProxyMock(method, pathSegments, correlationId);
+
+  if (sandbox) {
+    return sandbox;
+  }
 
   const resolved = resolveUpstreamApiBaseUrlForProxy();
 

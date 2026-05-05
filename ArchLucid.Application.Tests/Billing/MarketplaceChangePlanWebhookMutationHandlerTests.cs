@@ -21,8 +21,7 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
     {
         BillingOptions billing = new()
         {
-            Provider = BillingProviderNames.AzureMarketplace,
-            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false },
+            Provider = BillingProviderNames.AzureMarketplace, AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false },
         };
 
         BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
@@ -49,8 +48,7 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
     {
         BillingOptions billing = new()
         {
-            Provider = BillingProviderNames.AzureMarketplace,
-            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true },
+            Provider = BillingProviderNames.AzureMarketplace, AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = true },
         };
 
         BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
@@ -79,11 +77,7 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
     [SkippableFact]
     public async Task Stripe_provider_applies_change_plan_when_azure_marketplace_ga_disabled()
     {
-        BillingOptions billing = new()
-        {
-            Provider = BillingProviderNames.Stripe,
-            AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false },
-        };
+        BillingOptions billing = new() { Provider = BillingProviderNames.Stripe, AzureMarketplace = new AzureMarketplaceBillingOptions { GaEnabled = false }, };
 
         BillingOptionsTestMonitor<BillingOptions> monitor = new(billing);
         Mock<IBillingLedger> ledger = new();
@@ -107,5 +101,4 @@ public sealed class MarketplaceChangePlanWebhookMutationHandlerTests
 
         ledger.Verify(l => l.ChangePlanAsync(tenantId, nameof(TenantTier.Standard), raw, It.IsAny<CancellationToken>()), Times.Once);
     }
-
 }

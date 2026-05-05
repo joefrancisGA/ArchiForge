@@ -38,12 +38,7 @@ public sealed class ManifestFinalizationServiceTests
         Guid runId = Guid.NewGuid();
         Guid expectedFindings = Guid.NewGuid();
 
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
@@ -78,12 +73,7 @@ public sealed class ManifestFinalizationServiceTests
         Guid runId = Guid.NewGuid();
         Guid findingsId = Guid.NewGuid();
 
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
@@ -104,12 +94,7 @@ public sealed class ManifestFinalizationServiceTests
         Mock<IFindingsSnapshotRepository> findings = new();
         findings.Setup(f => f.GetByIdAsync(findingsId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(
-                new FindingsSnapshot
-                {
-                    FindingsSnapshotId = findingsId,
-                    GenerationStatus = FindingsSnapshotGenerationStatus.Generating,
-                    Findings = []
-                });
+                new FindingsSnapshot { FindingsSnapshotId = findingsId, GenerationStatus = FindingsSnapshotGenerationStatus.Generating, Findings = [] });
 
         ManifestFinalizationService sut = CreateSut(
             scopeProvider: scopeProvider.Object,
@@ -129,12 +114,7 @@ public sealed class ManifestFinalizationServiceTests
         Guid runId = Guid.NewGuid();
         Guid findingsId = Guid.NewGuid();
 
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
@@ -170,12 +150,7 @@ public sealed class ManifestFinalizationServiceTests
         Guid findingsId = Guid.NewGuid();
         Guid traceId = Guid.NewGuid();
 
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
@@ -270,12 +245,7 @@ public sealed class ManifestFinalizationServiceTests
         Guid runId = Guid.NewGuid();
         Guid manifestId = Guid.NewGuid();
 
-        ScopeContext scope = new()
-        {
-            TenantId = Guid.NewGuid(),
-            WorkspaceId = Guid.NewGuid(),
-            ProjectId = Guid.NewGuid()
-        };
+        ScopeContext scope = new() { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() };
 
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(scope);
@@ -400,12 +370,7 @@ public sealed class ManifestFinalizationServiceTests
     {
         Mock<IScopeContextProvider> scope = new();
         scope.Setup(s => s.GetCurrentScope()).Returns(
-            new ScopeContext
-            {
-                TenantId = Guid.NewGuid(),
-                WorkspaceId = Guid.NewGuid(),
-                ProjectId = Guid.NewGuid()
-            });
+            new ScopeContext { TenantId = Guid.NewGuid(), WorkspaceId = Guid.NewGuid(), ProjectId = Guid.NewGuid() });
 
         return new ManifestFinalizationService(
             ArchLucidUnitOfWorkTestDoubles.InMemoryModeFactory(),
@@ -423,13 +388,8 @@ public sealed class ManifestFinalizationServiceTests
     {
         Mock<IFindingsSnapshotRepository> mock = new();
         mock.Setup(f => f.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(
-                (Guid id, CancellationToken _) => new FindingsSnapshot
-                {
-                    FindingsSnapshotId = id,
-                    GenerationStatus = FindingsSnapshotGenerationStatus.Complete,
-                    Findings = []
-                });
+            .ReturnsAsync((Guid id, CancellationToken _) =>
+                new FindingsSnapshot { FindingsSnapshotId = id, GenerationStatus = FindingsSnapshotGenerationStatus.Complete, Findings = [] });
 
         return mock.Object;
     }

@@ -84,11 +84,7 @@ public sealed class PolicyPackDryRunServiceTests
             runCount: 1,
             redactor: redactor);
 
-        Dictionary<string, string> proposed = new()
-        {
-            { "maxCriticalFindings", "0" },
-            { "comment", "ping me at alice@example.com about ssn 111-22-3333" },
-        };
+        Dictionary<string, string> proposed = new() { { "maxCriticalFindings", "0" }, { "comment", "ping me at alice@example.com about ssn 111-22-3333" }, };
 
         PolicyPackDryRunResponse response = await sut.EvaluateAsync(
             PolicyPackId,
@@ -120,10 +116,7 @@ public sealed class PolicyPackDryRunServiceTests
             Mock.Of<IAuditService>(),
             NullLogger<PolicyPackDryRunService>.Instance);
 
-        Dictionary<string, string> proposed = new()
-        {
-            { PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings, "0" },
-        };
+        Dictionary<string, string> proposed = new() { { PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings, "0" }, };
 
         PolicyPackDryRunResponse response = await sut.EvaluateAsync(
             PolicyPackId,
@@ -190,8 +183,7 @@ public sealed class PolicyPackDryRunServiceTests
 
         Dictionary<string, string> proposed = new()
         {
-            { PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings, "1" },
-            { "comment", "alice@example.com" },
+            { PolicyPackDryRunSupportedThresholdKeys.MaxCriticalFindings, "1" }, { "comment", "alice@example.com" },
         };
 
         await sut.EvaluateAsync(
@@ -241,7 +233,8 @@ public sealed class PolicyPackDryRunServiceTests
     {
         public int Calls
         {
-            get; private set;
+            get;
+            private set;
         }
 
         public PromptRedactionOutcome Redact(string? input)
@@ -259,7 +252,8 @@ public sealed class PolicyPackDryRunServiceTests
     {
         public AuditEvent? LastEvent
         {
-            get; private set;
+            get;
+            private set;
         }
 
         public Task LogAsync(AuditEvent auditEvent, CancellationToken ct)
@@ -321,11 +315,7 @@ public sealed class PolicyPackDryRunServiceTests
                 .Select(g => new KeyValuePair<string, int>(g.Key, g.Count()))
                 .ToList();
 
-            return Task.FromResult(new PilotRunDeltas
-            {
-                RunCreatedUtc = detail.Run.CreatedUtc,
-                FindingsBySeverity = bySeverity,
-            });
+            return Task.FromResult(new PilotRunDeltas { RunCreatedUtc = detail.Run.CreatedUtc, FindingsBySeverity = bySeverity, });
         }
     }
 }

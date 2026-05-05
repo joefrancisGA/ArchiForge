@@ -40,10 +40,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
                 [
                     new ManifestService
                     {
-                        ServiceId = "svc-api",
-                        ServiceName = "rag-api",
-                        ServiceType = ServiceType.Api,
-                        RuntimePlatform = RuntimePlatform.AppService
+                        ServiceId = "svc-api", ServiceName = "rag-api", ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService
                     }
                 ],
                 AddedDatastores =
@@ -82,12 +79,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
             CreatedUtc = DateTime.UtcNow,
             Nodes =
             [
-                new GraphNode
-                {
-                    NodeId = "x",
-                    NodeType = GraphNodeTypes.TopologyResource,
-                    Label = "rag-api"
-                }
+                new GraphNode { NodeId = "x", NodeType = GraphNodeTypes.TopologyResource, Label = "rag-api" }
             ],
             Edges = [],
             Warnings = []
@@ -104,12 +96,7 @@ public sealed class AgentTopologyProposalGraphMergeTests
                 SourceAgent = AgentType.Topology,
                 AddedServices =
                 [
-                    new ManifestService
-                    {
-                        ServiceName = "rag-api",
-                        ServiceType = ServiceType.Api,
-                        RuntimePlatform = RuntimePlatform.AppService
-                    }
+                    new ManifestService { ServiceName = "rag-api", ServiceType = ServiceType.Api, RuntimePlatform = RuntimePlatform.AppService }
                 ]
             },
             CreatedUtc = DateTime.UtcNow

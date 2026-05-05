@@ -1079,11 +1079,7 @@ public sealed class PreCommitGovernanceGateTests
         Mock<IScopeContextProvider> scopeProvider = new();
         scopeProvider.Setup(s => s.GetCurrentScope()).Returns(TestScope);
 
-        PreCommitGovernanceGateOptions opts = new()
-        {
-            PreCommitGateEnabled = true,
-            WarnOnlySeverities = ["Error"],
-        };
+        PreCommitGovernanceGateOptions opts = new() { PreCommitGateEnabled = true, WarnOnlySeverities = ["Error"], };
 
         PreCommitGovernanceGate sut = new(
             Options.Create(opts),
