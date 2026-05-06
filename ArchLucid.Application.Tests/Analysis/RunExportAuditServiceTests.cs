@@ -1,5 +1,7 @@
 using ArchLucid.Application.Analysis;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
+using ArchLucid.Persistence.Data.Repositories;
 
 using FluentAssertions;
 

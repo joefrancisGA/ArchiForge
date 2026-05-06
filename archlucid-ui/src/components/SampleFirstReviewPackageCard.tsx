@@ -35,7 +35,7 @@ export function SampleFirstReviewPackageCard() {
             filling out the real-input wizard.
           </p>
           <p className="m-0 mt-2 text-xs text-amber-800 dark:text-amber-300">
-            Demo data only — use it to understand the output shape, not as customer ROI evidence.
+            Illustrative sample review — use it to understand output shape, not as customer ROI evidence.
           </p>
         </div>
 

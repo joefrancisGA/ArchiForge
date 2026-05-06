@@ -17,8 +17,9 @@ import { formatRelativeTime } from "@/lib/relative-time";
 import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
 import { getBuyerSafeReviewsTableLink } from "@/lib/buyer-safe-review-navigation";
+import { SHOWCASE_STATIC_DEMO_RUN_ID, SHOWCASE_STATIC_DEMO_SPINE_COUNTS } from "@/lib/showcase-static-demo";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { cn } from "@/lib/utils";
 import type { RunSummary } from "@/types/authority";
 
@@ -89,9 +90,9 @@ function runRowAccessibleDescription(run: RunSummary, activeProjectId: string, c
   const counts = countsLine !== null ? `${countsLine}. ` : "";
   const readiness = runRowOutputReadinessLine(run);
   const projectNote =
-    run.projectId !== activeProjectId
-      ? `Project ${formatOperatorProjectIdDisplay(run.projectId)}. `
-      : "";
+    run.projectId === activeProjectId
+      ? ""
+      : `Project ${formatOperatorProjectIdDisplay(run.projectId)}. `;
 
   return `${title}. ${projectNote}${counts}Created ${created}. ${readiness}. Press Enter or Space to open the review preview panel.`;
 }
@@ -136,23 +137,11 @@ function inspectorTitle(run: RunSummary | null): string {
     return "Review preview";
   }
 
-  const d = run.description?.trim() ?? "";
-
-  if (d.length > 0) {
-    return d;
-  }
-
-  return "Untitled review";
+  return buyerFacingReviewTitleFromSummary(run);
 }
 
 function runListPrimaryTitle(run: RunSummary): string {
-  const d = run.description?.trim() ?? "";
-
-  if (d.length > 0) {
-    return d;
-  }
-
-  return "Untitled review";
+  return buyerFacingReviewTitleFromSummary(run);
 }
 
 function activateRowKeyboard(e: React.KeyboardEvent<HTMLTableRowElement>, run: RunSummary, select: (r: RunSummary) => void) {

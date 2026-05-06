@@ -1,95 +1,71 @@
 using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
-
 using ArchLucid.Application.Bootstrap;
 using ArchLucid.Contracts.Pilots;
 using ArchLucid.Core.Scoping;
 using ArchLucid.Persistence.Interfaces;
 using ArchLucid.Persistence.Models;
-
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Pilots;
-
-/// <inheritdoc cref="IReferenceEvidenceAdminExportService" />
-public sealed class ReferenceEvidenceAdminExportService(
-    IReferenceEvidenceRunLookup runLookup,
-    IRunDetailQueryService runDetailQuery,
-    IPilotRunDeltaComputer deltaComputer,
-    FirstValueReportBuilder firstValueReportBuilder,
-    FirstValueReportPdfBuilder firstValueReportPdfBuilder,
-    SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder,
-    ILogger<ReferenceEvidenceAdminExportService> logger) : IReferenceEvidenceAdminExportService
+/// <inheritdoc cref = "IReferenceEvidenceAdminExportService"/>
+public sealed class ReferenceEvidenceAdminExportService(IReferenceEvidenceRunLookup runLookup, IRunDetailQueryService runDetailQuery, IPilotRunDeltaComputer deltaComputer, FirstValueReportBuilder firstValueReportBuilder, FirstValueReportPdfBuilder firstValueReportPdfBuilder, SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder, ILogger<ReferenceEvidenceAdminExportService> logger) : IReferenceEvidenceAdminExportService
 {
+    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(runLookup, runDetailQuery, deltaComputer, firstValueReportBuilder, firstValueReportPdfBuilder, sponsorOnePagerPdfBuilder, logger);
+    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Interfaces.IReferenceEvidenceRunLookup runLookup, ArchLucid.Application.IRunDetailQueryService runDetailQuery, ArchLucid.Application.Pilots.IPilotRunDeltaComputer deltaComputer, ArchLucid.Application.Pilots.FirstValueReportBuilder firstValueReportBuilder, ArchLucid.Application.Pilots.FirstValueReportPdfBuilder firstValueReportPdfBuilder, ArchLucid.Application.Pilots.SponsorOnePagerPdfBuilder sponsorOnePagerPdfBuilder, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Pilots.ReferenceEvidenceAdminExportService> logger)
+    {
+        ArgumentNullException.ThrowIfNull(runLookup);
+        ArgumentNullException.ThrowIfNull(runDetailQuery);
+        ArgumentNullException.ThrowIfNull(deltaComputer);
+        ArgumentNullException.ThrowIfNull(firstValueReportBuilder);
+        ArgumentNullException.ThrowIfNull(firstValueReportPdfBuilder);
+        ArgumentNullException.ThrowIfNull(sponsorOnePagerPdfBuilder);
+        ArgumentNullException.ThrowIfNull(logger);
+        return (byte)0;
+    }
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = true
     };
-
-    private readonly IPilotRunDeltaComputer _deltaComputer =
-        deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
-
-    private readonly FirstValueReportBuilder _firstValueReportBuilder =
-        firstValueReportBuilder ?? throw new ArgumentNullException(nameof(firstValueReportBuilder));
-
-    private readonly FirstValueReportPdfBuilder _firstValueReportPdfBuilder =
-        firstValueReportPdfBuilder ?? throw new ArgumentNullException(nameof(firstValueReportPdfBuilder));
-
-    private readonly ILogger<ReferenceEvidenceAdminExportService> _logger =
-        logger ?? throw new ArgumentNullException(nameof(logger));
-
-    private readonly IRunDetailQueryService _runDetailQuery =
-        runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
-
-    private readonly IReferenceEvidenceRunLookup _runLookup =
-        runLookup ?? throw new ArgumentNullException(nameof(runLookup));
-
-    private readonly SponsorOnePagerPdfBuilder _sponsorOnePagerPdfBuilder =
-        sponsorOnePagerPdfBuilder ?? throw new ArgumentNullException(nameof(sponsorOnePagerPdfBuilder));
-
-    /// <inheritdoc />
-    public async Task<byte[]?> BuildZipAsync(
-        Guid tenantId,
-        bool includeDemo,
-        string apiBaseForLinks,
-        CancellationToken cancellationToken = default)
+    private readonly IPilotRunDeltaComputer _deltaComputer = deltaComputer ?? throw new ArgumentNullException(nameof(deltaComputer));
+    private readonly FirstValueReportBuilder _firstValueReportBuilder = firstValueReportBuilder ?? throw new ArgumentNullException(nameof(firstValueReportBuilder));
+    private readonly FirstValueReportPdfBuilder _firstValueReportPdfBuilder = firstValueReportPdfBuilder ?? throw new ArgumentNullException(nameof(firstValueReportPdfBuilder));
+    private readonly ILogger<ReferenceEvidenceAdminExportService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly IRunDetailQueryService _runDetailQuery = runDetailQuery ?? throw new ArgumentNullException(nameof(runDetailQuery));
+    private readonly IReferenceEvidenceRunLookup _runLookup = runLookup ?? throw new ArgumentNullException(nameof(runLookup));
+    private readonly SponsorOnePagerPdfBuilder _sponsorOnePagerPdfBuilder = sponsorOnePagerPdfBuilder ?? throw new ArgumentNullException(nameof(sponsorOnePagerPdfBuilder));
+    /// <inheritdoc/>
+    public async System.Threading.Tasks.Task<System.Byte[]?> BuildZipAsync(Guid tenantId, bool includeDemo, string apiBaseForLinks, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<ReferenceEvidenceRunCandidate> candidates =
-            await _runLookup.ListRecentCommittedRunsAsync(tenantId, 200, cancellationToken);
-
-        ReferenceEvidenceRunCandidate? selected =
-            (from row in candidates
-                let runKey = row.RunId.ToString("N")
-                where includeDemo || (!ContosoRetailDemoIdentifiers.IsDemoRunId(runKey) &&
-                                      !ContosoRetailDemoIdentifiers.IsDemoRequestId(row.RequestId))
-                select row).FirstOrDefault();
-
+        ArgumentNullException.ThrowIfNull(apiBaseForLinks);
+        IReadOnlyList<ReferenceEvidenceRunCandidate> candidates = await _runLookup.ListRecentCommittedRunsAsync(tenantId, 200, cancellationToken);
+        ReferenceEvidenceRunCandidate? selected = (
+            from row in candidates
+            let runKey = row.RunId.ToString("N")
+            where includeDemo || (!ContosoRetailDemoIdentifiers.IsDemoRunId(runKey) && !ContosoRetailDemoIdentifiers.IsDemoRequestId(row.RequestId))select row).FirstOrDefault();
         if (selected is null)
             return null;
-
         ScopeContext scope = new()
         {
-            TenantId = tenantId, WorkspaceId = selected.WorkspaceId, ProjectId = selected.ScopeProjectId
+            TenantId = tenantId,
+            WorkspaceId = selected.WorkspaceId,
+            ProjectId = selected.ScopeProjectId
         };
-
         string runId = selected.RunId.ToString("N");
-        string baseUrl = string.IsNullOrWhiteSpace(apiBaseForLinks)
-            ? "http://localhost:5000"
-            : apiBaseForLinks.Trim().TrimEnd('/');
-
+        string baseUrl = string.IsNullOrWhiteSpace(apiBaseForLinks) ? "http://localhost:5000" : apiBaseForLinks.Trim().TrimEnd('/');
         using MemoryStream zipStream = new();
         await using (ZipArchive zip = new(zipStream, ZipArchiveMode.Create, true))
         {
             using (IDisposable _ = AmbientScopeContext.Push(scope))
             {
-                if (await _runDetailQuery.GetRunDetailAsync(runId, cancellationToken) is not { } detail)
+                if (await _runDetailQuery.GetRunDetailAsync(runId, cancellationToken)is not { } detail)
                     return null;
-
                 PilotRunDeltas deltas = await _deltaComputer.ComputeAsync(detail, cancellationToken);
                 PilotRunDeltasResponse deltaDto = PilotRunDeltasResponseMapper.ToResponse(deltas);
                 byte[] deltasJson = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(deltaDto, JsonOptions));
-
                 ZipArchiveEntry deltasEntry = zip.CreateEntry("pilot-run-deltas.json");
                 await using (Stream s = await deltasEntry.OpenAsync(cancellationToken))
                 {
@@ -97,7 +73,6 @@ public sealed class ReferenceEvidenceAdminExportService(
                 }
 
                 string? markdown = await _firstValueReportBuilder.BuildMarkdownAsync(runId, baseUrl, cancellationToken);
-
                 if (markdown is not null)
                 {
                     ZipArchiveEntry mdEntry = zip.CreateEntry("first-value-report.md");
@@ -108,9 +83,7 @@ public sealed class ReferenceEvidenceAdminExportService(
 
                 try
                 {
-                    byte[]? firstPdf =
-                        await _firstValueReportPdfBuilder.BuildPdfAsync(runId, baseUrl, cancellationToken);
-
+                    byte[]? firstPdf = await _firstValueReportPdfBuilder.BuildPdfAsync(runId, baseUrl, cancellationToken);
                     if (firstPdf is { Length: > 0 })
                     {
                         ZipArchiveEntry pdfEntry = zip.CreateEntry("first-value-report.pdf");
@@ -118,16 +91,14 @@ public sealed class ReferenceEvidenceAdminExportService(
                         await s.WriteAsync(firstPdf, cancellationToken);
                     }
                 }
-                catch (Exception ex) when (ex is not OperationCanceledException)
+                catch (Exception ex)when (ex is not OperationCanceledException)
                 {
                     _logger.LogWarning(ex, "Reference evidence: first-value PDF omitted for run {RunId}.", runId);
                 }
 
                 try
                 {
-                    byte[]? sponsorPdf =
-                        await _sponsorOnePagerPdfBuilder.BuildPdfAsync(runId, baseUrl, cancellationToken);
-
+                    byte[]? sponsorPdf = await _sponsorOnePagerPdfBuilder.BuildPdfAsync(runId, baseUrl, cancellationToken);
                     if (sponsorPdf is { Length: > 0 })
                     {
                         ZipArchiveEntry spEntry = zip.CreateEntry("sponsor-one-pager.pdf");
@@ -135,13 +106,12 @@ public sealed class ReferenceEvidenceAdminExportService(
                         await s.WriteAsync(sponsorPdf, cancellationToken);
                     }
                 }
-                catch (Exception ex) when (ex is not OperationCanceledException)
+                catch (Exception ex)when (ex is not OperationCanceledException)
                 {
                     _logger.LogWarning(ex, "Reference evidence: sponsor one-pager omitted for run {RunId}.", runId);
                 }
 
-                string readme =
-                    $"""
+                string readme = $"""
                      ArchLucid reference-evidence bundle
                      TenantId: {tenantId:D}
                      RunId: {runId}
@@ -157,7 +127,6 @@ public sealed class ReferenceEvidenceAdminExportService(
 
                      Legal: obtain a signed reference agreement before publishing externally.
                      """;
-
                 ZipArchiveEntry readmeEntry = zip.CreateEntry("README.txt");
                 await using (Stream s = await readmeEntry.OpenAsync(cancellationToken))
                 {

@@ -8,7 +8,9 @@ import { useOperatorNavAuthority } from "@/components/OperatorNavAuthorityProvid
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { AUTHORITY_RANK } from "@/lib/nav-authority";
+import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
 import {
   clearOperatorScopeStorage,
   defaultLabelsForScopeIds,
@@ -19,6 +21,7 @@ import {
   writeOperatorScopeToStorage,
 } from "@/lib/operator-scope-storage";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
+import { DEV_SCOPE_PROJECT_ID, DEV_SCOPE_WORKSPACE_ID } from "@/lib/scope";
 
 const WORKSPACES_PATH = "/api/proxy/v1/tenant/workspaces";
 
@@ -123,6 +126,20 @@ export function ScopeSwitcher() {
     return { workspaceLabel: w, projectLabel: p };
   }, [stored, workspaceId, projectId]);
 
+  const polishedShell = isBuyerPolishedOperatorShellEnv();
+  const scopeButtonWorkspace =
+    polishedShell &&
+    workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID &&
+    projectId.trim() === DEV_SCOPE_PROJECT_ID
+      ? "Illustrative workspace"
+      : workspaceLabel;
+  const scopeButtonProject =
+    polishedShell &&
+    workspaceId.trim() === DEV_SCOPE_WORKSPACE_ID &&
+    projectId.trim() === DEV_SCOPE_PROJECT_ID
+      ? formatOperatorProjectIdDisplay(DEV_SCOPE_PROJECT_ID)
+      : projectLabel;
+
   const canShow =
     !isAuthorityLoading && callerAuthorityRank >= AUTHORITY_RANK.ReadAuthority;
 
@@ -187,9 +204,19 @@ export function ScopeSwitcher() {
         }}
       >
         <span className="min-w-0 shrink truncate text-left text-xs font-medium">
-          <span className="text-neutral-500 dark:text-neutral-400">W:</span> {workspaceLabel}{" "}
-          <span className="text-neutral-400 dark:text-neutral-500">/</span>{" "}
-          <span className="text-neutral-500 dark:text-neutral-400">P:</span> {projectLabel}
+          {polishedShell ? (
+            <span className="text-neutral-800 dark:text-neutral-200">
+              {scopeButtonWorkspace}
+              <span className="text-neutral-400 dark:text-neutral-500"> · </span>
+              {scopeButtonProject}
+            </span>
+          ) : (
+            <>
+              <span className="text-neutral-500 dark:text-neutral-400">W:</span> {workspaceLabel}{" "}
+              <span className="text-neutral-400 dark:text-neutral-500">/</span>{" "}
+              <span className="text-neutral-500 dark:text-neutral-400">P:</span> {projectLabel}
+            </>
+          )}
         </span>
         <ChevronsUpDown className="size-3.5 shrink-0 opacity-50" aria-hidden />
       </Button>

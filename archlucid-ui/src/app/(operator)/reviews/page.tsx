@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/EmptyState";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
 import { ShortcutHint } from "@/components/ShortcutHint";
-import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { Button } from "@/components/ui/button";
 import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
 import { isPublicDemoModeEnv } from "@/lib/public-demo-mode";
@@ -141,7 +141,9 @@ export default async function RunsPage({
               New request
             </Link>
           </Button>
-          <ShortcutHint shortcut="Alt+N" className="text-[0.75rem] text-neutral-500 dark:text-neutral-400" />
+          {isBuyerPolishedOperatorShellEnv() ? null : (
+            <ShortcutHint shortcut="Alt+N" className="text-[0.75rem] text-neutral-500 dark:text-neutral-400" />
+          )}
         </div>
         {totalCount > 0 ? (
           <Button variant="outline" size="sm" asChild>

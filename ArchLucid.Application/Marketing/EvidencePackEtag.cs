@@ -3,7 +3,6 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace ArchLucid.Application.Marketing;
-
 /// <summary>
 ///     Computes a content-driven SHA-256 ETag for the Trust Center evidence pack.
 /// </summary>
@@ -25,27 +24,26 @@ public static class EvidencePackEtag
     /// <summary>Computes the strong ETag value (already quoted) for the given ordered entries.</summary>
     public static string Compute(IReadOnlyList<EvidencePackEntry> entries)
     {
-        if (entries is null) throw new ArgumentNullException(nameof(entries));
-
+        ArgumentNullException.ThrowIfNull(entries);
+        if (entries is null)
+            throw new ArgumentNullException(nameof(entries));
         using IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         Span<byte> lengthBuffer = stackalloc byte[4];
-
         foreach (var entry in entries)
         {
-            if (entry is null) throw new ArgumentException("Entry must not be null.", nameof(entries));
-            if (entry.ZipName is null) throw new ArgumentException("Entry name must not be null.", nameof(entries));
-            if (entry.Content is null) throw new ArgumentException("Entry content must not be null.", nameof(entries));
-
+            if (entry is null)
+                throw new ArgumentException("Entry must not be null.", nameof(entries));
+            if (entry.ZipName is null)
+                throw new ArgumentException("Entry name must not be null.", nameof(entries));
+            if (entry.Content is null)
+                throw new ArgumentException("Entry content must not be null.", nameof(entries));
             byte[] nameBytes = Encoding.UTF8.GetBytes(entry.ZipName);
-
             BinaryPrimitives.WriteInt32BigEndian(lengthBuffer, nameBytes.Length);
             hash.AppendData(lengthBuffer);
             hash.AppendData(nameBytes);
-
             BinaryPrimitives.WriteInt32BigEndian(lengthBuffer, entry.Content.Length);
             hash.AppendData(lengthBuffer);
             hash.AppendData(entry.Content);
-
             hash.AppendData([0xFF]);
         }
 

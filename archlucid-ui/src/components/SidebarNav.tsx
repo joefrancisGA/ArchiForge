@@ -41,7 +41,6 @@ import {
   type NavGroupWithVisibleLinks,
 } from "@/lib/nav-shell-visibility";
 import { isNavLinkActive } from "@/lib/nav-link-active";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { isOperatorNavLinkAdvancedInDemo, shouldHideOperatorNavLinkInDemo } from "@/lib/route-readiness";
 import { pathnameTouchesPlatformAdminSurface } from "@/lib/platform-admin-path";
@@ -157,7 +156,7 @@ export function SidebarNav() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [adminSectionOpen, setAdminSectionOpen] = useState(false);
   const [shellPresetId, setShellPresetId] = useState<OperatorShellPresetId>("full");
-  const demoUi = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+  const demoUi = isStaticDemoPayloadFallbackEnabled();
   const showProgressiveDisclosureChrome = !demoUi;
   const { showExtended: shellShowExtended, showAdvanced: shellShowAdvanced } = effectiveNavDisclosureForPathname(
     pathname,

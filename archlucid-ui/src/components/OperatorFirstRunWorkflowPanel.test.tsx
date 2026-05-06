@@ -47,7 +47,7 @@ describe("OperatorFirstRunWorkflowPanel", () => {
 
     const section = heading.closest("section");
     expect(section).toHaveTextContent(CORE_PILOT_WORKFLOW_SUMMARY_LINE);
-    expect(section).toHaveTextContent("architecture review package");
+    expect(section).toHaveTextContent("manifest summary");
 
     expect(screen.getByText("Start here")).toBeInTheDocument();
 

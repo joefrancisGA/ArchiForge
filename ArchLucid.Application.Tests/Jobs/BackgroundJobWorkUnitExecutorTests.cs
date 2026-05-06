@@ -1,6 +1,8 @@
 using ArchLucid.Application.Analysis;
 using ArchLucid.Application.Jobs;
 using ArchLucid.Contracts.Architecture;
+using ArchLucid.Contracts.Common;
+using ArchLucid.Contracts.Metadata;
 using ArchLucid.Core.Audit;
 
 using FluentAssertions;
@@ -46,7 +48,7 @@ public sealed class BackgroundJobWorkUnitExecutorTests
 
         BackgroundJobFile file = await sut.ExecuteAsync(unit, CancellationToken.None);
 
-        file.Content.Should().Equal(1, 2, 3);
+        file.Bytes.Should().Equal(1, 2, 3);
         audit.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
@@ -93,11 +95,12 @@ public sealed class BackgroundJobWorkUnitExecutorTests
 
         BackgroundJobFile file = await sut.ExecuteAsync(unit, CancellationToken.None);
 
-        file.Content.Should().Equal(9);
+        file.Bytes.Should().Equal(9);
         audit.Verify(
             a => a.LogAsync(
                 It.Is<AuditEvent>(e =>
                     e.EventType == AuditEventTypes.ArchitectureDocxExportGenerated &&
+                    e.CorrelationId != null &&
                     e.CorrelationId.StartsWith("analysis-report-consulting-docx-async:", StringComparison.Ordinal)),
                 It.IsAny<CancellationToken>()),
             Times.Once);

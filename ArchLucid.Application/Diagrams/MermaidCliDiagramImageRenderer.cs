@@ -1,45 +1,41 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-
 using ArchLucid.Core.Diagnostics;
 using ArchLucid.Core.Diagrams;
-
 using Microsoft.Extensions.Logging;
 
 namespace ArchLucid.Application.Diagrams;
-
 /// <summary>
 ///     Renders a Mermaid diagram to a PNG image by invoking the <c>mmdc</c> Mermaid CLI tool.
 ///     Writes the diagram to a temporary file, runs <c>mmdc</c>, reads the output PNG, and cleans up.
-///     Register <see cref="NullDiagramImageRenderer" /> in environments where <c>mmdc</c> is not installed.
+///     Register <see cref = "NullDiagramImageRenderer"/> in environments where <c>mmdc</c> is not installed.
 /// </summary>
 [ExcludeFromCodeCoverage(Justification = "Requires external mmdc CLI tool installed on the host; tested manually.")]
-public sealed class MermaidCliDiagramImageRenderer(
-    ILogger<MermaidCliDiagramImageRenderer> logger) : IDiagramImageRenderer
+public sealed class MermaidCliDiagramImageRenderer(ILogger<MermaidCliDiagramImageRenderer> logger) : IDiagramImageRenderer
 {
+    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(logger);
+    private static byte __ValidatePrimaryConstructorArguments(Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Diagrams.MermaidCliDiagramImageRenderer> logger)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        return (byte)0;
+    }
+
     /// <summary>Maximum time to wait for the <c>mmdc</c> process before cancelling and throwing.</summary>
     private static readonly TimeSpan ProcessTimeout = TimeSpan.FromSeconds(30);
-
-    /// <inheritdoc />
-    public async Task<byte[]?> RenderMermaidPngAsync(
-        string mermaidDiagram,
-        CancellationToken cancellationToken = default)
+    /// <inheritdoc/>
+    public async System.Threading.Tasks.Task<System.Byte[]?> RenderMermaidPngAsync(string mermaidDiagram, CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(mermaidDiagram);
         if (string.IsNullOrWhiteSpace(mermaidDiagram))
             return null;
-
         string tempDir = Path.Combine(Path.GetTempPath(), "archlucid-mermaid", Guid.NewGuid().ToString("N"));
-
         try
         {
             Directory.CreateDirectory(tempDir);
-
             string inputPath = Path.Combine(tempDir, "diagram.mmd");
             string outputPath = Path.Combine(tempDir, "diagram.png");
-
             await File.WriteAllTextAsync(inputPath, mermaidDiagram, Encoding.UTF8, cancellationToken);
-
             ProcessStartInfo psi = new()
             {
                 FileName = "mmdc",
@@ -49,48 +45,30 @@ public sealed class MermaidCliDiagramImageRenderer(
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
-
             using CancellationTokenSource timeoutCts = new(ProcessTimeout);
-            using CancellationTokenSource linkedCts =
-                CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
-
+            using CancellationTokenSource linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
             using Process process = new();
             process.StartInfo = psi;
             process.Start();
-
             await process.StandardOutput.ReadToEndAsync(linkedCts.Token);
             string stdErr = await process.StandardError.ReadToEndAsync(linkedCts.Token);
-
             await process.WaitForExitAsync(linkedCts.Token);
-
             if (process.ExitCode != 0)
             {
                 if (logger.IsEnabled(LogLevel.Warning))
-
-                    logger.LogWarning(
-                        "Mermaid CLI exited with code {ExitCode}. STDERR: {StdErr}",
-                        process.ExitCode,
-                        LogSanitizer.Sanitize(stdErr));
-
+                    logger.LogWarning("Mermaid CLI exited with code {ExitCode}. STDERR: {StdErr}", process.ExitCode, LogSanitizer.Sanitize(stdErr));
                 return null;
             }
 
             if (File.Exists(outputPath))
                 return await File.ReadAllBytesAsync(outputPath, cancellationToken);
-
             if (logger.IsEnabled(LogLevel.Warning))
-
-                logger.LogWarning(
-                    "Mermaid CLI reported success but output PNG was missing at {OutputPath}.",
-                    LogSanitizer.Sanitize(outputPath));
-
+                logger.LogWarning("Mermaid CLI reported success but output PNG was missing at {OutputPath}.", LogSanitizer.Sanitize(outputPath));
             return null;
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex)when (ex is not OperationCanceledException)
         {
-            logger.LogWarning(ex,
-                "Mermaid CLI diagram render failed; callers should fall back to Mermaid source text.");
-
+            logger.LogWarning(ex, "Mermaid CLI diagram render failed; callers should fall back to Mermaid source text.");
             return null;
         }
         finally
@@ -98,17 +76,12 @@ public sealed class MermaidCliDiagramImageRenderer(
             try
             {
                 if (Directory.Exists(tempDir))
-
                     Directory.Delete(tempDir, true);
             }
             catch (Exception ex)
             {
                 if (logger.IsEnabled(LogLevel.Warning))
-
-                    logger.LogWarning(
-                        ex,
-                        "Failed to delete temporary Mermaid work directory '{TempDir}'.",
-                        LogSanitizer.Sanitize(tempDir));
+                    logger.LogWarning(ex, "Failed to delete temporary Mermaid work directory '{TempDir}'.", LogSanitizer.Sanitize(tempDir));
             }
         }
     }

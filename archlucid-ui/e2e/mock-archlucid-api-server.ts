@@ -290,7 +290,7 @@ export function startMockArchlucidApiServer(port: number): Promise<{ stop: () =>
             {
               runId: SHOWCASE_DEMO_RUN_ID,
               projectId,
-              description: "Claims Intake Modernization — sample completed scenario.",
+              description: "Claims Intake Modernization Review",
               createdUtc: "2026-01-10T09:15:22.000Z",
               goldenManifestId: SHOWCASE_STATIC_DEMO_MANIFEST_ID,
               hasGoldenManifest: true,

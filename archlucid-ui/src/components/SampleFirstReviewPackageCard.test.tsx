@@ -29,7 +29,7 @@ describe("SampleFirstReviewPackageCard", () => {
     render(<SampleFirstReviewPackageCard />);
 
     expect(screen.getByRole("heading", { name: "Start with a completed architecture review package" })).toBeInTheDocument();
-    expect(screen.getByText(/Demo data only/i)).toBeInTheDocument();
+    expect(screen.getByText(/Illustrative sample review/i)).toBeInTheDocument();
     expect(screen.getByText("9")).toBeInTheDocument();
     expect(screen.getByText("12")).toBeInTheDocument();
     expect(screen.getByText("1")).toBeInTheDocument();

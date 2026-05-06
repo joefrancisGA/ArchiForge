@@ -6,6 +6,7 @@ import { useState } from "react";
 import { CopyIdButton } from "@/components/CopyIdButton";
 import { RunStatusBadge } from "@/components/RunStatusBadge";
 import { Button } from "@/components/ui/button";
+import { buyerFacingReviewTitleFromSummary } from "@/lib/buyer-facing-review-title";
 import { isBuyerSafeDemoMarketingChromeEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { formatInstantForLocale } from "@/lib/locale-datetime";
 import { formatOperatorProjectIdDisplay } from "@/lib/operator-project-display";
@@ -47,7 +48,7 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   const primaryExplore = getBuyerSafeReviewsTableLink(run.runId);
   const workspaceHref = getCanonicalReviewWorkspaceHref(run.runId);
   const showcaseWalkthroughHref = getShowcaseWalkthroughHref();
-  const headline = run.description?.trim() ?? "Architecture review";
+  const headline = buyerFacingReviewTitleFromSummary(run);
   const createdLabel = showcaseStory
     ? demoChrome
       ? "Sample finalized (illustrative)"
@@ -81,7 +82,14 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
   return (
     <div className="space-y-4 text-sm text-neutral-800 dark:text-neutral-200" data-testid="run-inspector-preview">
       <div>
-        <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{headline}</p>
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="m-0 text-sm font-semibold text-neutral-900 dark:text-neutral-100">{headline}</p>
+          {showcaseStory && demoChrome ? (
+            <span className="inline-flex shrink-0 rounded border border-teal-200 bg-teal-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-teal-900 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-200">
+              Sample
+            </span>
+          ) : null}
+        </div>
         <button
           type="button"
           className="mt-1 text-xs font-medium text-teal-800 underline dark:text-teal-300"
@@ -169,9 +177,11 @@ export function RunInspectorPreview({ run }: RunInspectorPreviewProps) {
           Quick links
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
-          <Button variant="outline" size="sm" className="h-8" asChild>
-            <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Manifest</Link>
-          </Button>
+          {!buyerSafePrimary ? (
+            <Button variant="outline" size="sm" className="h-8" asChild>
+              <Link href={`/manifests/${encodeURIComponent(manifestId)}`}>Manifest</Link>
+            </Button>
+          ) : null}
           {hasFindingsLink ? (
             <Button variant="outline" size="sm" className="h-8" asChild>
               <Link href={findingsQuickHref}>{showcaseStory ? "Findings (walkthrough)" : "Findings"}</Link>

@@ -2,22 +2,20 @@ using System.Net;
 using System.Text;
 
 namespace ArchLucid.Application.Analysis;
-
 /// <summary>
-///     Formats a <see cref="DriftAnalysisResult" /> as either a GitHub-flavoured Markdown
+///     Formats a <see cref = "DriftAnalysisResult"/> as either a GitHub-flavoured Markdown
 ///     document or an HTML page.
 /// </summary>
 /// <remarks>
-///     Implements <see cref="IDriftReportFormatter" /> and is the default formatter registered
+///     Implements <see cref = "IDriftReportFormatter"/> and is the default formatter registered
 ///     in the DI container for drift-report exports.
 /// </remarks>
 public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
 {
-    /// <inheritdoc />
+    /// <inheritdoc/>
     public string FormatMarkdown(DriftAnalysisResult drift, string? comparisonRecordId = null)
     {
         ArgumentNullException.ThrowIfNull(drift);
-
         StringBuilder sb = new();
         sb.AppendLine("# ArchLucid Comparison Drift Report");
         sb.AppendLine();
@@ -37,12 +35,10 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
 
         if (drift.Items.Count <= 0)
             return sb.ToString();
-
         sb.AppendLine("## Differences");
         sb.AppendLine();
         sb.AppendLine("| Category | Path | Stored | Regenerated | Description |");
         sb.AppendLine("|----------|------|--------|-------------|-------------|");
-
         foreach (DriftItem item in drift.Items)
         {
             string stored = EscapeTableCell(item.StoredValue);
@@ -54,36 +50,25 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
         return sb.ToString();
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc/>
     public string FormatHtml(DriftAnalysisResult drift, string? comparisonRecordId = null)
     {
         ArgumentNullException.ThrowIfNull(drift);
-
         StringBuilder sb = new();
         sb.AppendLine("<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>ArchLucid Drift Report</title>");
-        sb.AppendLine(
-            "<style>body{font-family:sans-serif;margin:1rem;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #ccc;padding:0.5rem;text-align:left;} th{background:#eee;}</style>");
+        sb.AppendLine("<style>body{font-family:sans-serif;margin:1rem;} table{border-collapse:collapse;width:100%;} th,td{border:1px solid #ccc;padding:0.5rem;text-align:left;} th{background:#eee;}</style>");
         sb.AppendLine("</head><body>");
         sb.AppendLine("<h1>ArchLucid Comparison Drift Report</h1>");
         if (!string.IsNullOrWhiteSpace(comparisonRecordId))
-            sb.AppendLine(
-                $"<p><strong>Comparison record:</strong> <code>{WebUtility.HtmlEncode(comparisonRecordId)}</code></p>");
+            sb.AppendLine($"<p><strong>Comparison record:</strong> <code>{WebUtility.HtmlEncode(comparisonRecordId)}</code></p>");
         sb.AppendLine($"<p><strong>Drift detected:</strong> {(drift.DriftDetected ? "Yes" : "No")}</p>");
         if (!string.IsNullOrWhiteSpace(drift.Summary))
             sb.AppendLine($"<p>{WebUtility.HtmlEncode(drift.Summary)}</p>");
         if (drift.Items.Count > 0)
         {
-            sb.AppendLine(
-                "<h2>Differences</h2><table><thead><tr><th>Category</th><th>Path</th><th>Stored</th><th>Regenerated</th><th>Description</th></tr></thead><tbody>");
+            sb.AppendLine("<h2>Differences</h2><table><thead><tr><th>Category</th><th>Path</th><th>Stored</th><th>Regenerated</th><th>Description</th></tr></thead><tbody>");
             foreach (DriftItem item in drift.Items)
-
-                sb.Append("<tr><td>").Append(WebUtility.HtmlEncode(item.Category))
-                    .Append("</td><td>").Append(WebUtility.HtmlEncode(item.Path))
-                    .Append("</td><td>").Append(WebUtility.HtmlEncode(item.StoredValue ?? ""))
-                    .Append("</td><td>").Append(WebUtility.HtmlEncode(item.RegeneratedValue ?? ""))
-                    .Append("</td><td>").Append(WebUtility.HtmlEncode(item.Description))
-                    .AppendLine("</td></tr>");
-
+                sb.Append("<tr><td>").Append(WebUtility.HtmlEncode(item.Category)).Append("</td><td>").Append(WebUtility.HtmlEncode(item.Path)).Append("</td><td>").Append(WebUtility.HtmlEncode(item.StoredValue ?? "")).Append("</td><td>").Append(WebUtility.HtmlEncode(item.RegeneratedValue ?? "")).Append("</td><td>").Append(WebUtility.HtmlEncode(item.Description)).AppendLine("</td></tr>");
             sb.AppendLine("</tbody></table>");
         }
 
@@ -97,8 +82,6 @@ public sealed class MarkdownDriftReportFormatter : IDriftReportFormatter
     /// </summary>
     private static string EscapeTableCell(string? value)
     {
-        return value is null
-            ? ""
-            : value.Replace("|", "\\|", StringComparison.Ordinal).Replace("\r", "").Replace("\n", " ");
+        return value is null ? "" : value.Replace("|", "\\|", StringComparison.Ordinal).Replace("\r", "").Replace("\n", " ");
     }
 }

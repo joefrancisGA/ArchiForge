@@ -65,13 +65,18 @@ export function ValueRealizationDashboard() {
   }
 
   const hoursSaved = Number(telemetry.totalHoursSaved);
-  const safeHours = Number.isFinite(hoursSaved) ? hoursSaved : 0;
+  const safeHours = Number.isFinite(hoursSaved) ? Math.max(0, hoursSaved) : 0;
   const totalReviewsRaw = Number(telemetry.totalRuns);
   const totalReviews =
     Number.isFinite(totalReviewsRaw) && totalReviewsRaw > 0 ? Math.floor(totalReviewsRaw) : 0;
   const avgMsRaw = Number(telemetry.averageTimeToCommitMs);
+  const avgMsParsed =
+    typeof telemetry.averageTimeToCommitMs === "string"
+      ? Number.parseFloat(telemetry.averageTimeToCommitMs)
+      : avgMsRaw;
+  const avgMs = Number.isFinite(avgMsParsed) ? avgMsParsed : Number.NaN;
   const avgCommitMins =
-    Number.isFinite(avgMsRaw) && avgMsRaw > 0 ? Math.max(1, Math.round(avgMsRaw / 60000)) : null;
+    Number.isFinite(avgMs) && avgMs > 0 ? Math.max(1, Math.round(avgMs / 60000)) : null;
   const hasAvgCommit = avgCommitMins !== null;
   const hasAnyCredibleMetric = totalReviews >= 1 || safeHours > 0 || hasAvgCommit;
 
@@ -79,8 +84,9 @@ export function ValueRealizationDashboard() {
     return null;
   }
 
-  const impliedUsd = safeHours > 0 ? safeHours * hourlyUsd : 0;
-  const showMeasuredRoiBlock = safeHours > 0 && impliedUsd > 0;
+  const impliedUsd = safeHours > 0 && Number.isFinite(hourlyUsd) ? safeHours * hourlyUsd : 0;
+  const showMeasuredRoiBlock =
+    safeHours > 0 && Number.isFinite(impliedUsd) && impliedUsd > 0.009;
 
   return (
     <Card className="mb-6">
@@ -99,7 +105,9 @@ export function ValueRealizationDashboard() {
           </div>
           <div className="rounded-lg border p-4 text-center">
             <p className="text-sm text-neutral-500">Avg time to commit</p>
-            <p className="text-2xl font-bold">{avgCommitMins !== null ? `${avgCommitMins} mins` : "—"}</p>
+            <p className="text-2xl font-bold">
+              {avgCommitMins !== null ? `${avgCommitMins} mins` : "Not enough data yet"}
+            </p>
           </div>
         </div>
         {showMeasuredRoiBlock ? (

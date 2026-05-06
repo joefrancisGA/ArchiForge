@@ -1,82 +1,59 @@
 using System.Security.Cryptography;
 using System.Text;
-
 using ArchLucid.Core.Configuration;
-
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 
 namespace ArchLucid.Application.Identity;
-
 /// <summary>Have I Been Pwned k-anonymity range API (SHA-1 prefix).</summary>
-public sealed class PwnedPasswordRangeClient(
-    HttpClient httpClient,
-    IMemoryCache cache,
-    IOptions<TrialAuthOptions>? trialOptions)
+public sealed class PwnedPasswordRangeClient(HttpClient httpClient, IMemoryCache cache, IOptions<TrialAuthOptions>? trialOptions)
 {
+    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(httpClient, cache, trialOptions);
+    private static byte __ValidatePrimaryConstructorArguments(System.Net.Http.HttpClient httpClient, Microsoft.Extensions.Caching.Memory.IMemoryCache cache, Microsoft.Extensions.Options.IOptions<ArchLucid.Core.Configuration.TrialAuthOptions>? trialOptions)
+    {
+        ArgumentNullException.ThrowIfNull(httpClient);
+        ArgumentNullException.ThrowIfNull(cache);
+        return (byte)0;
+    }
+
     private const string CacheKeyPrefix = "pwned-range:";
-
-    /// <summary>How long downloaded HIBP range lines stay in <see cref="IMemoryCache" /> (per SHA-1 prefix).</summary>
+    /// <summary>How long downloaded HIBP range lines stay in <see cref = "IMemoryCache"/> (per SHA-1 prefix).</summary>
     public static readonly TimeSpan RangeResponseCacheDuration = TimeSpan.FromHours(24);
-
     private readonly IMemoryCache _cache = cache ?? throw new ArgumentNullException(nameof(cache));
-
     private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-
-    private readonly TrialAuthOptions _trial =
-        trialOptions?.Value ?? throw new ArgumentNullException(nameof(trialOptions));
-
+    private readonly TrialAuthOptions _trial = trialOptions?.Value ?? throw new ArgumentNullException(nameof(trialOptions));
     /// <summary>True when the full SHA-1 hash of the password appears in the downloaded range set.</summary>
     public async Task<bool> IsPasswordPwnedAsync(string password, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(password);
         if (!_trial.LocalIdentity.PwnedPasswordRangeCheckEnabled)
             return false;
-
         ArgumentException.ThrowIfNullOrWhiteSpace(password);
-
         byte[] sha1 = SHA1.HashData(Encoding.UTF8.GetBytes(password));
         string fullHex = Convert.ToHexString(sha1);
         string prefix = fullHex[..5];
         string suffix = fullHex[5..];
-
         string cacheKey = CacheKeyPrefix + prefix;
-
         if (_cache.TryGetValue(cacheKey, out IReadOnlySet<string>? suffixes) && suffixes is not null)
             return suffixes.Contains(suffix);
-
-        using HttpResponseMessage response = await _httpClient.GetAsync(
-            new Uri($"https://api.pwnedpasswords.com/range/{prefix}", UriKind.Absolute),
-            cancellationToken);
-
+        using HttpResponseMessage response = await _httpClient.GetAsync(new Uri($"https://api.pwnedpasswords.com/range/{prefix}", UriKind.Absolute), cancellationToken);
         response.EnsureSuccessStatusCode();
-
         string body = await response.Content.ReadAsStringAsync(cancellationToken);
-
         HashSet<string> set = ParseRangeBody(body);
-
-        _cache.Set(
-            cacheKey,
-            (IReadOnlySet<string>)set,
-            new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = RangeResponseCacheDuration });
-
+        _cache.Set(cacheKey, (IReadOnlySet<string>)set, new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = RangeResponseCacheDuration });
         return set.Contains(suffix);
     }
 
     private static HashSet<string> ParseRangeBody(string body)
     {
         HashSet<string> suffixes = new(StringComparer.OrdinalIgnoreCase);
-
         using StringReader reader = new(body);
-
-        while (reader.ReadLine() is { } line)
+        while (reader.ReadLine()is { } line)
         {
             int colon = line.IndexOf(':', StringComparison.Ordinal);
-
             if (colon <= 0)
                 continue;
-
             string suffix = line[..colon].Trim();
-
             if (suffix.Length > 0)
                 suffixes.Add(suffix);
         }

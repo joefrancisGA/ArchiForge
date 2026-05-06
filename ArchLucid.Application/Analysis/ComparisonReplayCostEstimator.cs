@@ -2,35 +2,28 @@ using ArchLucid.Contracts.Metadata;
 using ArchLucid.Persistence.Data.Repositories;
 
 namespace ArchLucid.Application.Analysis;
-
-/// <inheritdoc cref="IComparisonReplayCostEstimator" />
-public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository comparisonRecords)
-    : IComparisonReplayCostEstimator
+/// <inheritdoc cref = "IComparisonReplayCostEstimator"/>
+public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository comparisonRecords) : IComparisonReplayCostEstimator
 {
-    private readonly IComparisonRecordRepository _comparisonRecords =
-        comparisonRecords ?? throw new ArgumentNullException(nameof(comparisonRecords));
+    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(comparisonRecords);
+    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Data.Repositories.IComparisonRecordRepository comparisonRecords)
+    {
+        ArgumentNullException.ThrowIfNull(comparisonRecords);
+        return (byte)0;
+    }
 
-    /// <inheritdoc />
-    public async Task<ComparisonReplayCostEstimate?> TryEstimateAsync(
-        string comparisonRecordId,
-        string? format,
-        string? replayMode,
-        bool persistReplay,
-        CancellationToken ct)
+    private readonly IComparisonRecordRepository _comparisonRecords = comparisonRecords ?? throw new ArgumentNullException(nameof(comparisonRecords));
+    /// <inheritdoc/>
+    public async System.Threading.Tasks.Task<ArchLucid.Application.Analysis.ComparisonReplayCostEstimate?> TryEstimateAsync(string comparisonRecordId, string? format, string? replayMode, bool persistReplay, CancellationToken ct)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(comparisonRecordId);
-
         ComparisonRecord? record = await _comparisonRecords.GetByIdAsync(comparisonRecordId, ct);
-
         if (record is null)
             return null;
-
         string normalizedFormat = ComparisonReplayRequestParsing.NormalizeFormat(format);
         ComparisonReplayMode mode = ComparisonReplayRequestParsing.ParseReplayMode(replayMode);
         List<string> factors = [];
-
         int score = ScoreForRecord(record, normalizedFormat, mode, factors);
-
         if (persistReplay)
         {
             score += 2;
@@ -38,7 +31,6 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
         }
 
         int payloadChars = record.PayloadJson.Length;
-
         if (payloadChars > 500_000)
         {
             score += 3;
@@ -47,7 +39,6 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
 
         int clamped = Math.Clamp(score, 0, 100);
         string band = clamped <= 4 ? "low" : clamped <= 12 ? "medium" : "high";
-
         return new ComparisonReplayCostEstimate
         {
             ComparisonRecordId = record.ComparisonRecordId,
@@ -61,18 +52,12 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
         };
     }
 
-    private static int ScoreForRecord(
-        ComparisonRecord record,
-        string normalizedFormat,
-        ComparisonReplayMode mode,
-        List<string> factors)
+    private static int ScoreForRecord(ComparisonRecord record, string normalizedFormat, ComparisonReplayMode mode, List<string> factors)
     {
         if (string.Equals(record.ComparisonType, ComparisonTypes.EndToEndReplay, StringComparison.OrdinalIgnoreCase))
             return ScoreEndToEnd(normalizedFormat, mode, factors);
-
         if (string.Equals(record.ComparisonType, ComparisonTypes.ExportRecordDiff, StringComparison.OrdinalIgnoreCase))
             return ScoreExportDiff(normalizedFormat, mode, factors);
-
         factors.Add($"Comparison type '{record.ComparisonType}' is not replayable via the standard replay API.");
         return 25;
     }
@@ -87,7 +72,6 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
             ComparisonReplayMode.Verify => 11,
             _ => 1
         };
-
         factors.Add(mode switch
         {
             ComparisonReplayMode.ArtifactReplay => "Artifact mode rehydrates the stored payload only.",
@@ -95,7 +79,6 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
             ComparisonReplayMode.Verify => "Verify regenerates and compares against the stored payload (highest cost).",
             _ => "Replay mode factor applied."
         });
-
         return modeBase + formatWeight;
     }
 
@@ -109,9 +92,7 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
             ComparisonReplayMode.Verify => 9,
             _ => 2
         };
-
         factors.Add("Export-record diff touches two export rows when regenerating.");
-
         return modeBase + formatWeight;
     }
 
@@ -119,7 +100,6 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
     {
         if (string.Equals(normalizedFormat, "markdown", StringComparison.OrdinalIgnoreCase))
             return 0;
-
         if (string.Equals(normalizedFormat, "html", StringComparison.OrdinalIgnoreCase))
         {
             factors.Add("HTML formatting adds rendering work versus plain markdown.");
@@ -139,7 +119,6 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
         }
 
         factors.Add($"Format '{normalizedFormat}' is non-standard; replay may fail at execution time.");
-
         return 2;
     }
 
@@ -147,16 +126,13 @@ public sealed class ComparisonReplayCostEstimator(IComparisonRecordRepository co
     {
         if (string.Equals(normalizedFormat, "markdown", StringComparison.OrdinalIgnoreCase))
             return 0;
-
         if (string.Equals(normalizedFormat, "docx", StringComparison.OrdinalIgnoreCase))
         {
             factors.Add("DOCX export for export diffs uses the document pipeline.");
             return 3;
         }
 
-        factors.Add(
-            $"Export-record diff replays support markdown and docx only; '{normalizedFormat}' would be rejected on replay.");
-
+        factors.Add($"Export-record diff replays support markdown and docx only; '{normalizedFormat}' would be rejected on replay.");
         return 2;
     }
 }

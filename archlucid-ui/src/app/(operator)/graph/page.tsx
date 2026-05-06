@@ -27,7 +27,7 @@ import {
 } from "@/lib/graph-api";
 import { isApiRequestError } from "@/lib/api-request-error";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
-import { isStaticDemoPayloadFallbackEnabled, tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
+import { isStaticDemoPayloadFallbackActiveForRun, isStaticDemoPayloadFallbackEnabled, tryStaticDemoProvenanceGraph } from "@/lib/operator-static-demo";
 import { provenanceLinkageToGraphViewModel } from "@/lib/provenance-linkage-to-graph-vm";
 import type { GraphViewModel } from "@/types/graph";
 import { cn } from "@/lib/utils";
@@ -222,13 +222,17 @@ export default function GraphPage() {
   }, [runId, mode]);
 
   useEffect(() => {
-    const demo = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+    const rid = runId.trim();
+    const demo =
+      isNextPublicDemoMode() ||
+      isStaticDemoPayloadFallbackEnabled() ||
+      isStaticDemoPayloadFallbackActiveForRun(rid);
 
     if (!demo || mode !== "provenance-full") {
       return;
     }
 
-    const prov = tryStaticDemoProvenanceGraph(runId.trim());
+    const prov = tryStaticDemoProvenanceGraph(rid);
 
     if (prov === null) {
       return;
@@ -240,15 +244,18 @@ export default function GraphPage() {
   const showIdleCard =
     !graph && !loading && loadFailure === null && malformedMessage === null;
 
-  const demoUi = isNextPublicDemoMode() || isStaticDemoPayloadFallbackEnabled();
+  const demoUi =
+    isNextPublicDemoMode() ||
+    isStaticDemoPayloadFallbackEnabled() ||
+    isStaticDemoPayloadFallbackActiveForRun(runId.trim());
 
   const graphIdlePreset = useMemo(() => {
     if (demoUi && showIdleCard) {
       return {
         ...GRAPH_IDLE,
-        title: "Review evidence graph",
+        title: "Review trail graph",
         description:
-          "The sample review can supply a review trail graph automatically. If this stays empty, confirm the review exists and **Refresh graph** below.",
+          "The Claims Intake sample supplies a review-trail graph when static data is available. Use Refresh if the canvas is empty.",
       };
     }
 
@@ -256,8 +263,10 @@ export default function GraphPage() {
   }, [demoUi, showIdleCard]);
 
   const leadIntro = demoUi
-    ? "Review trail mode loads automatically for the Claims Intake sample when static demo data is enabled. Use the controls below to pick another review or graph mode."
+    ? "Interactive review-trail graph for the selected architecture review. Controls below switch reviews or graph mode."
     : "Select a review, choose a graph mode, then load the graph. The preview includes decisions, findings, artifacts, review events, and architecture entities.";
+
+  const pageTitle = demoUi ? "Review trail graph" : "Review evidence graph";
 
   const loadButtonLabel =
     loading ? "Loading…" : demoUi && mode === "provenance-full" ? "Refresh graph" : "Load graph";
@@ -327,7 +336,7 @@ export default function GraphPage() {
   return (
     <main>
       <LayerHeader pageKey="graph" />
-      <OperatorPageHeader title="Review evidence graph" helpKey="architecture-graph" />
+      <OperatorPageHeader title={pageTitle} helpKey="architecture-graph" />
       <p className="m-0 text-sm text-neutral-600 dark:text-neutral-400">{leadIntro}</p>
 
       {graph === null ? graphControls : null}
@@ -376,7 +385,7 @@ export default function GraphPage() {
         <OperatorLoadingNotice>
           <strong>Loading graph</strong>
           <p className="mt-2 text-sm">
-            Preparing the graph view — reviews with larger evidence graphs may take a few extra seconds.
+            Preparing the graph view — reviews with rich evidence may take a few extra seconds.
           </p>
         </OperatorLoadingNotice>
       )}

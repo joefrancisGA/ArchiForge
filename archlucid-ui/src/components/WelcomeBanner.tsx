@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button";
 import { AUTH_MODE } from "@/lib/auth-config";
 import { isJwtAuthMode } from "@/lib/oidc/config";
 import { isLikelySignedIn } from "@/lib/oidc/session";
+import { normalizeRunSummaryForDemoPicker } from "@/lib/demo-run-canonical";
 import { loadProjectRunsMergedWithDemoFallback } from "@/lib/operator-run-picker-client";
+import { tryStaticDemoRunSummariesPaged, isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
 import { writeHasExistingRunsCache } from "@/lib/operator-run-presence";
 import { mergeRegistrationScopeForProxy } from "@/lib/proxy-fetch-registration-scope";
 import { cn } from "@/lib/utils";
@@ -90,7 +92,17 @@ export function WelcomeBanner() {
 
       try {
         const merged = await loadProjectRunsMergedWithDemoFallback(DEFAULT_PROJECT_ID);
-        const next = merged.items.length > 0;
+        let items = merged.items;
+
+        if (items.length === 0 && isStaticDemoPayloadFallbackEnabled()) {
+          const injected = tryStaticDemoRunSummariesPaged(DEFAULT_PROJECT_ID, { afterEmptyLiveList: true });
+
+          if (injected !== null && injected.items.length > 0) {
+            items = injected.items.map(normalizeRunSummaryForDemoPicker);
+          }
+        }
+
+        const next = items.length > 0;
 
         if (cancelled) {
           return;

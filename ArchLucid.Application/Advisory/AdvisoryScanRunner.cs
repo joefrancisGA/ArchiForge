@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Text.Json;
-
 using ArchLucid.Core.Audit;
 using ArchLucid.Core.Comparison;
 using ArchLucid.Core.Diagnostics;
@@ -21,90 +20,90 @@ using ArchLucid.Decisioning.Models;
 using ArchLucid.Persistence;
 using ArchLucid.Persistence.Queries;
 using ArchLucid.Persistence.Serialization;
-
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
 using Serilog.Context;
 
 namespace ArchLucid.Application.Advisory;
-
 /// <summary>
 ///     Executes a scheduled advisory scan: compares runs, builds an improvement plan, merges effective policy defaults,
 ///     evaluates alerts, and delivers a digest.
 /// </summary>
-/// <param name="authorityQueryService">Loads latest runs and golden manifests for the project slug.</param>
-/// <param name="improvementAdvisorService">Generates <see cref="ImprovementPlan" /> from findings.</param>
-/// <param name="comparisonService">Optional run-to-run comparison when a previous run exists.</param>
-/// <param name="digestBuilder">Builds the architecture digest payload from plan + alerts.</param>
-/// <param name="digestRepository">Persists digest rows.</param>
-/// <param name="deliveryDispatcher">Sends digest to configured channels.</param>
-/// <param name="alertService">Simple alert evaluation for the scan context.</param>
-/// <param name="compositeAlertService">Composite alert evaluation for the same context.</param>
-/// <param name="effectiveGovernanceLoader">
+/// <param name = "authorityQueryService">Loads latest runs and golden manifests for the project slug.</param>
+/// <param name = "improvementAdvisorService">Generates <see cref = "ImprovementPlan"/> from findings.</param>
+/// <param name = "comparisonService">Optional run-to-run comparison when a previous run exists.</param>
+/// <param name = "digestBuilder">Builds the architecture digest payload from plan + alerts.</param>
+/// <param name = "digestRepository">Persists digest rows.</param>
+/// <param name = "deliveryDispatcher">Sends digest to configured channels.</param>
+/// <param name = "alertService">Simple alert evaluation for the scan context.</param>
+/// <param name = "compositeAlertService">Composite alert evaluation for the same context.</param>
+/// <param name = "effectiveGovernanceLoader">
 ///     Supplies merged policy content for advisory defaults and alert/compliance
 ///     filtering.
 /// </param>
-/// <param name="recommendationRepository">Historical recommendations for the run.</param>
-/// <param name="recommendationLearningService">Learning profile for advisory context.</param>
-/// <param name="executionRepository">Tracks scan execution lifecycle.</param>
-/// <param name="scheduleRepository">Schedule metadata (advance after success/failure).</param>
-/// <param name="scheduleCalculator">Next-run scheduling.</param>
-/// <param name="auditService">Audit events for scan, digest, and related actions.</param>
+/// <param name = "recommendationRepository">Historical recommendations for the run.</param>
+/// <param name = "recommendationLearningService">Learning profile for advisory context.</param>
+/// <param name = "executionRepository">Tracks scan execution lifecycle.</param>
+/// <param name = "scheduleRepository">Schedule metadata (advance after success/failure).</param>
+/// <param name = "scheduleCalculator">Next-run scheduling.</param>
+/// <param name = "auditService">Audit events for scan, digest, and related actions.</param>
 /// <remarks>
-///     Pushes <see cref="AmbientScopeContext" /> for the schedule’s tenant/workspace/project so downstream providers
+///     Pushes <see cref = "AmbientScopeContext"/> for the schedule’s tenant/workspace/project so downstream providers
 ///     (compliance, governance) resolve the correct scope.
-///     Loads <see cref="IEffectiveGovernanceLoader.LoadEffectiveContentAsync" /> once per successful scan and passes it
-///     into <see cref="AlertEvaluationContextFactory.ForAdvisoryScan" /> so alert services avoid a second governance load.
+///     Loads <see cref = "IEffectiveGovernanceLoader.LoadEffectiveContentAsync"/> once per successful scan and passes it
+///     into <see cref = "AlertEvaluationContextFactory.ForAdvisoryScan"/> so alert services avoid a second governance load.
 /// </remarks>
-/// <seealso cref="IAdvisoryScanRunner" />
-public sealed class AdvisoryScanRunner(
-    IAuthorityQueryService authorityQueryService,
-    IImprovementAdvisorService improvementAdvisorService,
-    IComparisonService comparisonService,
-    IArchitectureDigestBuilder digestBuilder,
-    IArchitectureDigestRepository digestRepository,
-    IDigestDeliveryDispatcher deliveryDispatcher,
-    IAlertService alertService,
-    ICompositeAlertService compositeAlertService,
-    IEffectiveGovernanceLoader effectiveGovernanceLoader,
-    IRecommendationRepository recommendationRepository,
-    IRecommendationLearningService recommendationLearningService,
-    IAdvisoryScanExecutionRepository executionRepository,
-    IAdvisoryScanScheduleRepository scheduleRepository,
-    IScanScheduleCalculator scheduleCalculator,
-    IAuditService auditService,
-    IIntegrationEventPublisher integrationEventPublisher,
-    IIntegrationEventOutboxRepository integrationEventOutbox,
-    IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions,
-    ILogger<AdvisoryScanRunner> logger) : IAdvisoryScanRunner
+/// <seealso cref = "IAdvisoryScanRunner"/>
+public sealed class AdvisoryScanRunner(IAuthorityQueryService authorityQueryService, IImprovementAdvisorService improvementAdvisorService, IComparisonService comparisonService, IArchitectureDigestBuilder digestBuilder, IArchitectureDigestRepository digestRepository, IDigestDeliveryDispatcher deliveryDispatcher, IAlertService alertService, ICompositeAlertService compositeAlertService, IEffectiveGovernanceLoader effectiveGovernanceLoader, IRecommendationRepository recommendationRepository, IRecommendationLearningService recommendationLearningService, IAdvisoryScanExecutionRepository executionRepository, IAdvisoryScanScheduleRepository scheduleRepository, IScanScheduleCalculator scheduleCalculator, IAuditService auditService, IIntegrationEventPublisher integrationEventPublisher, IIntegrationEventOutboxRepository integrationEventOutbox, IOptionsMonitor<IntegrationEventsOptions> integrationEventsOptions, ILogger<AdvisoryScanRunner> logger) : IAdvisoryScanRunner
 {
+    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(authorityQueryService, improvementAdvisorService, comparisonService, digestBuilder, digestRepository, deliveryDispatcher, alertService, compositeAlertService, effectiveGovernanceLoader, recommendationRepository, recommendationLearningService, executionRepository, scheduleRepository, scheduleCalculator, auditService, integrationEventPublisher, integrationEventOutbox, integrationEventsOptions, logger);
+    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Persistence.Queries.IAuthorityQueryService authorityQueryService, ArchLucid.Decisioning.Advisory.Services.IImprovementAdvisorService improvementAdvisorService, ArchLucid.Decisioning.Comparison.IComparisonService comparisonService, ArchLucid.Decisioning.Advisory.Scheduling.IArchitectureDigestBuilder digestBuilder, ArchLucid.Persistence.IArchitectureDigestRepository digestRepository, ArchLucid.Decisioning.Advisory.Delivery.IDigestDeliveryDispatcher deliveryDispatcher, ArchLucid.Decisioning.Alerts.IAlertService alertService, ArchLucid.Decisioning.Alerts.Composite.ICompositeAlertService compositeAlertService, ArchLucid.Decisioning.Governance.PolicyPacks.IEffectiveGovernanceLoader effectiveGovernanceLoader, ArchLucid.Decisioning.Advisory.Workflow.IRecommendationRepository recommendationRepository, ArchLucid.Decisioning.Advisory.Learning.IRecommendationLearningService recommendationLearningService, ArchLucid.Persistence.IAdvisoryScanExecutionRepository executionRepository, ArchLucid.Persistence.IAdvisoryScanScheduleRepository scheduleRepository, ArchLucid.Decisioning.Advisory.Scheduling.IScanScheduleCalculator scheduleCalculator, ArchLucid.Core.Audit.IAuditService auditService, ArchLucid.Core.Integration.IIntegrationEventPublisher integrationEventPublisher, ArchLucid.Persistence.IIntegrationEventOutboxRepository integrationEventOutbox, Microsoft.Extensions.Options.IOptionsMonitor<ArchLucid.Core.Integration.IntegrationEventsOptions> integrationEventsOptions, Microsoft.Extensions.Logging.ILogger<ArchLucid.Application.Advisory.AdvisoryScanRunner> logger)
+    {
+        ArgumentNullException.ThrowIfNull(authorityQueryService);
+        ArgumentNullException.ThrowIfNull(improvementAdvisorService);
+        ArgumentNullException.ThrowIfNull(comparisonService);
+        ArgumentNullException.ThrowIfNull(digestBuilder);
+        ArgumentNullException.ThrowIfNull(digestRepository);
+        ArgumentNullException.ThrowIfNull(deliveryDispatcher);
+        ArgumentNullException.ThrowIfNull(alertService);
+        ArgumentNullException.ThrowIfNull(compositeAlertService);
+        ArgumentNullException.ThrowIfNull(effectiveGovernanceLoader);
+        ArgumentNullException.ThrowIfNull(recommendationRepository);
+        ArgumentNullException.ThrowIfNull(recommendationLearningService);
+        ArgumentNullException.ThrowIfNull(executionRepository);
+        ArgumentNullException.ThrowIfNull(scheduleRepository);
+        ArgumentNullException.ThrowIfNull(scheduleCalculator);
+        ArgumentNullException.ThrowIfNull(auditService);
+        ArgumentNullException.ThrowIfNull(integrationEventPublisher);
+        ArgumentNullException.ThrowIfNull(integrationEventOutbox);
+        ArgumentNullException.ThrowIfNull(integrationEventsOptions);
+        ArgumentNullException.ThrowIfNull(logger);
+        return (byte)0;
+    }
+
     private const string StatusStarted = "Started";
     private const string StatusCompleted = "Completed";
     private const string StatusFailed = "Failed";
-
     /// <summary>
     ///     Creates an execution record, runs the scan under ambient scope, and advances the schedule; failures are recorded
     ///     and the schedule still advances.
     /// </summary>
-    /// <param name="schedule">Tenant/workspace/project and cadence metadata.</param>
-    /// <param name="ct">Cancellation token.</param>
+    /// <param name = "schedule">Tenant/workspace/project and cadence metadata.</param>
+    /// <param name = "ct">Cancellation token.</param>
     public async Task RunScheduleAsync(AdvisoryScanSchedule schedule, CancellationToken ct)
     {
         ArgumentNullException.ThrowIfNull(schedule);
-
         using Activity? scanActivity = ArchLucidInstrumentation.AdvisoryScan.StartActivity();
         string logicalCorrelation = FormattableString.Invariant($"advisory-schedule:{schedule.ScheduleId:D}");
         scanActivity?.SetTag("archlucid.schedule_id", schedule.ScheduleId.ToString("D"));
         scanActivity?.SetTag(ActivityCorrelation.LogicalCorrelationIdTag, logicalCorrelation);
-
         using IDisposable _ = LogContext.PushProperty("CorrelationId", logicalCorrelation);
-
         ScopeContext scope = new()
         {
-            TenantId = schedule.TenantId, WorkspaceId = schedule.WorkspaceId, ProjectId = schedule.ProjectId
+            TenantId = schedule.TenantId,
+            WorkspaceId = schedule.WorkspaceId,
+            ProjectId = schedule.ProjectId
         };
-
         AdvisoryScanExecution execution = new()
         {
             ExecutionId = Guid.NewGuid(),
@@ -116,13 +115,10 @@ public sealed class AdvisoryScanRunner(
             Status = StatusStarted,
             ResultJson = "{}"
         };
-
         await executionRepository.CreateAsync(execution, ct);
-
         try
         {
             using (AmbientScopeContext.Push(scope))
-
                 await RunScheduleCoreAsync(schedule, scope, execution, ct);
         }
         catch (OperationCanceledException)
@@ -135,23 +131,7 @@ public sealed class AdvisoryScanRunner(
             execution.CompletedUtc = DateTime.UtcNow;
             execution.ErrorMessage = ex.Message;
             await executionRepository.UpdateAsync(execution, ct);
-
-            await auditService.LogAsync(
-                new AuditEvent
-                {
-                    EventType = AuditEventTypes.AdvisoryScanExecuted,
-                    DataJson = JsonSerializer.Serialize(
-                        new
-                        {
-                            scheduleId = schedule.ScheduleId,
-                            executionId = execution.ExecutionId,
-                            failed = true,
-                            error = ex.Message
-                        },
-                        AuditJsonSerializationOptions.Instance)
-                },
-                ct);
-
+            await auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.AdvisoryScanExecuted, DataJson = JsonSerializer.Serialize(new { scheduleId = schedule.ScheduleId, executionId = execution.ExecutionId, failed = true, error = ex.Message }, AuditJsonSerializationOptions.Instance) }, ct);
             await AdvanceScheduleAsync(schedule, ct);
         }
     }
@@ -160,25 +140,18 @@ public sealed class AdvisoryScanRunner(
     ///     Core scan path after ambient scope is pushed: plan generation, governance merge into the plan, alert evaluation,
     ///     digest persistence and delivery.
     /// </summary>
-    /// <param name="schedule">Active schedule row.</param>
-    /// <param name="scope">Same ids as the schedule; used for queries.</param>
-    /// <param name="execution">Execution row updated to completed/failed states by this method and helpers.</param>
-    /// <param name="ct">Cancellation token.</param>
+    /// <param name = "schedule">Active schedule row.</param>
+    /// <param name = "scope">Same ids as the schedule; used for queries.</param>
+    /// <param name = "execution">Execution row updated to completed/failed states by this method and helpers.</param>
+    /// <param name = "ct">Cancellation token.</param>
     /// <remarks>
-    ///     Copies merged <see cref="PolicyPackContentDocument.AdvisoryDefaults" /> into
-    ///     <see cref="ImprovementPlan.PolicyPackAdvisoryDefaults" /> before building <see cref="AlertEvaluationContext" />.
+    ///     Copies merged <see cref = "PolicyPackContentDocument.AdvisoryDefaults"/> into
+    ///     <see cref = "ImprovementPlan.PolicyPackAdvisoryDefaults"/> before building <see cref = "AlertEvaluationContext"/>.
     /// </remarks>
-    private async Task RunScheduleCoreAsync(
-        AdvisoryScanSchedule schedule,
-        ScopeContext scope,
-        AdvisoryScanExecution execution,
-        CancellationToken ct)
+    private async Task RunScheduleCoreAsync(AdvisoryScanSchedule schedule, ScopeContext scope, AdvisoryScanExecution execution, CancellationToken ct)
     {
         string slug = string.IsNullOrWhiteSpace(schedule.RunProjectSlug) ? "default" : schedule.RunProjectSlug.Trim();
-        IReadOnlyList<RunSummaryDto> runs = await authorityQueryService
-                .ListRunsByProjectAsync(scope, slug, 2, ct)
-            ;
-
+        IReadOnlyList<RunSummaryDto> runs = await authorityQueryService.ListRunsByProjectAsync(scope, slug, 2, ct);
         List<RunSummaryDto> ordered = runs.OrderByDescending(x => x.CreatedUtc).ToList();
         RunSummaryDto? latest = ordered.FirstOrDefault();
         if (latest is null)
@@ -187,236 +160,74 @@ public sealed class AdvisoryScanRunner(
             return;
         }
 
-        RunDetailDto? latestDetail = await authorityQueryService
-                .GetRunDetailAsync(scope, latest.RunId, ct)
-            ;
-
+        RunDetailDto? latestDetail = await authorityQueryService.GetRunDetailAsync(scope, latest.RunId, ct);
         if (latestDetail?.GoldenManifest is null)
         {
-            await FailAsync(
-                execution,
-                schedule,
-                "Latest run did not contain a golden manifest.",
-                ct);
+            await FailAsync(execution, schedule, "Latest run did not contain a golden manifest.", ct);
             return;
         }
 
         FindingsSnapshot findings = latestDetail.FindingsSnapshot ?? CreateEmptyFindings(latestDetail.GoldenManifest);
         RunSummaryDto? compareTo = ordered.Skip(1).FirstOrDefault();
-
         ImprovementPlan plan;
         Guid? comparedToRunId = null;
         ComparisonResult? comparisonResult = null;
-
         if (compareTo is not null)
         {
-            RunDetailDto? previousDetail = await authorityQueryService
-                    .GetRunDetailAsync(scope, compareTo.RunId, ct)
-                ;
-
+            RunDetailDto? previousDetail = await authorityQueryService.GetRunDetailAsync(scope, compareTo.RunId, ct);
             if (previousDetail?.GoldenManifest is not null)
             {
-                comparisonResult =
-                    comparisonService.Compare(previousDetail.GoldenManifest, latestDetail.GoldenManifest);
+                comparisonResult = comparisonService.Compare(previousDetail.GoldenManifest, latestDetail.GoldenManifest);
                 comparedToRunId = compareTo.RunId;
-                plan = await improvementAdvisorService
-                        .GeneratePlanAsync(latestDetail.GoldenManifest, findings, comparisonResult, ct)
-                    ;
+                plan = await improvementAdvisorService.GeneratePlanAsync(latestDetail.GoldenManifest, findings, comparisonResult, ct);
             }
             else
-
-                plan = await improvementAdvisorService
-                        .GeneratePlanAsync(latestDetail.GoldenManifest, findings, ct)
-                    ;
+                plan = await improvementAdvisorService.GeneratePlanAsync(latestDetail.GoldenManifest, findings, ct);
         }
         else
-
-            plan = await improvementAdvisorService
-                    .GeneratePlanAsync(latestDetail.GoldenManifest, findings, ct)
-                ;
-
-        IReadOnlyList<RecommendationRecord> recommendationRecords = await recommendationRepository
-                .ListByRunAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, latest.RunId, ct)
-            ;
-
-        RecommendationLearningProfile? learningProfile = await recommendationLearningService
-                .GetLatestProfileAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
-            ;
-
-        PolicyPackContentDocument effectiveGovernance = await effectiveGovernanceLoader
-                .LoadEffectiveContentAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct)
-            ;
-
+            plan = await improvementAdvisorService.GeneratePlanAsync(latestDetail.GoldenManifest, findings, ct);
+        IReadOnlyList<RecommendationRecord> recommendationRecords = await recommendationRepository.ListByRunAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, latest.RunId, ct);
+        RecommendationLearningProfile? learningProfile = await recommendationLearningService.GetLatestProfileAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct);
+        PolicyPackContentDocument effectiveGovernance = await effectiveGovernanceLoader.LoadEffectiveContentAsync(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, ct);
         foreach (KeyValuePair<string, string> kvp in effectiveGovernance.AdvisoryDefaults)
             plan.PolicyPackAdvisoryDefaults[kvp.Key] = kvp.Value;
-
-        AlertEvaluationContext alertContext = AlertEvaluationContextFactory.ForAdvisoryScan(
-            schedule.TenantId,
-            schedule.WorkspaceId,
-            schedule.ProjectId,
-            latest.RunId,
-            comparedToRunId,
-            plan,
-            comparisonResult,
-            recommendationRecords,
-            learningProfile,
-            effectiveGovernance);
-
+        AlertEvaluationContext alertContext = AlertEvaluationContextFactory.ForAdvisoryScan(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, latest.RunId, comparedToRunId, plan, comparisonResult, recommendationRecords, learningProfile, effectiveGovernance);
         AlertEvaluationOutcome alertOutcome = await alertService.EvaluateAndPersistAsync(alertContext, ct);
-
-        CompositeAlertEvaluationResult compositeOutcome = await compositeAlertService
-                .EvaluateAndPersistAsync(alertContext, ct)
-            ;
-
-        List<AlertRecord> digestAlerts = alertOutcome.Evaluated
-            .Concat(compositeOutcome.Created)
-            .ToList();
-
-        ArchitectureDigest digest = digestBuilder.Build(
-            schedule.TenantId,
-            schedule.WorkspaceId,
-            schedule.ProjectId,
-            latest.RunId,
-            comparedToRunId,
-            plan,
-            digestAlerts);
-
+        CompositeAlertEvaluationResult compositeOutcome = await compositeAlertService.EvaluateAndPersistAsync(alertContext, ct);
+        List<AlertRecord> digestAlerts = alertOutcome.Evaluated.Concat(compositeOutcome.Created).ToList();
+        ArchitectureDigest digest = digestBuilder.Build(schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, latest.RunId, comparedToRunId, plan, digestAlerts);
         await digestRepository.CreateAsync(digest, ct);
-
         await deliveryDispatcher.DeliverAsync(digest, ct);
-
-        TraceCompletenessSummary traceCompletenessSummary =
-            ExplainabilityTraceCompletenessAnalyzer.AnalyzeSnapshot(findings);
-
-        ArchLucidInstrumentation.ExplainabilityTraceCompleteness.Record(
-            traceCompletenessSummary.OverallCompletenessRatio,
-            new KeyValuePair<string, object?>("scan_type", "advisory"));
-
+        TraceCompletenessSummary traceCompletenessSummary = ExplainabilityTraceCompletenessAnalyzer.AnalyzeSnapshot(findings);
+        ArchLucidInstrumentation.ExplainabilityTraceCompleteness.Record(traceCompletenessSummary.OverallCompletenessRatio, new KeyValuePair<string, object?>("scan_type", "advisory"));
         execution.Status = StatusCompleted;
         execution.CompletedUtc = DateTime.UtcNow;
-        execution.ResultJson = JsonSerializer.Serialize(
-            new
-            {
-                schemaVersion = 1,
-                runId = latest.RunId,
-                comparedToRunId,
-                recommendationCount = plan.Recommendations.Count,
-                digestId = digest.DigestId,
-                alertsEvaluated = alertOutcome.Evaluated.Count,
-                alertsNewlyPersisted = alertOutcome.NewlyPersisted.Count,
-                compositeAlertsCreated = compositeOutcome.Created.Count,
-                compositeAlertsSuppressed = compositeOutcome.SuppressedMatchCount,
-                traceCompleteness = new
-                {
-                    totalFindings = traceCompletenessSummary.TotalFindings,
-                    overallCompletenessRatio = traceCompletenessSummary.OverallCompletenessRatio,
-                    byEngine = traceCompletenessSummary.ByEngine
-                        .Select(e => new
-                        {
-                            engineType = e.EngineType,
-                            findingCount = e.FindingCount,
-                            completenessRatio = e.CompletenessRatio,
-                            graphNodeIdsPopulatedCount = e.GraphNodeIdsPopulatedCount,
-                            rulesAppliedPopulatedCount = e.RulesAppliedPopulatedCount,
-                            decisionsTakenPopulatedCount = e.DecisionsTakenPopulatedCount,
-                            alternativePathsPopulatedCount = e.AlternativePathsPopulatedCount,
-                            notesPopulatedCount = e.NotesPopulatedCount
-                        })
-                        .ToList()
-                }
-            },
-            AuditJsonSerializationOptions.Instance);
-
+        execution.ResultJson = JsonSerializer.Serialize(new { schemaVersion = 1, runId = latest.RunId, comparedToRunId, recommendationCount = plan.Recommendations.Count, digestId = digest.DigestId, alertsEvaluated = alertOutcome.Evaluated.Count, alertsNewlyPersisted = alertOutcome.NewlyPersisted.Count, compositeAlertsCreated = compositeOutcome.Created.Count, compositeAlertsSuppressed = compositeOutcome.SuppressedMatchCount, traceCompleteness = new { totalFindings = traceCompletenessSummary.TotalFindings, overallCompletenessRatio = traceCompletenessSummary.OverallCompletenessRatio, byEngine = traceCompletenessSummary.ByEngine.Select(e => new { engineType = e.EngineType, findingCount = e.FindingCount, completenessRatio = e.CompletenessRatio, graphNodeIdsPopulatedCount = e.GraphNodeIdsPopulatedCount, rulesAppliedPopulatedCount = e.RulesAppliedPopulatedCount, decisionsTakenPopulatedCount = e.DecisionsTakenPopulatedCount, alternativePathsPopulatedCount = e.AlternativePathsPopulatedCount, notesPopulatedCount = e.NotesPopulatedCount }).ToList() } }, AuditJsonSerializationOptions.Instance);
         await executionRepository.UpdateAsync(execution, ct);
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.AdvisoryScanExecuted,
-                RunId = latest.RunId,
-                DataJson = JsonSerializer.Serialize(
-                    new { scheduleId = schedule.ScheduleId, executionId = execution.ExecutionId },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            ct);
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.ArchitectureDigestGenerated,
-                RunId = latest.RunId,
-                DataJson = JsonSerializer.Serialize(new
-                {
-                    digestId = digest.DigestId, scheduleId = schedule.ScheduleId
-                })
-            },
-            ct);
-
-        await TryPublishAdvisoryScanCompletedAsync(
-            schedule,
-            execution,
-            latest.RunId,
-            comparedToRunId,
-            digest.DigestId,
-            true,
-            ct);
-
+        await auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.AdvisoryScanExecuted, RunId = latest.RunId, DataJson = JsonSerializer.Serialize(new { scheduleId = schedule.ScheduleId, executionId = execution.ExecutionId }, AuditJsonSerializationOptions.Instance) }, ct);
+        await auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.ArchitectureDigestGenerated, RunId = latest.RunId, DataJson = JsonSerializer.Serialize(new { digestId = digest.DigestId, scheduleId = schedule.ScheduleId }) }, ct);
+        await TryPublishAdvisoryScanCompletedAsync(schedule, execution, latest.RunId, comparedToRunId, digest.DigestId, true, ct);
         await AdvanceScheduleAsync(schedule, ct);
     }
 
-    private async Task CompleteNoRunsAsync(
-        AdvisoryScanExecution execution,
-        AdvisoryScanSchedule schedule,
-        CancellationToken ct)
+    private async Task CompleteNoRunsAsync(AdvisoryScanExecution execution, AdvisoryScanSchedule schedule, CancellationToken ct)
     {
         execution.Status = StatusCompleted;
         execution.CompletedUtc = DateTime.UtcNow;
         execution.ResultJson = """{"message":"No runs were available."}""";
         await executionRepository.UpdateAsync(execution, ct);
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.AdvisoryScanExecuted,
-                DataJson = JsonSerializer.Serialize(
-                    new { scheduleId = schedule.ScheduleId, message = "no_runs" },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            ct);
-
-        await TryPublishAdvisoryScanCompletedAsync(
-            schedule,
-            execution,
-            null,
-            null,
-            null,
-            false,
-            ct);
-
+        await auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.AdvisoryScanExecuted, DataJson = JsonSerializer.Serialize(new { scheduleId = schedule.ScheduleId, message = "no_runs" }, AuditJsonSerializationOptions.Instance) }, ct);
+        await TryPublishAdvisoryScanCompletedAsync(schedule, execution, null, null, null, false, ct);
         await AdvanceScheduleAsync(schedule, ct);
     }
 
-    private async Task FailAsync(
-        AdvisoryScanExecution execution,
-        AdvisoryScanSchedule schedule,
-        string message,
-        CancellationToken ct)
+    private async Task FailAsync(AdvisoryScanExecution execution, AdvisoryScanSchedule schedule, string message, CancellationToken ct)
     {
         execution.Status = StatusFailed;
         execution.CompletedUtc = DateTime.UtcNow;
         execution.ErrorMessage = message;
         await executionRepository.UpdateAsync(execution, ct);
-
-        await auditService.LogAsync(
-            new AuditEvent
-            {
-                EventType = AuditEventTypes.AdvisoryScanExecuted,
-                DataJson = JsonSerializer.Serialize(
-                    new { scheduleId = schedule.ScheduleId, failed = true, message },
-                    AuditJsonSerializationOptions.Instance)
-            },
-            ct);
-
+        await auditService.LogAsync(new AuditEvent { EventType = AuditEventTypes.AdvisoryScanExecuted, DataJson = JsonSerializer.Serialize(new { scheduleId = schedule.ScheduleId, failed = true, message }, AuditJsonSerializationOptions.Instance) }, ct);
         await AdvanceScheduleAsync(schedule, ct);
     }
 
@@ -428,14 +239,7 @@ public sealed class AdvisoryScanRunner(
         await scheduleRepository.UpdateAsync(schedule, ct);
     }
 
-    private Task TryPublishAdvisoryScanCompletedAsync(
-        AdvisoryScanSchedule schedule,
-        AdvisoryScanExecution execution,
-        Guid? runId,
-        Guid? comparedToRunId,
-        Guid? digestId,
-        bool hasRuns,
-        CancellationToken ct)
+    private Task TryPublishAdvisoryScanCompletedAsync(AdvisoryScanSchedule schedule, AdvisoryScanExecution execution, Guid? runId, Guid? comparedToRunId, Guid? digestId, bool hasRuns, CancellationToken ct)
     {
         object payload = new
         {
@@ -451,24 +255,8 @@ public sealed class AdvisoryScanRunner(
             digestId,
             completedUtc = execution.CompletedUtc ?? DateTime.UtcNow
         };
-
         string messageId = $"{execution.ExecutionId:D}:{IntegrationEventTypes.AdvisoryScanCompletedV1}";
-
-        return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(
-            integrationEventOutbox,
-            integrationEventPublisher,
-            integrationEventsOptions.CurrentValue,
-            logger,
-            IntegrationEventTypes.AdvisoryScanCompletedV1,
-            payload,
-            messageId,
-            runId,
-            schedule.TenantId,
-            schedule.WorkspaceId,
-            schedule.ProjectId,
-            null,
-            null,
-            ct);
+        return OutboxAwareIntegrationEventPublishing.TryPublishOrEnqueueAsync(integrationEventOutbox, integrationEventPublisher, integrationEventsOptions.CurrentValue, logger, IntegrationEventTypes.AdvisoryScanCompletedV1, payload, messageId, runId, schedule.TenantId, schedule.WorkspaceId, schedule.ProjectId, null, null, ct);
     }
 
     private static FindingsSnapshot CreateEmptyFindings(ManifestDocument manifest)

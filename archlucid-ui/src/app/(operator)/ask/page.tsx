@@ -23,9 +23,11 @@ import {
   listConversationThreads,
 } from "@/lib/conversation-api";
 import { ASK_CONVERSATION_EMPTY } from "@/lib/ask-conversation-empty-preset";
-import { isNextPublicDemoMode } from "@/lib/demo-ui-env";
+import { canonicalizeDemoRunId } from "@/lib/demo-run-canonical";
+import { isBuyerPolishedOperatorShellEnv, isNextPublicDemoMode } from "@/lib/demo-ui-env";
 import { isStaticDemoPayloadFallbackEnabled } from "@/lib/operator-static-demo";
-import { formatConversationListDate } from "@/lib/locale-datetime";
+import { tryStaticDemoConversationMessages } from "@/lib/ask-static-demo-messages";
+import { formatConversationListDate, formatConversationListDatePolished } from "@/lib/locale-datetime";
 import { SHOWCASE_STATIC_DEMO_RUN_ID } from "@/lib/showcase-static-demo";
 import { cn } from "@/lib/utils";
 import type { ConversationMessage, ConversationThread } from "@/types/conversation";
@@ -86,8 +88,17 @@ export default function AskPage() {
     setActionFailure(null);
     try {
       const data = await getConversationMessages(threadId);
-      setMessages(data);
+      const fallback = tryStaticDemoConversationMessages(threadId);
+      setMessages(data.length > 0 ? data : (fallback ?? []));
     } catch (e) {
+      const fallback = tryStaticDemoConversationMessages(threadId);
+
+      if (fallback !== null) {
+        setMessages(fallback);
+
+        return;
+      }
+
       setActionFailure(toApiLoadFailure(e));
     }
   }, []);
@@ -144,7 +155,7 @@ export default function AskPage() {
       const thread = threads.find((t) => t.threadId === threadId);
 
       if (thread?.runId) {
-        setRunId(thread.runId);
+        setRunId(canonicalizeDemoRunId(thread.runId));
       } else {
         setRunId("");
       }
@@ -183,6 +194,7 @@ export default function AskPage() {
   const threadSelected = selectedThreadId.trim().length > 0;
   const needsRunForNewThread = !threadSelected;
   const runMissing = needsRunForNewThread && runId.trim().length === 0;
+  const listDateFormatter = isBuyerPolishedOperatorShellEnv() ? formatConversationListDatePolished : formatConversationListDate;
   const askDisabled = loading || question.trim().length === 0 || runMissing;
 
   return (
@@ -247,7 +259,7 @@ export default function AskPage() {
                     <span>
                       {thread.title}
                       <div className="text-xs font-normal text-neutral-500 dark:text-neutral-500">
-                        {formatConversationListDate(thread.lastUpdatedUtc)}
+                        {listDateFormatter(thread.lastUpdatedUtc)}
                       </div>
                     </span>
                   </Button>
@@ -391,3 +403,4 @@ export default function AskPage() {
     </main>
   );
 }
+

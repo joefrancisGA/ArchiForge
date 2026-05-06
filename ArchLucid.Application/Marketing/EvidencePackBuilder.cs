@@ -3,17 +3,16 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace ArchLucid.Application.Marketing;
-
 /// <summary>
-///     Default <see cref="IEvidencePackBuilder" /> — assembles the canonical Trust Center
-///     evidence-pack ZIP from an <see cref="IEvidencePackSourceProvider" />, prepends an
+///     Default <see cref = "IEvidencePackBuilder"/> — assembles the canonical Trust Center
+///     evidence-pack ZIP from an <see cref = "IEvidencePackSourceProvider"/>, prepends an
 ///     auto-generated <c>README.md</c>, and stamps a content-driven SHA-256 ETag.
 /// </summary>
 /// <remarks>
 ///     <para>
 ///         <b>Determinism.</b> The README is generated from the source entries with no
 ///         timestamp (only stable per-file SHA-256 fingerprints), and every ZIP entry's
-///         last-write-time is pinned to <see cref="DeterministicEntryTimestamp" />. As a
+///         last-write-time is pinned to <see cref = "DeterministicEntryTimestamp"/>. As a
 ///         result, the same source content produces byte-identical ZIPs across runs and
 ///         hosts, which keeps the <c>If-None-Match</c> 304 negotiation honest.
 ///     </para>
@@ -24,43 +23,35 @@ namespace ArchLucid.Application.Marketing;
 ///         downloaded the same source content.
 ///     </para>
 /// </remarks>
-public sealed class EvidencePackBuilder(
-    IEvidencePackSourceProvider sourceProvider,
-    TimeProvider timeProvider) : IEvidencePackBuilder
+public sealed class EvidencePackBuilder(IEvidencePackSourceProvider sourceProvider, TimeProvider timeProvider) : IEvidencePackBuilder
 {
+    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(sourceProvider, timeProvider);
+    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Marketing.IEvidencePackSourceProvider sourceProvider, System.TimeProvider timeProvider)
+    {
+        ArgumentNullException.ThrowIfNull(sourceProvider);
+        ArgumentNullException.ThrowIfNull(timeProvider);
+        return (byte)0;
+    }
+
     /// <summary>Pinned last-write-time used for every ZIP entry so the bytes are reproducible.</summary>
-    public static readonly DateTimeOffset DeterministicEntryTimestamp =
-        new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
-
-    private readonly IEvidencePackSourceProvider _sourceProvider =
-        sourceProvider ?? throw new ArgumentNullException(nameof(sourceProvider));
-
-    private readonly TimeProvider _timeProvider =
-        timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-
-    /// <inheritdoc />
+    public static readonly DateTimeOffset DeterministicEntryTimestamp = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+    private readonly IEvidencePackSourceProvider _sourceProvider = sourceProvider ?? throw new ArgumentNullException(nameof(sourceProvider));
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+    /// <inheritdoc/>
     public async Task<EvidencePackArtifact> BuildAsync(CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<EvidencePackEntry> sourceEntries =
-            await _sourceProvider.GetEntriesAsync(cancellationToken);
-
+        IReadOnlyList<EvidencePackEntry> sourceEntries = await _sourceProvider.GetEntriesAsync(cancellationToken);
         if (sourceEntries is null || sourceEntries.Count == 0)
             throw new InvalidOperationException("Evidence-pack source provider returned no entries.");
-
         string etag = EvidencePackEtag.Compute(sourceEntries);
-
         EvidencePackEntry readmeEntry = new("README.md", BuildReadmeBytes(sourceEntries));
-
-        List<EvidencePackEntry> finalEntries = new(sourceEntries.Count + 1) { readmeEntry };
+        List<EvidencePackEntry> finalEntries = new(sourceEntries.Count + 1)
+        {
+            readmeEntry
+        };
         finalEntries.AddRange(sourceEntries);
-
         byte[] zipBytes = WriteDeterministicZip(finalEntries);
-
-        return new EvidencePackArtifact(
-            zipBytes,
-            etag,
-            "application/zip",
-            _timeProvider.GetUtcNow());
+        return new EvidencePackArtifact(zipBytes, etag, "application/zip", _timeProvider.GetUtcNow());
     }
 
     private static byte[] BuildReadmeBytes(IReadOnlyList<EvidencePackEntry> sourceEntries)
@@ -82,7 +73,6 @@ public sealed class EvidencePackBuilder(
         readme.AppendLine();
         readme.AppendLine("| File | SHA-256 (first 16 hex) | Notes |");
         readme.AppendLine("|------|------------------------|-------|");
-
         foreach (EvidencePackEntry entry in sourceEntries)
         {
             string fingerprint = ComputeShortFingerprint(entry.Content);
@@ -93,10 +83,8 @@ public sealed class EvidencePackBuilder(
         readme.AppendLine();
         readme.AppendLine("## What is intentionally NOT included");
         readme.AppendLine();
-        readme.AppendLine(
-            "- The **redacted** pen-test summary (`docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md`) — that artefact is V1.1-gated per `docs/PENDING_QUESTIONS.md` Q10. Only the SoW (`PEN_TEST_SOW_2026_Q2.md`) is in this pack.");
-        readme.AppendLine(
-            "- The **PGP key** (`docs/security/PGP_KEY_GENERATION_RECIPE.md` is a recipe, not a key). Key publication is also V1.1.");
+        readme.AppendLine("- The **redacted** pen-test summary (`docs/security/pen-test-summaries/2026-Q2-REDACTED-SUMMARY.md`) — that artefact is V1.1-gated per `docs/PENDING_QUESTIONS.md` Q10. Only the SoW (`PEN_TEST_SOW_2026_Q2.md`) is in this pack.");
+        readme.AppendLine("- The **PGP key** (`docs/security/PGP_KEY_GENERATION_RECIPE.md` is a recipe, not a key). Key publication is also V1.1.");
         readme.AppendLine();
         readme.AppendLine("## Verifying the pack content");
         readme.AppendLine();
@@ -105,7 +93,6 @@ public sealed class EvidencePackBuilder(
         readme.AppendLine("Re-download with `If-None-Match: <etag>` to receive `304 Not Modified` when the");
         readme.AppendLine("contents have not changed.");
         readme.AppendLine();
-
         return Encoding.UTF8.GetBytes(readme.ToString());
     }
 
@@ -125,8 +112,7 @@ public sealed class EvidencePackBuilder(
             "security.txt" => "RFC 9116 security contact file (`archlucid-ui/public/.well-known/security.txt`).",
             "CAIQ-Lite.md" => "CAIQ Lite pre-fill 2026 (`docs/security/CAIQ_LITE_2026.md`).",
             "SIG-Core.md" => "SIG Core pre-fill 2026 (`docs/security/SIG_CORE_2026.md`).",
-            "OWNER_SECURITY_ASSESSMENT_2026_Q2.md" =>
-                "Owner-led security self-assessment (owner-conducted, not third-party audited).",
+            "OWNER_SECURITY_ASSESSMENT_2026_Q2.md" => "Owner-led security self-assessment (owner-conducted, not third-party audited).",
             "PEN_TEST_SOW_2026_Q2.md" => "2026-Q2 pen-test Statement of Work (engagement in flight).",
             "AUDIT_COVERAGE_MATRIX.md" => "Mapping of state-changing workflows to durable audit signals.",
             _ => "(see file)."
@@ -136,14 +122,12 @@ public sealed class EvidencePackBuilder(
     private static byte[] WriteDeterministicZip(IReadOnlyList<EvidencePackEntry> entries)
     {
         using MemoryStream ms = new();
-
         using (ZipArchive archive = new(ms, ZipArchiveMode.Create, true))
         {
             foreach (EvidencePackEntry entry in entries)
             {
                 ZipArchiveEntry zipEntry = archive.CreateEntry(entry.ZipName, CompressionLevel.Optimal);
                 zipEntry.LastWriteTime = DeterministicEntryTimestamp;
-
                 using Stream writer = zipEntry.Open();
                 writer.Write(entry.Content, 0, entry.Content.Length);
             }

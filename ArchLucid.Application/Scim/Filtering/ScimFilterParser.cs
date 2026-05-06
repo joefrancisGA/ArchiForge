@@ -1,66 +1,47 @@
 using System.Text;
-
 using ArchLucid.Core.Scim.Filtering;
 
 namespace ArchLucid.Application.Scim.Filtering;
-
 /// <summary>Hand-rolled SCIM v2 filter parser (RFC 7644 §3.4.2.2) for flat user attributes only.</summary>
 public static class ScimFilterParser
 {
-    public static ScimFilterNode? Parse(string? filter)
+    public static ArchLucid.Core.Scim.Filtering.ScimFilterNode? Parse(string? filter)
     {
         if (string.IsNullOrWhiteSpace(filter))
             return null;
-
         ScimFilterCursor c = new(filter.Trim());
         ScimFilterNode node = c.ParseFilter();
         c.SkipWs();
-
-        return !c.Eof
-            ? throw new ScimFilterParseException($"Unexpected trailing input at position {c.Position}.")
-            : node;
+        return !c.Eof ? throw new ScimFilterParseException($"Unexpected trailing input at position {c.Position}.") : node;
     }
 
     private ref struct ScimFilterCursor
     {
         private readonly ReadOnlySpan<char> _s;
-
         public ScimFilterCursor(ReadOnlySpan<char> s)
         {
             _s = s;
             Position = 0;
         }
 
-        public int Position
-        {
-            get;
-            private set;
-        }
-
+        public int Position { get; private set; }
         public bool Eof => Position >= _s.Length;
 
         public ScimFilterNode ParseFilter()
         {
             SkipWs();
-
             if (PeekKeyword("not"))
             {
                 ConsumeKeyword("not");
                 SkipWs();
-
                 if (!TryConsume('('))
                     throw new ScimFilterParseException("Expected '(' after 'not'.");
-
                 ScimFilterNode inner = ParseFilter();
-
-                return !TryConsume(')')
-                    ? throw new ScimFilterParseException("Expected ')' to close 'not'.")
-                    : new ScimNotNode(inner);
+                return !TryConsume(')') ? throw new ScimFilterParseException("Expected ')' to close 'not'.") : new ScimNotNode(inner);
             }
 
             ScimFilterNode left = ParseTerm();
             SkipWs();
-
             while (true)
             {
                 if (PeekKeyword("and"))
@@ -70,7 +51,6 @@ public static class ScimFilterParser
                     ScimFilterNode right = ParseTerm();
                     left = new ScimAndNode(left, right);
                     SkipWs();
-
                     continue;
                 }
 
@@ -81,7 +61,6 @@ public static class ScimFilterParser
                     ScimFilterNode right = ParseTerm();
                     left = new ScimOrNode(left, right);
                     SkipWs();
-
                     continue;
                 }
 
@@ -94,11 +73,9 @@ public static class ScimFilterParser
         private ScimFilterNode ParseTerm()
         {
             SkipWs();
-
             if (!TryConsume('('))
                 return ParseAttrExpression();
             ScimFilterNode inner = ParseFilter();
-
             return !TryConsume(')') ? throw new ScimFilterParseException("Expected ')'.") : inner;
         }
 
@@ -106,18 +83,15 @@ public static class ScimFilterParser
         {
             string path = ReadAttributePath();
             SkipWs();
-
             if (PeekKeyword("pr"))
             {
                 ConsumeKeyword("pr");
-
                 return new ScimPresentNode(path);
             }
 
             string op = ReadCompareOp();
             SkipWs();
             string value = ReadCompareValue();
-
             return new ScimComparisonNode(path, op, value);
         }
 
@@ -125,7 +99,6 @@ public static class ScimFilterParser
         {
             StringBuilder sb = new();
             AppendAttributePathSegments(sb);
-
             return sb.ToString();
         }
 
@@ -134,14 +107,11 @@ public static class ScimFilterParser
             sb.Append(ReadAttrSegment());
             SkipWs();
             AppendOptionalBracket(sb);
-
             while (true)
             {
                 SkipWs();
-
                 if (!TryConsume('.'))
                     break;
-
                 sb.Append('.');
                 sb.Append(ReadAttrSegment());
                 SkipWs();
@@ -153,13 +123,10 @@ public static class ScimFilterParser
         {
             if (!TryConsume('['))
                 return;
-
             ScimFilterNode inner = ParseFilter();
             SkipWs();
-
             if (!TryConsume(']'))
                 throw new ScimFilterParseException($"Expected ']' after attribute selector filter at position {Position}.");
-
             sb.Append('[');
             sb.Append(CanonicalBracketInnerFilter(inner));
             sb.Append(']');
@@ -168,11 +135,8 @@ public static class ScimFilterParser
         private static string CanonicalBracketInnerFilter(ScimFilterNode inner)
         {
             if (inner is not ScimComparisonNode c)
-                throw new ScimFilterParseException(
-                    "Attribute selectors must use a single comparison inside brackets (for example type eq \"work\").");
-
+                throw new ScimFilterParseException("Attribute selectors must use a single comparison inside brackets (for example type eq \"work\").");
             string escaped = c.Value.Replace("\\", "\\\\", StringComparison.Ordinal).Replace("\"", "\\\"", StringComparison.Ordinal);
-
             return $"{c.AttributePath.ToLowerInvariant()} {c.Operator.ToLowerInvariant()} \"{escaped}\"";
         }
 
@@ -180,17 +144,13 @@ public static class ScimFilterParser
         {
             if (Eof || (!char.IsLetter(_s[Position]) && _s[Position] != '_'))
                 throw new ScimFilterParseException($"Attribute path segment expected at {Position}.");
-
             int start = Position;
-
             while (!Eof)
             {
                 char ch = _s[Position];
-
                 if (char.IsLetterOrDigit(ch) || ch is '_' or '-')
                 {
                     Position++;
-
                     continue;
                 }
 
@@ -204,16 +164,13 @@ public static class ScimFilterParser
         {
             if (Position + 1 >= _s.Length)
                 throw new ScimFilterParseException("Compare operator expected.");
-
             ReadOnlySpan<char> two = _s.Slice(Position, 2);
             string[] ops = ["eq", "ne", "co", "sw", "ew", "gt", "lt", "ge", "le"];
-
             foreach (string op in ops)
             {
                 if (!two.Equals(op.AsSpan(), StringComparison.OrdinalIgnoreCase))
                     continue;
                 Position += 2;
-
                 return op.ToLowerInvariant();
             }
 
@@ -223,22 +180,16 @@ public static class ScimFilterParser
         private string ReadCompareValue()
         {
             SkipWs();
-
             if (Eof)
                 throw new ScimFilterParseException("Compare value expected.");
-
             if (_s[Position] == '"')
                 return ReadQuotedString();
-
             int start = Position;
-
             while (!Eof)
             {
                 char ch = _s[Position];
-
                 if (char.IsWhiteSpace(ch) || ch is ')')
                     break;
-
                 Position++;
             }
 
@@ -249,30 +200,23 @@ public static class ScimFilterParser
         {
             if (!TryConsume('"'))
                 throw new ScimFilterParseException("Opening '\"' expected.");
-
             StringBuilder sb = new();
-
             while (!Eof)
             {
                 char ch = _s[Position];
-
                 if (ch == '\\')
                 {
                     Position++;
-
                     if (Eof)
                         throw new ScimFilterParseException("Unterminated escape in string literal.");
-
                     sb.Append(_s[Position]);
                     Position++;
-
                     continue;
                 }
 
                 if (ch == '"')
                 {
                     Position++;
-
                     return sb.ToString();
                 }
 
@@ -292,31 +236,24 @@ public static class ScimFilterParser
         private bool TryConsume(char ch)
         {
             SkipWs();
-
             if (Eof || _s[Position] != ch)
                 return false;
-
             Position++;
-
             return true;
         }
 
         private bool PeekKeyword(string word)
         {
             SkipWs();
-
             if (Position + word.Length > _s.Length)
                 return false;
-
-            return _s.Slice(Position, word.Length).Equals(word.AsSpan(), StringComparison.OrdinalIgnoreCase) &&
-                   (Position + word.Length == _s.Length || !char.IsLetterOrDigit(_s[Position + word.Length]));
+            return _s.Slice(Position, word.Length).Equals(word.AsSpan(), StringComparison.OrdinalIgnoreCase) && (Position + word.Length == _s.Length || !char.IsLetterOrDigit(_s[Position + word.Length]));
         }
 
         private void ConsumeKeyword(string word)
         {
             if (!PeekKeyword(word))
                 throw new ScimFilterParseException($"Expected keyword '{word}' at {Position}.");
-
             SkipWs();
             Position += word.Length;
         }

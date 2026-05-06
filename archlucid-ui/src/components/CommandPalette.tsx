@@ -18,6 +18,7 @@ import { useNavCallerAuthorityRank, useNavCommittedArchitectureReview } from "@/
 import { useNavProgressiveDisclosure } from "@/hooks/useNavProgressiveDisclosure";
 import { NAV_GROUPS } from "@/lib/nav-config";
 import { effectiveNavDisclosureForPathname } from "@/lib/nav-disclosure-for-path";
+import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { listNavGroupsVisibleInOperatorShell } from "@/lib/nav-shell-visibility";
 import { SHORTCUTS } from "@/lib/shortcut-registry";
 
@@ -163,25 +164,33 @@ export function CommandPalette() {
     [router],
   );
 
+  const polishedShell = isBuyerPolishedOperatorShellEnv();
+
   return (
     <>
       <Button
         type="button"
         variant="outline"
         size="sm"
-        className="h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono text-xs font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
-        aria-label="Open command palette"
+        className={
+          polishedShell
+            ? "h-8 gap-1.5 border-neutral-300 bg-white px-2.5 text-xs font-medium text-neutral-800 shadow-sm hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800"
+            : "h-8 gap-1.5 border-dashed border-neutral-400 bg-neutral-50/90 px-2.5 font-mono text-xs font-semibold tracking-tight text-neutral-800 shadow-sm hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900/80 dark:text-neutral-100 dark:hover:bg-neutral-800"
+        }
+        aria-label={polishedShell ? "Open go to page" : "Open command palette"}
         onClick={() => {
           setOpen(true);
         }}
       >
-        <span className="rounded border border-neutral-300 bg-white px-1 py-0.5 text-[10px] font-semibold text-neutral-600 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400">
-          ⌘K
-        </span>
-        <span>Jump…</span>
+        {polishedShell ? null : (
+          <span className="rounded border border-neutral-300 bg-white px-1 py-0.5 text-[10px] font-semibold text-neutral-600 dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-400">
+            ⌘K
+          </span>
+        )}
+        <span>{polishedShell ? "Go to…" : "Jump…"}</span>
       </Button>
       <CommandDialog open={open} onOpenChange={setOpen}>
-        <CommandInput placeholder="Search pages or paste a review ID…" />
+        <CommandInput placeholder={polishedShell ? "Search pages…" : "Search pages or paste a review ID…"} />
         <CommandList>
           <RunIdQuickOpen onNavigate={navigate} />
           <CommandEmpty>No matching pages. Try another search or paste a review ID.</CommandEmpty>
@@ -192,23 +201,27 @@ export function CommandPalette() {
             hasCommittedArchitectureReview={hasCommittedArchitectureReview}
             onNavigate={navigate}
           />
-          <CommandSeparator />
-          <CommandGroup heading="Keyboard shortcuts (navigation)">
-            {SHORTCUTS.filter((entry) => entry.route !== undefined && entry.route !== "").map((entry) => (
-              <CommandItem
-                key={entry.key}
-                value={`${entry.label} ${entry.key}`}
-                onSelect={() => {
-                  if (entry.route) {
-                    navigate(entry.route);
-                  }
-                }}
-              >
-                {entry.label}{" "}
-                <span className="ml-1 text-xs text-neutral-500">({entry.key})</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          {polishedShell ? null : (
+            <>
+              <CommandSeparator />
+              <CommandGroup heading="Keyboard shortcuts (navigation)">
+                {SHORTCUTS.filter((entry) => entry.route !== undefined && entry.route !== "").map((entry) => (
+                  <CommandItem
+                    key={entry.key}
+                    value={`${entry.label} ${entry.key}`}
+                    onSelect={() => {
+                      if (entry.route) {
+                        navigate(entry.route);
+                      }
+                    }}
+                  >
+                    {entry.label}{" "}
+                    <span className="ml-1 text-xs text-neutral-500">({entry.key})</span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </>
+          )}
         </CommandList>
       </CommandDialog>
     </>

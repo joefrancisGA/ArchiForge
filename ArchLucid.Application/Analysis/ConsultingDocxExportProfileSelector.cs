@@ -1,31 +1,31 @@
 namespace ArchLucid.Application.Analysis;
-
 /// <summary>
-///     Default implementation of <see cref="IConsultingDocxExportProfileSelector" />.
+///     Default implementation of <see cref = "IConsultingDocxExportProfileSelector"/>.
 /// </summary>
 /// <remarks>
 ///     When an explicit profile name is given it is passed through directly after a
 ///     catalog look-up to enrich the display name. When no profile is given,
-///     <see cref="IConsultingDocxTemplateRecommendationService.Recommend" /> is called
+///     <see cref = "IConsultingDocxTemplateRecommendationService.Recommend"/> is called
 ///     to infer the best profile from context signals.
 /// </remarks>
-public sealed class ConsultingDocxExportProfileSelector(
-    IConsultingDocxTemplateProfileResolver profileResolver,
-    IConsultingDocxTemplateRecommendationService recommendationService)
-    : IConsultingDocxExportProfileSelector
+public sealed class ConsultingDocxExportProfileSelector(IConsultingDocxTemplateProfileResolver profileResolver, IConsultingDocxTemplateRecommendationService recommendationService) : IConsultingDocxExportProfileSelector
 {
-    /// <inheritdoc />
-    public ResolvedConsultingDocxExportProfile Resolve(
-        string? templateProfile,
-        ConsultingDocxProfileRecommendationRequest recommendationRequest)
+    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(profileResolver, recommendationService);
+    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.Analysis.IConsultingDocxTemplateProfileResolver profileResolver, ArchLucid.Application.Analysis.IConsultingDocxTemplateRecommendationService recommendationService)
     {
+        ArgumentNullException.ThrowIfNull(profileResolver);
+        ArgumentNullException.ThrowIfNull(recommendationService);
+        return (byte)0;
+    }
+
+    /// <inheritdoc/>
+    public ResolvedConsultingDocxExportProfile Resolve(string? templateProfile, ConsultingDocxProfileRecommendationRequest recommendationRequest)
+    {
+        ArgumentNullException.ThrowIfNull(recommendationRequest);
         if (!string.IsNullOrWhiteSpace(templateProfile))
         {
             ConsultingDocxTemplateProfileCatalog catalog = profileResolver.GetCatalog();
-
-            ConsultingDocxTemplateProfileInfo? summary = catalog.Profiles.FirstOrDefault(x =>
-                string.Equals(x.ProfileName, templateProfile, StringComparison.OrdinalIgnoreCase));
-
+            ConsultingDocxTemplateProfileInfo? summary = catalog.Profiles.FirstOrDefault(x => string.Equals(x.ProfileName, templateProfile, StringComparison.OrdinalIgnoreCase));
             return new ResolvedConsultingDocxExportProfile
             {
                 SelectedProfileName = summary?.ProfileName ?? templateProfile.Trim(),
@@ -36,7 +36,6 @@ public sealed class ConsultingDocxExportProfileSelector(
         }
 
         ConsultingDocxProfileRecommendation recommendation = recommendationService.Recommend(recommendationRequest);
-
         return new ResolvedConsultingDocxExportProfile
         {
             SelectedProfileName = recommendation.RecommendedProfileName,

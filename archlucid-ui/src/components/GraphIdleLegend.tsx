@@ -48,5 +48,5 @@ export const GRAPH_MODE_NATIVE_TITLES: Record<string, string> = {
   "decision-subgraph": "Neighborhood focused on one decision id and its connected evidence.",
   "node-neighborhood": "Expand a specific graph node by id up to the selected depth.",
   architecture:
-    "Architecture-oriented graph: components and relationships (may paginate on reviews with very large graphs).",
+    "Architecture-oriented graph: components and relationships (may paginate on reviews with very large evidence graphs).",
 };

@@ -16,3 +16,16 @@ export function isBuyerSafeDemoMarketingChromeEnv(): boolean {
     process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "1"
   );
 }
+
+/**
+ * Operator shell chrome tuned for buyer walkthroughs: softer Jump control, friendly scope labels, fewer shortcut chips.
+ * Matches static-operator + public demo builds (same boundary as {@link isStaticDemoPayloadFallbackEnabled} in
+ * `operator-static-demo`, duplicated here to avoid importing that module from env helpers).
+ */
+export function isBuyerPolishedOperatorShellEnv(): boolean {
+  return (
+    isNextPublicDemoMode() ||
+    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "true" ||
+    process.env.NEXT_PUBLIC_DEMO_STATIC_OPERATOR === "1"
+  );
+}

@@ -41,7 +41,7 @@ export function getBuyerSafeReviewsTableLink(runId: string): PrimaryReviewExplor
 
   /** Manifest-first for the curated Claims Intake spine — avoids `/reviews/[id]` when detail hydration is brittle. */
   if (isDemoRunIdEligibleForStaticFallback(id)) {
-    return { href: getShowcaseManifestHref(), label: "Review package" };
+    return { href: getShowcaseManifestHref(), label: "Manifest summary" };
   }
 
   return {

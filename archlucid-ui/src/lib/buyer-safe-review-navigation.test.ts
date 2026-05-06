@@ -22,7 +22,7 @@ describe("buyer-safe-review-navigation", () => {
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("Review package");
+    expect(link.label).toBe("Manifest summary");
     expect(link.href).toContain("/manifests/");
   });
 
@@ -35,7 +35,7 @@ describe("buyer-safe-review-navigation", () => {
 
     const link = mod.getBuyerSafeReviewsTableLink("claims-intake-modernization");
 
-    expect(link.label).toBe("Review package");
+    expect(link.label).toBe("Manifest summary");
     expect(link.href).toContain("/manifests/");
   });
 

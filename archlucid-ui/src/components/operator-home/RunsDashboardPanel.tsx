@@ -20,6 +20,7 @@ import type { ApiLoadFailureState } from "@/lib/api-load-failure";
 import { toApiLoadFailure, uiFailureFromMessage } from "@/lib/api-load-failure";
 import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import {
+  getBuyerSafeReviewsTableLink,
   getCanonicalReviewWorkspaceHref,
   getShowcaseManifestHref,
   getShowcaseWalkthroughHref,
@@ -162,6 +163,10 @@ export function RunsDashboardPanel() {
 
   const buyerSafeHighlight =
     showcaseDemoRun !== undefined && isBuyerSafePrimaryReviewNavigationPreferred(showcaseDemoRun.runId);
+
+  const showcasePrimaryCta =
+    showcaseDemoRun !== undefined ? getBuyerSafeReviewsTableLink(showcaseDemoRun.runId) : null;
+
   const attentionRuns = useMemo(() => effectiveItems.filter(isRunNeedingAttention), [effectiveItems]);
   const attentionPreview = useMemo(() => attentionRuns.slice(0, 3), [attentionRuns]);
 
@@ -257,7 +262,7 @@ export function RunsDashboardPanel() {
                     {buyerSafeHighlight ? (
                       <>
                         <Button asChild variant="primary" size="sm" className="h-8">
-                          <Link href={getShowcaseManifestHref()}>Review package</Link>
+                          <Link href={showcasePrimaryCta.href}>{showcasePrimaryCta.label}</Link>
                         </Button>
                         <Button asChild variant="outline" size="sm" className="h-8">
                           <Link href={getShowcaseWalkthroughHref()}>Showcase walkthrough</Link>

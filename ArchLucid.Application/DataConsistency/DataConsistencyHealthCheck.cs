@@ -1,37 +1,29 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace ArchLucid.Application.DataConsistency;
-
 /// <summary>Maps the last scheduled reconciliation outcome to ASP.NET health status.</summary>
 public sealed class DataConsistencyHealthCheck(DataConsistencyReconciliationHealthState healthState) : IHealthCheck
 {
-    private readonly DataConsistencyReconciliationHealthState _healthState =
-        healthState ?? throw new ArgumentNullException(nameof(healthState));
-
-    public Task<HealthCheckResult> CheckHealthAsync(
-        HealthCheckContext context,
-        CancellationToken cancellationToken = default)
+    private readonly byte __primaryConstructorArgumentValidation = __ValidatePrimaryConstructorArguments(healthState);
+    private static byte __ValidatePrimaryConstructorArguments(ArchLucid.Application.DataConsistency.DataConsistencyReconciliationHealthState healthState)
     {
-        _healthState.TrySnapshot(out bool hasRun, out DataConsistencyReport? report, out string? error);
+        ArgumentNullException.ThrowIfNull(healthState);
+        return (byte)0;
+    }
 
+    private readonly DataConsistencyReconciliationHealthState _healthState = healthState ?? throw new ArgumentNullException(nameof(healthState));
+    public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        _healthState.TrySnapshot(out bool hasRun, out DataConsistencyReport? report, out string? error);
         if (!hasRun)
             return Task.FromResult(HealthCheckResult.Unhealthy("Data consistency reconciliation has not run yet."));
-
         if (error is not null)
-            return Task.FromResult(
-                HealthCheckResult.Unhealthy("Data consistency reconciliation failed: " + error));
-
+            return Task.FromResult(HealthCheckResult.Unhealthy("Data consistency reconciliation failed: " + error));
         if (report is null)
-            return Task.FromResult(
-                HealthCheckResult.Unhealthy("Data consistency reconciliation state is inconsistent (no report)."));
-
+            return Task.FromResult(HealthCheckResult.Unhealthy("Data consistency reconciliation state is inconsistent (no report)."));
         if (report.Findings.Any(f => f.Severity == DataConsistencyFindingSeverity.Critical))
-            return Task.FromResult(
-                HealthCheckResult.Unhealthy("Critical data consistency findings detected in the last reconciliation."));
-
-        return Task.FromResult(report.Findings.Any(f => f.Severity == DataConsistencyFindingSeverity.Warning)
-            ? HealthCheckResult.Degraded("Warning-level data consistency findings detected in the last reconciliation.")
-            : HealthCheckResult.Healthy(
-                "Last data consistency reconciliation reported no warnings or critical issues."));
+            return Task.FromResult(HealthCheckResult.Unhealthy("Critical data consistency findings detected in the last reconciliation."));
+        return Task.FromResult(report.Findings.Any(f => f.Severity == DataConsistencyFindingSeverity.Warning) ? HealthCheckResult.Degraded("Warning-level data consistency findings detected in the last reconciliation.") : HealthCheckResult.Healthy("Last data consistency reconciliation reported no warnings or critical issues."));
     }
 }
