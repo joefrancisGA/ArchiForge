@@ -39,6 +39,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         string json = FindingsSerialization.SerializeSnapshot(snapshot);
         lock (_lock)
         {
+
             if (_store.Count >= MaxEntries && !_store.ContainsKey(snapshot.FindingsSnapshotId))
             {
                 Guid evict = _store.Keys.First();
@@ -78,6 +79,7 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
         CancellationToken ct)
     {
         _ = ct;
+
         if (cursorSortOrder.HasValue ^ cursorFindingRecordId.HasValue)
             throw new ArgumentException(
                 "Cursor requires both sortOrder and findingRecordId, or neither for the first page.");
@@ -183,3 +185,4 @@ public class InMemoryFindingsSnapshotRepository : IFindingsSnapshotRepository
     private static string? NormalizeFilter(string? raw) =>
         string.IsNullOrWhiteSpace(raw) ? null : raw.Trim();
 }
+

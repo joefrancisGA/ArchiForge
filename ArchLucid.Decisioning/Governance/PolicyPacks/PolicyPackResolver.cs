@@ -38,6 +38,7 @@ public sealed class PolicyPackResolver(
         foreach (PolicyPackAssignment assignment in assignments.Where(x => x.IsEnabled))
         {
             PolicyPack? pack = await packRepository.GetByIdAsync(assignment.PolicyPackId, ct);
+
             if (pack is null)
                 continue;
 
@@ -62,3 +63,4 @@ public sealed class PolicyPackResolver(
         return result;
     }
 }
+

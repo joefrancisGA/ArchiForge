@@ -115,6 +115,7 @@ public partial class FindingsOrchestrator(
 
             foreach (Finding finding in findings)
             {
+
                 if (string.IsNullOrWhiteSpace(finding.Category))
                     finding.Category = engine.Category;
 
@@ -241,3 +242,4 @@ public partial class FindingsOrchestrator(
         }
     }
 }
+

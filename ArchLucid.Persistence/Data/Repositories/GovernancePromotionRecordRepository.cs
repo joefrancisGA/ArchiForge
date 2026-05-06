@@ -68,24 +68,25 @@ public sealed class GovernancePromotionRecordRepository(
 
         try
         {
+            // Column is DATETIME2; default SqlClient mapping uses legacy datetime and collapses sub-ms values near DateTime.MaxValue.
+            DynamicParameters parameters = new();
+            parameters.Add("PromotionRecordId", item.PromotionRecordId);
+            parameters.Add("RunId", item.RunId);
+            parameters.Add("TenantId", item.TenantId);
+            parameters.Add("WorkspaceId", item.WorkspaceId);
+            parameters.Add("ProjectId", item.ProjectId);
+            parameters.Add("ManifestVersion", item.ManifestVersion);
+            parameters.Add("SourceEnvironment", item.SourceEnvironment);
+            parameters.Add("TargetEnvironment", item.TargetEnvironment);
+            parameters.Add("PromotedBy", item.PromotedBy);
+            parameters.Add("PromotedUtc", item.PromotedUtc, DbType.DateTime2);
+            parameters.Add("ApprovalRequestId", item.ApprovalRequestId);
+            parameters.Add("Notes", item.Notes);
+
             await conn.ExecuteAsync(
                 new CommandDefinition(
                     commandText: sql,
-                    parameters: new
-                    {
-                        item.PromotionRecordId,
-                        item.RunId,
-                        item.TenantId,
-                        item.WorkspaceId,
-                        item.ProjectId,
-                        item.ManifestVersion,
-                        item.SourceEnvironment,
-                        item.TargetEnvironment,
-                        item.PromotedBy,
-                        item.PromotedUtc,
-                        item.ApprovalRequestId,
-                        item.Notes
-                    },
+                    parameters: parameters,
                     transaction: transaction,
                     commandTimeout: null,
                     commandType: null,

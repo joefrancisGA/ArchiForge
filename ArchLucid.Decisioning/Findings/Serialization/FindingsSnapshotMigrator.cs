@@ -38,8 +38,10 @@ public static class FindingsSnapshotMigrator
     {
         if (string.Equals(findingType, "RequirementFinding", StringComparison.OrdinalIgnoreCase))
             return "Requirement";
+
         if (string.Equals(findingType, "TopologyGap", StringComparison.OrdinalIgnoreCase))
             return "Topology";
+
         if (string.Equals(findingType, "SecurityControlFinding", StringComparison.OrdinalIgnoreCase))
             return "Security";
         return string.Equals(findingType, "CostConstraintFinding", StringComparison.OrdinalIgnoreCase)
@@ -51,8 +53,10 @@ public static class FindingsSnapshotMigrator
     {
         if (string.Equals(findingType, "RequirementFinding", StringComparison.OrdinalIgnoreCase))
             return nameof(RequirementFindingPayload);
+
         if (string.Equals(findingType, "TopologyGap", StringComparison.OrdinalIgnoreCase))
             return nameof(TopologyGapFindingPayload);
+
         if (string.Equals(findingType, "SecurityControlFinding", StringComparison.OrdinalIgnoreCase))
             return nameof(SecurityControlFindingPayload);
         return string.Equals(findingType, "CostConstraintFinding", StringComparison.OrdinalIgnoreCase)
@@ -60,3 +64,4 @@ public static class FindingsSnapshotMigrator
             : null;
     }
 }
+

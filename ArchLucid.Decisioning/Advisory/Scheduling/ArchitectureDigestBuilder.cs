@@ -45,16 +45,19 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
         sb.AppendLine(HeadingDigest);
         sb.AppendLine();
         sb.AppendLine($"Generated: {plan.GeneratedUtc:u}");
+
         if (comparedToRunId.HasValue)
             sb.AppendLine($"Compared to prior run: {comparedToRunId:N}");
         sb.AppendLine();
 
         sb.AppendLine(HeadingSummary);
+
         foreach (string note in plan.SummaryNotes)
             sb.AppendLine($"- {note}");
         sb.AppendLine();
 
         sb.AppendLine(HeadingTopRecommendations);
+
         if (top.Count == 0)
 
             sb.AppendLine(NoRecommendationsNote);
@@ -80,6 +83,7 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
                 string.Equals(a.Severity, AlertSeverity.Critical, StringComparison.OrdinalIgnoreCase));
 
         sb.AppendLine(HeadingAlerts);
+
         if (alerts.Count == 0)
 
             sb.AppendLine(NoAlertsNote);
@@ -117,3 +121,4 @@ public sealed class ArchitectureDigestBuilder : IArchitectureDigestBuilder
         };
     }
 }
+

@@ -71,6 +71,7 @@ public sealed class PolicyPackManagementService(
 
         try
         {
+
             if (uow.SupportsExternalTransaction)
             {
                 await packRepository.CreateAsync(pack, ct, uow.Connection, uow.Transaction);
@@ -192,6 +193,7 @@ public sealed class PolicyPackManagementService(
 
         Guid ws = workspaceId;
         Guid proj = projectId;
+
         if (string.Equals(normalized, GovernanceScopeLevel.Tenant, StringComparison.Ordinal))
         {
             ws = Guid.Empty;
@@ -240,11 +242,13 @@ public sealed class PolicyPackManagementService(
     public async Task<bool> TryArchiveAssignmentAsync(Guid tenantId, Guid assignmentId, CancellationToken ct)
     {
         bool ok = await assignmentRepository.ArchiveAsync(tenantId, assignmentId, ct);
+
         if (!ok)
             return false;
 
         PolicyPackAssignment? row =
             await assignmentRepository.GetByTenantAndAssignmentIdAsync(tenantId, assignmentId, ct);
+
         if (row is null)
             return true;
 
@@ -309,3 +313,4 @@ public sealed class PolicyPackManagementService(
         }
     }
 }
+

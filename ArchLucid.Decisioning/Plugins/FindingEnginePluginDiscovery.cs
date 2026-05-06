@@ -43,6 +43,7 @@ public static class FindingEnginePluginDiscovery
 
         if (!Directory.Exists(fullPath))
         {
+
             if (logger.IsEnabled(LogLevel.Debug))
 
                 logger.LogDebug("Finding engine plugin directory does not exist: {Path}", fullPath);
@@ -59,6 +60,7 @@ public static class FindingEnginePluginDiscovery
 
             if (fileName.StartsWith("ArchLucid.", StringComparison.OrdinalIgnoreCase))
             {
+
                 if (logger.IsEnabled(LogLevel.Debug))
 
                     logger.LogDebug("Skipping core assembly in plugin scan: {File}", fileName);
@@ -80,6 +82,7 @@ public static class FindingEnginePluginDiscovery
 
             foreach (Type candidate in SafeGetExportedTypes(assembly))
             {
+
                 if (!candidate.IsClass || candidate.IsAbstract)
                     continue;
 
@@ -88,6 +91,7 @@ public static class FindingEnginePluginDiscovery
 
                 if (candidate.GetConstructor(Type.EmptyTypes) is null)
                 {
+
                     if (logger.IsEnabled(LogLevel.Debug))
 
                         logger.LogDebug(
@@ -172,3 +176,4 @@ public static class FindingEnginePluginDiscovery
         }
     }
 }
+

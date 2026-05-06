@@ -71,6 +71,7 @@ public sealed class EffectiveGovernanceResolver(
             foreach (PolicyPackAssignment assignment in applicable)
             {
                 PolicyPack? pack = await packRepository.GetByIdAsync(assignment.PolicyPackId, ct);
+
                 if (pack is null)
                 {
                     skippedNotes.Add(
@@ -91,6 +92,7 @@ public sealed class EffectiveGovernanceResolver(
                 }
 
                 (Guid, string) cacheKey = (assignment.PolicyPackId, assignment.PolicyPackVersion);
+
                 if (!contentCache.TryGetValue(cacheKey, out PolicyPackContentDocument? content))
                 {
                     try
@@ -280,6 +282,7 @@ public sealed class EffectiveGovernanceResolver(
 
         GovernanceResolutionCandidate winner = ordered[0];
         GovernanceResolutionCandidate second = ordered[1];
+
         if (winner.PrecedenceRank != second.PrecedenceRank)
             return
                 "Higher governance scope tier (project > workspace > tenant), or pinned assignment within a tier, outranked the other candidate(s).";
@@ -521,3 +524,4 @@ public sealed class EffectiveGovernanceResolver(
         PolicyPackVersion Version,
         PolicyPackContentDocument Content);
 }
+

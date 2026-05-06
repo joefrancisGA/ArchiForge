@@ -122,9 +122,11 @@ public sealed class ComparisonService : IComparisonService
         Dictionary<string, RequirementState> map = new(StringComparer.OrdinalIgnoreCase);
 
         // First-wins: if a name appears in both lists, the Covered entry takes priority.
+
         foreach (RequirementCoverageItem x in section.Covered)
             map.TryAdd(x.RequirementName,
                 new RequirementState(RequirementBucket.Covered, x.CoverageStatus, x.IsMandatory));
+
         foreach (RequirementCoverageItem x in section.Uncovered)
             map.TryAdd(x.RequirementName,
                 new RequirementState(RequirementBucket.Uncovered, x.CoverageStatus, x.IsMandatory));
@@ -190,6 +192,7 @@ public sealed class ComparisonService : IComparisonService
     {
         decimal? b = baseM.Cost.MaxMonthlyCost;
         decimal? t = targetM.Cost.MaxMonthlyCost;
+
         if (b != t)
 
             result.CostChanges.Add(new CostDelta { BaseCost = b, TargetCost = t });
@@ -199,14 +202,19 @@ public sealed class ComparisonService : IComparisonService
     {
         if (r.DecisionChanges.Count > 0)
             r.SummaryHighlights.Add($"{r.DecisionChanges.Count} decision change(s).");
+
         if (r.RequirementChanges.Count > 0)
             r.SummaryHighlights.Add($"{r.RequirementChanges.Count} requirement change(s).");
+
         if (r.SecurityChanges.Count > 0)
             r.SummaryHighlights.Add($"{r.SecurityChanges.Count} security posture delta(s).");
+
         if (r.TopologyChanges.Count > 0)
             r.SummaryHighlights.Add($"{r.TopologyChanges.Count} topology resource change(s).");
+
         if (r.CostChanges.Count > 0)
             r.SummaryHighlights.Add("Maximum monthly cost changed.");
+
         if (r.SummaryHighlights.Count == 0)
             r.SummaryHighlights.Add("No material differences detected in compared sections.");
     }
@@ -219,3 +227,4 @@ public sealed class ComparisonService : IComparisonService
 
     private sealed record RequirementState(RequirementBucket Bucket, string CoverageStatus, bool IsMandatory);
 }
+

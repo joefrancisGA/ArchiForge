@@ -70,6 +70,9 @@ public sealed class MigrationReplayIdempotencySqlIntegrationTests(SqlServerPersi
 
         DatabaseMigrator.Run(catalogConnectionString);
 
+        string script129 = DatabaseMigrator.GetOrderedMigrationResourceNames()
+            .Single(static n => n.Contains("129_RlsAuthorityChildTableScopeDenorm", StringComparison.OrdinalIgnoreCase));
+
         await using (SqlConnection connection = new(catalogConnectionString))
         {
             await connection.OpenAsync(CancellationToken.None);
@@ -77,9 +80,11 @@ public sealed class MigrationReplayIdempotencySqlIntegrationTests(SqlServerPersi
             await using SqlCommand delete = new(
                 """
                 DELETE FROM dbo.SchemaVersions
-                WHERE ScriptName LIKE N'%129_RlsAuthorityChildTableScopeDenorm%';
+                WHERE ScriptName = @ScriptName;
                 """,
                 connection);
+
+            delete.Parameters.AddWithValue("@ScriptName", script129);
 
             int deleted = await delete.ExecuteNonQueryAsync(CancellationToken.None);
 

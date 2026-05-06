@@ -131,6 +131,7 @@ public sealed class ThresholdRecommendationService(
     private static AlertRule AlignSimpleRuleMetric(AlertRule source, string tunedMetricType)
     {
         AlertRule copy = CloneSimpleRuleWithThreshold(source, source.ThresholdValue);
+
         if (!string.IsNullOrWhiteSpace(tunedMetricType))
             copy.RuleType = tunedMetricType.Trim();
         return copy;
@@ -190,3 +191,4 @@ public sealed class ThresholdRecommendationService(
         };
     }
 }
+

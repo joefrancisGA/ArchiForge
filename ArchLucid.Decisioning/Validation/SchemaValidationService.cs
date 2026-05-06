@@ -104,6 +104,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
             if (!File.Exists(fullPath))
             {
+
                 if (_logger.IsEnabled(LogLevel.Error))
 
                     _logger.LogError("Schema file not found: {FullPath} for {SchemaName}", fullPath, schemaName);
@@ -126,6 +127,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
         }
         catch (Exception ex) when (ex is not FileNotFoundException)
         {
+
             if (_logger.IsEnabled(LogLevel.Error))
 
                 _logger.LogError(ex, "Failed to load or parse schema {SchemaName} from {RelativePath}", schemaName,
@@ -200,6 +202,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
 
             if (evaluation.IsValid)
             {
+
                 if (_logger.IsEnabled(LogLevel.Debug))
 
                     _logger.LogDebug("Validation succeeded for {ObjectName}", objectName);
@@ -273,6 +276,7 @@ public sealed class SchemaValidationService : ISchemaValidationService
             {
                 string message = kvp.Value;
                 string location = evaluation.InstanceLocation.ToString();
+
                 if (string.IsNullOrEmpty(location))
                     location = "(root)";
                 string? schemaPath = evaluation.SchemaLocation?.ToString();
@@ -294,3 +298,4 @@ public sealed class SchemaValidationService : ISchemaValidationService
             CollectErrors(detail, result, objectName);
     }
 }
+

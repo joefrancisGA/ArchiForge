@@ -34,10 +34,13 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
 
         if (!result.HasNetwork)
             result.MissingCategories.Add(GraphTopologyCategories.Network);
+
         if (!result.HasCompute)
             result.MissingCategories.Add(GraphTopologyCategories.Compute);
+
         if (!result.HasStorage)
             result.MissingCategories.Add(GraphTopologyCategories.Storage);
+
         if (!result.HasData)
             result.MissingCategories.Add(GraphTopologyCategories.Data);
 
@@ -149,3 +152,4 @@ public class GraphCoverageAnalyzer : IGraphCoverageAnalyzer
         };
     }
 }
+

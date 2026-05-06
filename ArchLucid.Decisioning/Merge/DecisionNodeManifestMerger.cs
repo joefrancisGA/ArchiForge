@@ -78,6 +78,7 @@ public sealed class DecisionNodeManifestMerger
 
             if (selected is not null)
             {
+
                 if (selected.Description.Contains(ControlPrivateEndpoints, StringComparison.OrdinalIgnoreCase) &&
                     !manifest.Governance.RequiredControls.Contains(ControlPrivateEndpoints,
                         StringComparer.OrdinalIgnoreCase))
@@ -128,3 +129,4 @@ public sealed class DecisionNodeManifestMerger
             });
     }
 }
+

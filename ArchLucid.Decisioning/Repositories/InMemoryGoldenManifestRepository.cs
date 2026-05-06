@@ -33,6 +33,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
         lock (_lock)
         {
             _store.Add(manifest);
+
             if (_store.Count > MaxEntries)
                 _store.RemoveRange(0, _store.Count - MaxEntries);
         }
@@ -53,10 +54,13 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
     {
         if (contract is null)
             throw new ArgumentNullException(nameof(contract));
+
         if (scope is null)
             throw new ArgumentNullException(nameof(scope));
+
         if (keying is null)
             throw new ArgumentNullException(nameof(keying));
+
         if (manifestHashService is null)
             throw new ArgumentNullException(nameof(manifestHashService));
         _ = connection;
@@ -70,6 +74,7 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
         lock (_lock)
         {
             _store.Add(model);
+
             if (_store.Count > MaxEntries)
                 _store.RemoveRange(0, _store.Count - MaxEntries);
         }
@@ -117,3 +122,4 @@ public class InMemoryGoldenManifestRepository : IGoldenManifestRepository
         }
     }
 }
+

@@ -30,6 +30,7 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
         lock (_lock)
         {
             _store.Add(Clone(trace));
+
             if (_store.Count > MaxEntries)
                 _store.RemoveRange(0, _store.Count - MaxEntries);
         }
@@ -63,3 +64,4 @@ public class InMemoryDecisionTraceRepository : IDecisionTraceRepository
             : RuleAuditTrace.From(copy);
     }
 }
+

@@ -78,12 +78,15 @@ public sealed class AgentProposalManifestMerger
         Dictionary<string, ManifestService> byName = new(StringComparer.OrdinalIgnoreCase);
 
         // ReSharper disable once LoopCanBeConvertedToQuery — ToDictionary throws on duplicate keys; explicit overwrite is required.
+
         foreach (ManifestService s in manifest.Services)
             byName[s.ServiceName] = s;
 
         // ReSharper disable once LoopCanBeConvertedToQuery — side effects (trace recording, list and dictionary mutation) prevent safe LINQ conversion.
+
         foreach (ManifestService service in services)
         {
+
             if (string.IsNullOrWhiteSpace(service.ServiceName))
             {
                 output.Warnings.Add($"Skipped unnamed service from {agentType}.");
@@ -153,12 +156,15 @@ public sealed class AgentProposalManifestMerger
         Dictionary<string, ManifestDatastore> byName = new(StringComparer.OrdinalIgnoreCase);
 
         // ReSharper disable once LoopCanBeConvertedToQuery — ToDictionary throws on duplicate keys; explicit overwrite is required.
+
         foreach (ManifestDatastore d in manifest.Datastores)
             byName[d.DatastoreName] = d;
 
         // ReSharper disable once LoopCanBeConvertedToQuery — side effects (trace recording, list and dictionary mutation) prevent safe LINQ conversion.
+
         foreach (ManifestDatastore datastore in datastores)
         {
+
             if (string.IsNullOrWhiteSpace(datastore.DatastoreName))
             {
                 output.Warnings.Add($"Skipped unnamed datastore from {agentType}.");
@@ -215,12 +221,15 @@ public sealed class AgentProposalManifestMerger
         HashSet<string> existingKeys = new(StringComparer.OrdinalIgnoreCase);
 
         // ReSharper disable once LoopCanBeConvertedToQuery — side effect (HashSet population) prevents safe LINQ conversion.
+
         foreach (ManifestRelationship r in manifest.Relationships)
             existingKeys.Add(RelationshipKey(r));
 
         // ReSharper disable once LoopCanBeConvertedToQuery — side effects (trace recording, list and HashSet mutation) prevent safe LINQ conversion.
+
         foreach (ManifestRelationship relationship in relationships)
         {
+
             if (string.IsNullOrWhiteSpace(relationship.SourceId) || string.IsNullOrWhiteSpace(relationship.TargetId))
             {
                 output.Warnings.Add($"Skipped relationship with blank SourceId or TargetId from {agentType}.");
@@ -264,8 +273,10 @@ public sealed class AgentProposalManifestMerger
         HashSet<string> existingControls = new(manifest.Governance.RequiredControls, StringComparer.OrdinalIgnoreCase);
 
         // ReSharper disable once LoopCanBeConvertedToQuery — side effects (trace recording, list and HashSet mutation) prevent safe LINQ conversion.
+
         foreach (string control in controls)
         {
+
             if (string.IsNullOrWhiteSpace(control))
                 continue;
 
@@ -290,6 +301,7 @@ public sealed class AgentProposalManifestMerger
     {
         foreach (string warning in warnings)
         {
+
             if (string.IsNullOrWhiteSpace(warning))
                 continue;
 
@@ -304,6 +316,7 @@ public sealed class AgentProposalManifestMerger
     {
         foreach (ArchitectureFinding finding in result.Findings)
         {
+
             if (string.Equals(finding.Category, "Compliance", StringComparison.OrdinalIgnoreCase) &&
                 !string.IsNullOrWhiteSpace(finding.Message))
 
@@ -370,3 +383,4 @@ public sealed class AgentProposalManifestMerger
         };
     }
 }
+

@@ -44,6 +44,7 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
     private static decimal BuildCostIncreasePercent(AlertEvaluationContext context)
     {
         CostDelta? delta = context.ComparisonResult?.CostChanges.FirstOrDefault();
+
         if (delta?.BaseCost is null || delta.TargetCost is null || delta.BaseCost == 0)
             return 0;
 
@@ -54,10 +55,12 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
     private static decimal BuildAcceptanceRatePercent(AlertEvaluationContext context)
     {
         RecommendationLearningProfile? profile = context.LearningProfile;
+
         if (profile is null)
             return 0;
 
         int proposed = profile.CategoryStats.Sum(x => x.ProposedCount);
+
         if (proposed == 0)
             return 0;
 
@@ -65,3 +68,4 @@ public sealed class AlertMetricSnapshotBuilder : IAlertMetricSnapshotBuilder
         return (decimal)accepted / proposed * 100m;
     }
 }
+

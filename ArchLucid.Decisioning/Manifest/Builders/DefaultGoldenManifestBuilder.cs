@@ -170,6 +170,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.RequirementFinding))
         {
             RequirementFindingPayload? payload = FindingPayloadConverter.ToRequirementPayload(finding);
+
             if (payload is null)
                 continue;
 
@@ -199,6 +200,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     {
         foreach (GraphNode node in graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource))
         {
+
             if (string.IsNullOrWhiteSpace(node.Label))
                 continue;
             manifest.Topology.Resources.Add(node.Label);
@@ -213,6 +215,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     {
         foreach (GraphNode node in graphSnapshot.GetNodesByType(GraphNodeTypes.TopologyResource))
         {
+
             if (string.IsNullOrWhiteSpace(node.Label))
                 continue;
 
@@ -249,6 +252,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
     private static TEnum ParseEnumKey<TEnum>(Dictionary<string, string> properties, string key)
         where TEnum : struct, Enum
     {
+
         if (string.IsNullOrEmpty(key))
             return default;
 
@@ -256,6 +260,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
 
         foreach (KeyValuePair<string, string> kv in properties)
         {
+
             if (!string.Equals(kv.Key, key, StringComparison.OrdinalIgnoreCase))
                 continue;
 
@@ -335,6 +340,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.ComplianceFinding))
         {
             ComplianceFindingPayload? payload = FindingPayloadConverter.ToCompliancePayload(finding);
+
             if (payload is null)
                 continue;
 
@@ -364,6 +370,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.CostConstraintFinding))
         {
             CostConstraintFindingPayload? payload = FindingPayloadConverter.ToCostConstraintPayload(finding);
+
             if (payload is null)
                 continue;
 
@@ -388,6 +395,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyApplicabilityFinding))
         {
             PolicyApplicabilityFindingPayload? payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
+
             if (payload is null)
                 continue;
 
@@ -415,6 +423,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyApplicabilityFinding))
         {
             PolicyApplicabilityFindingPayload? payload = FindingPayloadConverter.ToPolicyApplicabilityPayload(finding);
+
             if (payload is null)
                 continue;
 
@@ -448,6 +457,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyCoverageFinding))
         {
             PolicyCoverageFindingPayload? payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
+
             if (payload is null)
                 continue;
 
@@ -480,6 +490,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.TopologyCoverageFinding))
         {
             TopologyCoverageFindingPayload? payload = FindingPayloadConverter.ToTopologyCoveragePayload(finding);
+
             if (payload is null || payload.MissingCategories.Count == 0)
                 continue;
 
@@ -499,6 +510,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.SecurityCoverageFinding))
         {
             SecurityCoverageFindingPayload? payload = FindingPayloadConverter.ToSecurityCoveragePayload(finding);
+
             if (payload is null)
                 continue;
 
@@ -518,6 +530,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.PolicyCoverageFinding))
         {
             PolicyCoverageFindingPayload? payload = FindingPayloadConverter.ToPolicyCoveragePayload(finding);
+
             if (payload is null)
                 continue;
 
@@ -536,6 +549,7 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
         foreach (Finding finding in findingsSnapshot.GetByType(FindingTypes.RequirementCoverageFinding))
         {
             RequirementCoverageFindingPayload? payload = FindingPayloadConverter.ToRequirementCoveragePayload(finding);
+
             if (payload is null)
                 continue;
 
@@ -590,3 +604,4 @@ public class DefaultGoldenManifestBuilder : IGoldenManifestBuilder
             .ToList();
     }
 }
+

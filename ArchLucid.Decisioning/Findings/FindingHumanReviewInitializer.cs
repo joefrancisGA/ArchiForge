@@ -26,6 +26,7 @@ public static class FindingHumanReviewInitializer
 
         foreach (Finding f in findings)
         {
+
             if (f.HumanReviewStatus is not FindingHumanReviewStatus.NotRequired)
                 continue;
 
@@ -46,3 +47,4 @@ public static class FindingHumanReviewInitializer
         }
     }
 }
+

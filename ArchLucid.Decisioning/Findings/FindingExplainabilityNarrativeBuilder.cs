@@ -97,6 +97,7 @@ public static class FindingExplainabilityNarrativeBuilder
 
         foreach (string raw in candidates)
         {
+
             if (string.IsNullOrWhiteSpace(raw))
                 continue;
 
@@ -229,3 +230,4 @@ public static class FindingExplainabilityNarrativeBuilder
         sb.AppendLine();
     }
 }
+

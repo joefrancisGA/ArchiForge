@@ -37,6 +37,7 @@ public sealed class FindingConfidenceCalculator
             int score = 0;
 
             // +35 / +40 / +25 partition the maximum 100 so no single boolean dominates entirely: reference (40) + schema (35) already caps explanatory power of trace (25).
+
             if (schemaValidationPassed)
                 score += 35;
 
@@ -68,3 +69,4 @@ public sealed class FindingConfidenceCalculator
         }
     }
 }
+

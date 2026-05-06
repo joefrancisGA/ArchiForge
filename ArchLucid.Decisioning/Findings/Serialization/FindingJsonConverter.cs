@@ -111,11 +111,13 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         JsonSerializer.Serialize(writer, value.RecommendedActions, options);
         writer.WritePropertyName("properties");
         JsonSerializer.Serialize(writer, value.Properties, options);
+
         if (value.PayloadType is not null)
             writer.WriteString("payloadType", value.PayloadType);
         else
             writer.WriteNull("payloadType");
         writer.WritePropertyName("payload");
+
         if (value.Payload is null)
             writer.WriteNullValue();
         else
@@ -214,8 +216,10 @@ public sealed class FindingJsonConverter : JsonConverter<Finding>
         if (!root.TryGetProperty(name, out JsonElement el) || el.ValueKind != JsonValueKind.Object)
             return new Dictionary<string, string>();
         Dictionary<string, string> d = new(StringComparer.OrdinalIgnoreCase);
+
         foreach (JsonProperty p in el.EnumerateObject())
             d[p.Name] = p.Value.GetString() ?? "";
         return d;
     }
 }
+

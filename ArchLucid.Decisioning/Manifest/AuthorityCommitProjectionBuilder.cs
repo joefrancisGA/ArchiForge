@@ -59,8 +59,10 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
             .ToList();
 
         string risk = "Moderate";
+
         if (source.Cost.CostRisks.Count > 0)
             risk = "High";
+
         if (source.UnresolvedIssues.Items.Count == 0 && source.Cost.CostRisks.Count == 0)
             risk = "Low";
 
@@ -97,3 +99,4 @@ public sealed class AuthorityCommitProjectionBuilder : IAuthorityCommitProjectio
         };
     }
 }
+

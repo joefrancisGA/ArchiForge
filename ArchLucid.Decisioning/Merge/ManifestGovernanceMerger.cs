@@ -102,6 +102,7 @@ public sealed class ManifestGovernanceMerger
 
         foreach (string control in manifest.Governance.RequiredControls)
         {
+
             foreach (ManifestService service in manifest.Services.Where(service =>
                          !service.RequiredControls.Contains(control, StringComparer.OrdinalIgnoreCase)))
                 service.RequiredControls.Add(control);
@@ -140,3 +141,4 @@ public sealed class ManifestGovernanceMerger
             new Dictionary<string, string> { ["control"] = control });
     }
 }
+
