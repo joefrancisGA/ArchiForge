@@ -75,7 +75,6 @@ public sealed class TenantIsolationSmokeTests
         await using SqlRlsTenantIsolationApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
-            primer.Timeout = TimeSpan.FromMinutes(2);
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
             // DbUp + first SQL queries can return 503 until the authority pipeline is warm; avoid relying on a single
             // probe shape so CI stays stable.
@@ -85,7 +84,6 @@ public sealed class TenantIsolationSmokeTests
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
 
         using HttpClient clientA = factory.CreateClient();
-        clientA.Timeout = TimeSpan.FromMinutes(2);
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         string requestId = "REQ-TNTISO-" + Guid.NewGuid().ToString("N")[..12];
@@ -97,7 +95,6 @@ public sealed class TenantIsolationSmokeTests
         string runId = created!.Run.RunId;
 
         using HttpClient clientB = factory.CreateClient();
-        clientB.Timeout = TimeSpan.FromMinutes(2);
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
         HttpResponseMessage getOther = await clientB.GetAsync($"/v1/architecture/run/{runId}");
@@ -120,7 +117,6 @@ public sealed class TenantIsolationSmokeTests
         await using SqlRlsTenantIsolationApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
-            primer.Timeout = TimeSpan.FromMinutes(2);
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
             await WarmListRunsPathAsync(primer);
         }
@@ -128,7 +124,6 @@ public sealed class TenantIsolationSmokeTests
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
 
         using HttpClient clientA = factory.CreateClient();
-        clientA.Timeout = TimeSpan.FromMinutes(2);
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         string requestId = "REQ-TNTROI-" + Guid.NewGuid().ToString("N")[..12];
@@ -140,7 +135,6 @@ public sealed class TenantIsolationSmokeTests
         string runId = created!.Run.RunId;
 
         using HttpClient clientB = factory.CreateClient();
-        clientB.Timeout = TimeSpan.FromMinutes(2);
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
         HttpResponseMessage roi = await clientB.GetAsync($"/v1/architecture/run/{runId}/roi");
@@ -155,7 +149,6 @@ public sealed class TenantIsolationSmokeTests
         await using SqlRlsTenantIsolationApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
-            primer.Timeout = TimeSpan.FromMinutes(2);
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
             await WarmListRunsPathAsync(primer);
         }
@@ -168,7 +161,6 @@ public sealed class TenantIsolationSmokeTests
         Skip.If(!manifestId.HasValue, "Greenfield catalog has no GoldenManifest row for the default tenant yet.");
 
         using HttpClient clientB = factory.CreateClient();
-        clientB.Timeout = TimeSpan.FromMinutes(2);
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
         HttpResponseMessage art = await clientB.GetAsync($"/v1/artifacts/manifests/{manifestId:D}");
@@ -183,7 +175,6 @@ public sealed class TenantIsolationSmokeTests
         await using SqlRlsTenantIsolationApiFactory factory = new();
         using (HttpClient primer = factory.CreateClient())
         {
-            primer.Timeout = TimeSpan.FromMinutes(2);
             IntegrationTestBase.WireDefaultSqlIntegrationScopeHeaders(primer);
             await WarmListRunsPathAsync(primer);
         }
@@ -191,11 +182,9 @@ public sealed class TenantIsolationSmokeTests
         await EnsureAlternateTenantAndWorkspaceAsync(factory.SqlConnectionString, TenantB, WorkspaceB, ProjectB);
 
         using HttpClient clientA = factory.CreateClient();
-        clientA.Timeout = TimeSpan.FromMinutes(2);
         WireScope(clientA, ScopeIds.DefaultTenant, ScopeIds.DefaultWorkspace, ScopeIds.DefaultProject);
 
         using HttpClient clientB = factory.CreateClient();
-        clientB.Timeout = TimeSpan.FromMinutes(2);
         WireScope(clientB, TenantB, WorkspaceB, ProjectB);
 
         string reqA = "REQ-ADMARCH-A-" + Guid.NewGuid().ToString("N")[..12];
@@ -315,7 +304,10 @@ public sealed class TenantIsolationSmokeTests
 
     private static async Task WarmListRunsPathAsync(HttpClient client)
     {
-        for (int attempt = 0; attempt < 30; attempt++)
+        // Greenfield DbUp + cold CI SQL can exceed short warm windows when the runner is busy.
+        int delayMs = 1000;
+
+        for (int attempt = 0; attempt < 60; attempt++)
         {
             using HttpResponseMessage response = await client.GetAsync("/v1/architecture/runs?limit=1");
             if (response.IsSuccessStatusCode)
@@ -327,7 +319,8 @@ public sealed class TenantIsolationSmokeTests
                 return;
             }
 
-            await Task.Delay(1000);
+            await Task.Delay(delayMs);
+            delayMs = Math.Min(delayMs * 2, 8000);
         }
 
         throw new InvalidOperationException(
@@ -339,9 +332,11 @@ public sealed class TenantIsolationSmokeTests
         HttpClient client,
         object body)
     {
-        // POST can stay 503 after GET warm: heavier path (sp_getapplock, insert). Do not return a final 503 to
-        // EnsureSuccessStatusCode; allow a longer wait than the prior 10-attempt loop.
-        const int maxAttempts = 60;
+        // POST can stay 503 after GET warm: heavier path (sp_getapplock, insert). Match
+        // ArchitectureRequestConcurrencyTestSupport: keep HttpClient.Timeout aligned with GreenfieldSqlApiFactory (long)
+        // so a single attempt can wait the distributed idempotency lock budget; retries cover fast 503 bursts on CI.
+        const int maxAttempts = 80;
+        int delayMs = 250;
 
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
@@ -351,7 +346,8 @@ public sealed class TenantIsolationSmokeTests
                 return response;
 
             response.Dispose();
-            await Task.Delay(1000);
+            await Task.Delay(delayMs);
+            delayMs = Math.Min(delayMs * 2, 4000);
         }
 
         throw new InvalidOperationException(

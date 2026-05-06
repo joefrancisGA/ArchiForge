@@ -22,8 +22,8 @@ public abstract class GovernancePromotionRecordRepositoryContractTests
         IGovernancePromotionRecordRepository repo = CreateRepository();
         string runId = Guid.NewGuid().ToString("N");
         string promotionId = "prm-" + Guid.NewGuid().ToString("N");
-        // Ceiling instant so this row stays inside FETCH NEXT 200 when older rows share the same RunId on dirty catalogs.
-        DateTime promotedUtc = DateTime.MaxValue.AddTicks(-2);
+        // Mid-range UTC instants keep ORDER BY assertions distinct without hitting SqlClient's legacy SqlDateTime RPC edge cases near year 9999.
+        DateTime promotedUtc = DistinctPromotionUtc(millisecondDelta: 0);
 
         GovernancePromotionRecord item = NewPromotion(promotionId, runId, promotedUtc);
 
@@ -43,9 +43,9 @@ public abstract class GovernancePromotionRecordRepositoryContractTests
         string runId = Guid.NewGuid().ToString("N");
         string idOld = "prm-run-old-" + Guid.NewGuid().ToString("N");
         string idNew = "prm-run-new-" + Guid.NewGuid().ToString("N");
-        // Distinct sub-ms instants at the DATETIME2 ceiling — stable ORDER BY vs ties or dirty shared catalogs.
-        DateTime newer = DateTime.MaxValue.AddTicks(-2);
-        DateTime older = DateTime.MaxValue.AddTicks(-4);
+        // Distinct UTC instants; millisecond deltas remain distinct after DATETIME2 round-trip.
+        DateTime newer = DistinctPromotionUtc(millisecondDelta: 1);
+        DateTime older = DistinctPromotionUtc(millisecondDelta: 0);
 
         await repo.CreateAsync(NewPromotion(idOld, runId, older), CancellationToken.None);
         await repo.CreateAsync(NewPromotion(idNew, runId, newer), CancellationToken.None);
@@ -62,6 +62,17 @@ public abstract class GovernancePromotionRecordRepositoryContractTests
         ours.Should().HaveCount(2);
         ours[0].PromotionRecordId.Should().Be(idNew);
         ours[1].PromotionRecordId.Should().Be(idOld);
+    }
+
+    /// <summary>
+    ///     Stable UTC timestamps for promotion ordering tests. Uses a fixed calendar date with whole-millisecond steps so pairs
+    ///     stay strictly ordered after DATETIME2 round-trip while staying far from SqlClient SqlDateTime RPC boundary bugs.
+    /// </summary>
+    private static DateTime DistinctPromotionUtc(int millisecondDelta)
+    {
+        const int BaseMillisecond = 100;
+
+        return new DateTime(2026, 6, 1, 12, 0, 0, BaseMillisecond + millisecondDelta, DateTimeKind.Utc);
     }
 
     private static GovernancePromotionRecord NewPromotion(string promotionId, string runId, DateTime promotedUtc)
