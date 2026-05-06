@@ -70,6 +70,20 @@ public sealed class GoldenManifestFactoryTests
     }
 
     [Fact]
+    public void CreateBase_Metadata_ParentManifestVersion_PreservesEmptyString()
+    {
+        ArchitectureRequest request = SampleRequest();
+
+        GoldenManifest manifest = GoldenManifestFactory.CreateBase(
+            "run-empty-parent",
+            request,
+            "v2",
+            parentManifestVersion: string.Empty);
+
+        manifest.Metadata.ParentManifestVersion.Should().Be(string.Empty);
+    }
+
+    [Fact]
     public void CreateBase_Governance_AppliesDefaultClassificationsAndEmptyCollectionsExceptPolicyConstraints()
     {
         ArchitectureRequest request = SampleRequest();
