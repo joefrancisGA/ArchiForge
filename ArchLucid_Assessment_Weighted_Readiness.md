@@ -428,9 +428,35 @@ Acceptance Criteria: When the environment variable is set, the API emits traces 
 Constraints: Do not modify existing `ILogger` configurations or remove any existing Application Insights telemetry if present.
 ```
 
-### 3. DEFERRED: Bi-Directional Jira Status Sync
-**Reason deferred:** Requires explicit definition of the status mapping matrix (e.g., ArchLucid "Resolved" -> Jira "Done") and authentication preference (OAuth vs API Token) before implementation can begin.
-**Needed from you:** Please provide the exact Jira to ArchLucid status mapping table and confirm whether we should target Basic Auth (API Token) or OAuth 2.0 for the V1 release.
+### 3. Implement Bi-Directional Jira Status Sync
+**Why it matters:** Jira bidirectional sync is a committed V1 GA obligation (*Resolved 2026-05-06*). Without it, ArchLucid findings go stale as engineers resolve Jira tickets, forcing dual-entry and eroding enterprise trust in the tool as a workflow hub.
+**Expected impact:** Directly improves Workflow Embeddedness (+8-12 pts), Interoperability (+5-8 pts), Stickiness (+3-5 pts). Weighted readiness impact: +0.5-0.8%.
+**Actionable now:** Yes.
+**Cursor Prompt:**
+```text
+Implement bidirectional Jira status sync in `ArchLucid.Application`.
+
+1. Create a `JiraStatusWebhookHandler` class that accepts an incoming Jira webhook payload (issue updated event).
+2. Extract the Jira issue status from the payload's `issue.fields.status.name` field.
+3. Map it to an ArchLucid finding state using a configurable per-tenant mapping. Default mapping:
+   - Jira "To Do" → ArchLucid "Open"
+   - Jira "In Progress" → ArchLucid "InProgress"
+   - Jira "Done" → ArchLucid "Resolved"
+   Store this mapping in tenant configuration as `Jira:StatusMapping` (JSON dictionary, nullable — falls back to default if absent).
+4. Look up the ArchLucid finding by the Jira issue key stored in the correlation back-link field, then update the finding state via `IFindingRepository.UpdateStateAsync(findingId, mappedState)`.
+5. Register a new POST endpoint `/v1/integrations/jira/webhook` (protected by a HMAC or shared-secret header `X-Jira-Token` validated against `Jira:WebhookSecret` in Key Vault).
+6. Emit a typed audit event `JiraStatusSynced` (actor = "jira-webhook", include Jira issue key and mapped state).
+
+Acceptance Criteria:
+- Jira webhook delivers an "issue updated" event → finding state is updated in SQL.
+- Unknown status values are logged as a Warning and ignored (no exception).
+- Endpoint returns 200 OK on success, 400 on missing/invalid token.
+
+Constraints:
+- Auth for V1 is shared-secret (API Token / Basic Auth); do not implement OAuth 2.0 for the webhook receiver yet.
+- Do not sync rich fields (comments, attachments, custom fields) — status only.
+- Do not break or modify the existing outbound Jira issue-creation flow.
+```
 
 ### 4. Enforce Deterministic Audit Pagination
 **Why it matters:** Pagination relying solely on timestamps fails when multiple events occur in the same millisecond.

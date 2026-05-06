@@ -1,4 +1,5 @@
 > **Scope:** Product and operations decisions the repo cannot resolve alone — consolidated pending list (supersedes scattered assessment §9 lists).
+> **Updated 2026-05-06:** **ITSM bidirectional sync** — **both** Jira (Jira → ArchLucid finding state) and **ServiceNow** (ServiceNow → ArchLucid finding state) **confirmed in scope for V1 GA**. Supersedes "not committed unless owner adds" for ServiceNow and "may fast-follow" qualification for Jira. *Resolved 2026-05-06 (ITSM bidirectional sync — both connectors)* below.
 > **Updated 2026-05-05 (k):** **Live commerce cutover sequence** (**item 22**): **Stripe production first**, then **Marketplace go-live**. **Rollback owner:** **Joseph Francis** (same path for both stages). Dates + comms remain open until un-held. *Resolved 2026-05-05 (commerce cutover sequencing — item 22 partial)* below.
 > **Updated 2026-05-05 (j):** **Next workflow-breadth bet** (after GitHub + ADO anchors) — **deeper Microsoft-native** (Teams / Logic Apps / [ADR 0019](adr/0019-logic-apps-standard-edge-orchestration.md)); **not** “ITSM polish first” as the primary follow-on theme. *Resolved 2026-05-05 (next workflow breadth — item 4)* below. **Unchanged:** ServiceNow + Jira + **Confluence** + Slack **V1 GA** (see [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13–§2.15).
 > **Updated 2026-05-05 (i):** **VPAT vs WCAG self-attestation** — **stay on WCAG self-attestation** (`ACCESSIBILITY.md` + marketing `/accessibility`); **no** formal VPAT on Trust Center for now — reassess later (e.g. large public-sector pipeline). *Resolved 2026-05-05 (VPAT posture)* below.
@@ -24,6 +25,18 @@
 **Earlier owner batches (2026-04-21 → 2026-04-24):** 2026-04-24 (independent §8 ten-improvement owner Q&A — 14 decisions), sixth pass (17 decisions), assessment §4 (11), commerce + connector + SaaS scope tables, 2026-04-22 assessment + ADR 0030 sub-tables, 2026-04-21 (19 + follow-up 5 + Teams/RLS bundle + Phase 3 re-scope). Older verbatim tables moved to **[`docs/archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md`](archive/PENDING_QUESTIONS_RESOLVED_HISTORY.md)** so this spine file stays within CI line budget; summaries and **Still open** items remain here.
 
 Single place to track **decisions only a human owner** can make. When you ask what is still open, start here. Items marked **Resolved** stay for audit trail; remove them only when you intentionally shrink the file.
+
+---
+
+## Resolved 2026-05-06 (ITSM bidirectional sync — both connectors)
+
+| Sub-decision | Decision | Affects |
+|---|---|---|
+| **ServiceNow → ArchLucid finding state sync** | **In scope for V1 GA.** Two-way status sync (ServiceNow incident status → ArchLucid finding state) is **committed for V1**. Supersedes the prior "not committed unless explicit owner decision adds it" clause in [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13. | [`V1_SCOPE.md`](library/V1_SCOPE.md) §2.13, [`INTEGRATION_CATALOG.md`](go-to-market/INTEGRATION_CATALOG.md), ServiceNow connector implementation |
+| **Jira → ArchLucid finding state sync** | **Committed V1 GA** (was in scope but described as "may fast-follow"). "Fast-follow" qualification removed — bidirectional sync is a **firm** V1 delivery obligation alongside issue creation. | Same §2.13 |
+| **Default status mapping convention** | Implementations should use a **configurable per-tenant mapping** with a sensible default: Jira `To Do` → ArchLucid `Open`; `In Progress` → `InProgress`; `Done` → `Resolved`. ServiceNow `New`/`In Progress` → `Open`/`InProgress`; `Resolved`/`Closed` → `Resolved`. Operators may override via tenant config; schema stays Authority-shaped. | Connector implementation, tenant configuration docs |
+| **Auth pattern** | Jira: **API Token (Basic Auth)** for V1; OAuth 2.0 is a fast-follow if a buyer requires it. ServiceNow: **Basic Auth (username + password)** for V1; OAuth 2.0 follow-on. Both follow existing Key Vault secret-name reference pattern. | Connector secrets config |
+| **Scope guardrail** | Bidirectional sync covers **finding/issue state** only. Rich-field sync (comments, attachments, custom fields) is **not** committed for V1. | V1 delivery scope |
 
 ---
 

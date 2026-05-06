@@ -258,7 +258,7 @@ export function RunsDashboardPanel() {
                     )}
                   </p>
                   <div className="flex flex-wrap items-center gap-2">
-                    {buyerSafeHighlight ? (
+                    {buyerSafeHighlight && showcasePrimaryCta ? (
                       <>
                         <Button asChild variant="primary" size="sm" className="h-8">
                           <Link href={showcasePrimaryCta.href}>{showcasePrimaryCta.label}</Link>
