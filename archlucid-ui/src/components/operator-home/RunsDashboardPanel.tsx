@@ -22,7 +22,6 @@ import { coerceRunSummaryPaged } from "@/lib/operator-response-guards";
 import {
   getBuyerSafeReviewsTableLink,
   getCanonicalReviewWorkspaceHref,
-  getShowcaseManifestHref,
   getShowcaseWalkthroughHref,
   isBuyerSafePrimaryReviewNavigationPreferred,
 } from "@/lib/buyer-safe-review-navigation";

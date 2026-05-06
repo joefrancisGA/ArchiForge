@@ -10,6 +10,8 @@ import { RunsIndexBeforeAfterPanel } from "@/components/RunsIndexBeforeAfterPane
 import { EmptyState } from "@/components/EmptyState";
 import { OperatorDemoStaticBanner } from "@/components/OperatorDemoStaticBanner";
 import { OperatorApiProblem } from "@/components/OperatorApiProblem";
+import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
+import { OperatorMalformedCallout, OperatorTryNext } from "@/components/OperatorShellMessage";
 import { ShortcutHint } from "@/components/ShortcutHint";
 import { isBuyerPolishedOperatorShellEnv } from "@/lib/demo-ui-env";
 import { Button } from "@/components/ui/button";
